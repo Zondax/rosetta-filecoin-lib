@@ -7,11 +7,11 @@ type RosettaConstructionTool interface {
 	//   - error when deriving address from the public key
 	DeriveFromPublicKey(publicKey []byte) (string, error)
 
-	// Sign defines the function to sign an arbitrary message with the private key (secp256k1)
+	// Sign defines the function to sign an arbitrary message with the secret key (secp256k1)
 	// @return (secp256k1)
 	//   - signature [string] the signature after the message is signed with the private key
 	//   - error when signing a message
-	Sign(message []byte, privateKey []byte) ([]byte, error)
+	Sign(message []byte, sk []byte) ([]byte, error)
 
 	// Verify defines the function to verify the signature of an arbitrary message with the public key (secp256k1)
 	// @return
@@ -36,11 +36,11 @@ type RosettaConstructionTool interface {
 	//   - error while constructing the multisig SwapAuthorizedParty call
 	ConstructSwapAuthorizedParty(request *MultisigPaymentRequest) (string, error)
 
-	// SignTx signs an unsignedTx using the private key (secp256k1) and return a signedTx that can be submitted to the node
+	// SignTx signs an unsignedTx using the secret key (secp256k1) and return a signedTx that can be submitted to the node
 	// @return
-	//   - signedTx [byte] the signed transaction
+	//   - signedTx [string] the signed transaction
 	//   - error when signing a transaction
-	SignTx(unsignedTransaction string, privateKey []byte) ([]byte, error)
+	SignTx(unsignedTransaction string, sk []byte) (string, error)
 
 	// ParseTx defines the function to parse a transaction
 	// @return
@@ -52,7 +52,7 @@ type RosettaConstructionTool interface {
 	// @return
 	//   - txHash [string] transaction hash
 	//   - error when calculating the tx hash
-	Hash(signedTx []byte) (string, error)
+	Hash(signedTx string) (string, error)
 }
 
 // Modify this as needed to add in new fields

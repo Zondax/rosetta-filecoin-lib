@@ -20,15 +20,51 @@ import (
 	"fmt"
 
 	"github.com/filecoin-project/go-address"
-	"github.com/filecoin-project/lotus/lib/sigs"
 	"github.com/filecoin-project/lotus/chain/types"
+	c "github.com/filecoin-project/go-crypto"
 	"github.com/filecoin-project/specs-actors/actors/crypto"
+	"github.com/minio/blake2b-simd"
 	cbg "github.com/whyrusleeping/cbor-gen"
 	"encoding/json"
 )
 
 type RosettaConstructionFilecoin struct {
 	Mainnet bool
+}
+
+func signSecp256k1(msg []byte, pk []byte) ([]byte, error) {
+	b2sum := blake2b.Sum256(msg)
+	sig, err := c.Sign(pk, b2sum[:])
+	if err != nil {
+		return nil, err
+	}
+
+	return sig, nil
+}
+
+// REVIEW: Doesn't actually verify the signature...
+// https://github.com/filecoin-project/lotus/blob/master/lib/sigs/secp/init.go#L38-L55
+func verifySecp256k1(sig []byte, a address.Address, msg []byte) error {
+	b2sum := blake2b.Sum256(msg)
+	pubk, err := c.EcRecover(b2sum[:], sig)
+	if err != nil {
+		return err
+	}
+
+	maybeaddr, err := address.NewSecp256k1Address(pubk)
+	if err != nil {
+		return err
+	}
+
+	if a != maybeaddr {
+		return fmt.Errorf("signature did not match")
+	}
+
+	if c.Verify(pubk, b2sum[:], sig) {
+		return nil
+	}
+
+	return fmt.Errorf("Invalid signature")
 }
 
 func (r RosettaConstructionFilecoin) DeriveFromPublicKey(publicKey []byte) (string, error) {
@@ -42,28 +78,17 @@ func (r RosettaConstructionFilecoin) DeriveFromPublicKey(publicKey []byte) (stri
 	return addr.String(), nil
 }
 
-func (r RosettaConstructionFilecoin) Sign(message []byte, privateKey []byte) ([]byte, error) {
-	signature, err := sigs.Sign(crypto.SigTypeSecp256k1, privateKey, message)
-	if err != nil {
-		return nil, err
-	}
-
-	return signature.MarshalBinary()
+func (r RosettaConstructionFilecoin) Sign(message []byte, sk []byte) ([]byte, error) {
+	return signSecp256k1(message, sk)
 }
 
 func (r RosettaConstructionFilecoin) Verify(message []byte, publicKey []byte, signature []byte) error {
-	sig := crypto.Signature{}
-	err := sig.UnmarshalBinary(signature)
-	if err != nil {
-		return err
-	}
-
 	addr, err := address.NewSecp256k1Address(publicKey)
 	if err != nil {
 		return err
 	}
 
-	return sigs.Verify(&sig, addr, message)
+	return verifySecp256k1(signature, addr, message)
 }
 
 func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) ([]byte, error) {
@@ -106,26 +131,43 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *Multi
 	panic("implement me")
 }
 
-func (r RosettaConstructionFilecoin) SignTx(unsignedTransaction string, privateKey []byte) ([]byte, error) {
+func (r RosettaConstructionFilecoin) SignTx(unsignedTransaction string, privateKey []byte) (string, error) {
 	rawIn := json.RawMessage(unsignedTransaction)
 
 	bytes, err := rawIn.MarshalJSON()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	var msg types.Message
 	err = json.Unmarshal(bytes, &msg)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	ser, err := msg.Serialize()
+	digest := msg.Cid().Bytes()
+
+	sig, err := r.Sign(digest, privateKey)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return r.Sign(ser, privateKey)
+	signature := crypto.Signature{
+		Type: crypto.SigTypeSecp256k1,
+		Data: sig,
+	}
+
+	sm := &types.SignedMessage{
+		Message: msg,
+		Signature: signature,
+	}
+
+	m, err := json.Marshal(sm)
+	if err != nil {
+		return "", err
+	}
+
+	return string(m), nil
 }
 
 func (r RosettaConstructionFilecoin) ParseTx(b []byte) (interface{}, error) {
@@ -162,16 +204,19 @@ func (r RosettaConstructionFilecoin) ParseTx(b []byte) (interface{}, error) {
 
 }
 
-func (r RosettaConstructionFilecoin) Hash(signedMessage []byte) (string, error) {
-	msg, err := r.ParseTx(signedMessage)
+func (r RosettaConstructionFilecoin) Hash(signedMessage string) (string, error) {
+	rawIn := json.RawMessage(signedMessage)
+
+	bytes, err := rawIn.MarshalJSON()
 	if err != nil {
 		return "", err
 	}
 
-	switch msg := msg.(type) {
-		case types.SignedMessage:
-				return msg.Cid().String(), nil
-		default:
-			return "", fmt.Errorf("Message need to be a SignedMessage")
+	var msg types.SignedMessage
+	err = json.Unmarshal(bytes, &msg)
+	if err != nil {
+		return "", err
 	}
+
+	return msg.Cid().String(), nil
 }
