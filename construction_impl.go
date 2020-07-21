@@ -23,6 +23,8 @@ import (
 	"github.com/filecoin-project/lotus/chain/types"
 	c "github.com/filecoin-project/go-crypto"
 	"github.com/filecoin-project/specs-actors/actors/crypto"
+	"github.com/filecoin-project/specs-actors/actors/builtin/multisig"
+	"github.com/filecoin-project/specs-actors/actors/builtin"
 	"github.com/minio/blake2b-simd"
 	cbg "github.com/whyrusleeping/cbor-gen"
 	"encoding/json"
@@ -91,22 +93,22 @@ func (r RosettaConstructionFilecoin) Verify(message []byte, publicKey []byte, si
 	return verifySecp256k1(signature, addr, message)
 }
 
-func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) ([]byte, error) {
+func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (string, error) {
 	to, err := address.NewFromString(request.To)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	from, err := address.NewFromString(request.From)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	value := types.NewInt(request.Quantity)
 
 	gasprice, err := types.BigFromString(request.Metadata.GasPrice)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	msg := &types.Message{types.MessageVersion,
@@ -116,19 +118,127 @@ func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (
 		value,
 		gasprice,
 		request.Metadata.GasLimit,
-		0,
+		builtin.MethodSend,
 		make([]byte,0),
 	}
 
-	return json.Marshal(msg)
+	tx, err := json.Marshal(msg)
+	if err != nil {
+		return "", err
+	}
+
+	return string(tx), nil
 }
 
 func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigPaymentRequest) (string, error) {
-	panic("implement me")
+	to, err := address.NewFromString(request.Multisig)
+	if err != nil {
+		return "", err
+	}
+
+	from, err := address.NewFromString(request.From)
+	if err != nil {
+		return "", err
+	}
+
+	value := types.NewInt(0)
+
+	gasprice, err := types.BigFromString(request.Metadata.GasPrice)
+	if err != nil {
+		return "", err
+	}
+
+	toParams, err := address.NewFromString(request.Params.To)
+	if err != nil {
+		return "", err
+	}
+
+	valueParams := types.NewInt(request.Params.Quantity)
+
+	params := &multisig.ProposeParams{
+		To: toParams,
+		Value: valueParams,
+		Method: builtin.MethodSend,
+		Params: make([]byte, 0),
+	}
+
+	buf := new(bytes.Buffer)
+	err = params.MarshalCBOR(buf)
+	serParams := buf.Bytes()
+
+	msg := &types.Message{types.MessageVersion,
+		to,
+		from,
+		request.Metadata.Nonce,
+		value,
+		gasprice,
+		request.Metadata.GasLimit,
+		builtin.MethodsMultisig.Propose,
+		serParams,
+	}
+
+	tx, err := json.Marshal(msg)
+	if err != nil {
+		return "", err
+	}
+
+	return string(tx), nil
 }
 
-func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *MultisigPaymentRequest) (string, error) {
-	panic("implement me")
+func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapAuthorizedPartyRequest) (string, error) {
+	to, err := address.NewFromString(request.Multisig)
+	if err != nil {
+		return "", err
+	}
+
+	from, err := address.NewFromString(request.From)
+	if err != nil {
+		return "", err
+	}
+
+	value := types.NewInt(0)
+
+	gasprice, err := types.BigFromString(request.Metadata.GasPrice)
+	if err != nil {
+		return "", err
+	}
+
+	toParams, err := address.NewFromString(request.Params.To)
+	if err != nil {
+		return "", err
+	}
+
+	fromParams, err := address.NewFromString(request.Params.From)
+	if err != nil {
+		return "", err
+	}
+
+	params := &multisig.SwapSignerParams{
+		From: fromParams,
+		To: toParams,
+	}
+
+	buf := new(bytes.Buffer)
+	err = params.MarshalCBOR(buf)
+	serParams := buf.Bytes()
+
+	msg := &types.Message{types.MessageVersion,
+		to,
+		from,
+		request.Metadata.Nonce,
+		value,
+		gasprice,
+		request.Metadata.GasLimit,
+		7,
+		serParams,
+	}
+
+	tx, err := json.Marshal(msg)
+	if err != nil {
+		return "", err
+	}
+
+	return string(tx), nil
 }
 
 func (r RosettaConstructionFilecoin) SignTx(unsignedTransaction string, privateKey []byte) (string, error) {

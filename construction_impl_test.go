@@ -20,6 +20,7 @@ import (
   "encoding/hex"
   "encoding/base64"
   "encoding/json"
+  "reflect"
   "github.com/filecoin-project/lotus/chain/types"
   "github.com/filecoin-project/specs-actors/actors/abi"
 )
@@ -132,15 +133,157 @@ func TestVerify(t *testing.T) {
 }
 
 func TestConstructPayment(t *testing.T) {
-  t.Skipf("No test")
+  expected := `{
+    "Version": 0,
+    "To": "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
+    "From": "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
+    "Nonce": 1,
+    "Value": "100000",
+    "GasPrice": "2500",
+    "GasLimit": 25000,
+    "Method": 0,
+    "Params": ""
+  }`
+  r := &RosettaConstructionFilecoin{false}
+  mtx := TxMetadata{
+    Nonce: 1,
+    GasPrice: "2500",
+    GasLimit: 25000,
+  }
+  pr := &PaymentRequest{
+    From: "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
+    To: "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
+    Quantity: 100000,
+    Metadata: mtx,
+  }
+
+  tx, err := r.ConstructPayment(pr)
+  if err != nil {
+    t.Errorf("FIX ME")
+  }
+
+  var expectedTx types.Message
+  var resultTx types.Message
+
+  err = json.Unmarshal([]byte(expected), &expectedTx)
+  if err != nil {
+    t.Errorf("FIX ME")
+  }
+
+  err = json.Unmarshal([]byte(tx), &resultTx)
+  if err != nil {
+    t.Errorf("FIX ME")
+  }
+
+  if !reflect.DeepEqual(expectedTx, resultTx) {
+    t.Fail()
+  }
+
 }
 
 func TestConstructMultisigPayment(t *testing.T) {
-  t.Skipf("No test")
+  expected := `{
+    "Version": 0,
+    "To": "t01002",
+    "From": "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
+    "Nonce": 1,
+    "Value": "0",
+    "GasPrice": "2500",
+    "GasLimit": 25000,
+    "Method": 2,
+    "Params": "hFUB/R0PTfzX6Zr8uZqDJrfcRZ0yxihDAAPoAEA="
+  }`
+  r := &RosettaConstructionFilecoin{false}
+  mtx := TxMetadata{
+    Nonce: 1,
+    GasPrice: "2500",
+    GasLimit: 25000,
+  }
+  params := MultisigPaymentParams{
+    To: "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
+    Quantity: 1000,
+  }
+  request := &MultisigPaymentRequest{
+    Multisig: "t01002",
+    From: "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
+    Metadata: mtx,
+    Params: params,
+  }
+
+  result, err := r.ConstructMultisigPayment(request)
+  if err != nil {
+    t.Errorf("FIX ME")
+  }
+
+  var expectedMessage types.Message
+  var resultMessage types.Message
+
+  err = json.Unmarshal([]byte(expected), &expectedMessage)
+  if err != nil {
+    t.Errorf("FIX ME")
+  }
+
+  err = json.Unmarshal([]byte(result), &resultMessage)
+  if err != nil {
+    t.Errorf("FIX ME")
+  }
+
+  if !reflect.DeepEqual(expectedMessage, resultMessage) {
+    t.Fail()
+  }
 }
 
 func TestConstructSwapAuthorizedParty(t *testing.T) {
-  t.Skipf("No test")
+  expected := `{
+    "Version": 0,
+    "To": "t01002",
+    "From": "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
+    "Nonce": 1,
+    "Value": "0",
+    "GasPrice": "2500",
+    "GasLimit": 25000,
+    "Method": 7,
+    "Params": "glUB/R0PTfzX6Zr8uZqDJrfcRZ0yxihYMQOuzzY13jMOTmpShDszOIxbNhcAhlxVLRYZmVI87UlsVOZXuGJil7OSixyQSOsTXug="
+  }`
+  r := &RosettaConstructionFilecoin{false}
+  mtx := TxMetadata{
+    Nonce: 1,
+    GasPrice: "2500",
+    GasLimit: 25000,
+  }
+  params := SwapAuthorizedPartyParams{
+    From: "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
+    To: "t3v3htmno6gmhe42ssqq5tgoemlm3boaeglrks2fqztfjdz3kjnrkomv5ymjrjpm4srmojashlcnporcluiyaa",
+  }
+  request := &SwapAuthorizedPartyRequest{
+    Multisig: "t01002",
+    From: "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
+    Metadata: mtx,
+    Params: params,
+  }
+
+  result, err := r.ConstructSwapAuthorizedParty(request)
+  if err != nil {
+    t.Errorf("FIX ME")
+  }
+
+  var expectedMessage types.Message
+  var resultMessage types.Message
+
+  err = json.Unmarshal([]byte(expected), &expectedMessage)
+  if err != nil {
+    t.Errorf("FIX ME")
+  }
+
+  err = json.Unmarshal([]byte(result), &resultMessage)
+  if err != nil {
+    t.Errorf("FIX ME")
+  }
+
+  if !reflect.DeepEqual(expectedMessage, resultMessage) {
+    t.Fail()
+  }
+
 }
 
 func TestSignTx(t *testing.T) {

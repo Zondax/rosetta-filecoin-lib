@@ -20,9 +20,9 @@ type RosettaConstructionTool interface {
 
 	// ConstructPayment creates transaction for a normal send
 	// @return
-	//   - unsignedTx [byte]
+	//   - unsignedTx [string]
 	//   - error while constructing the normal send transaction
-	ConstructPayment(request *PaymentRequest) ([]byte, error)
+	ConstructPayment(request *PaymentRequest) (string, error)
 
 	// ConstructMultisigPayment creates transaction for a multisig send
 	// @return
@@ -73,20 +73,33 @@ type PaymentRequest struct {
 	Metadata TxMetadata `json:"metadata"`
 }
 
+// MultisigPaymentParams defines params for MultisigPaymentRequest
+type MultisigPaymentParams struct {
+	To       string `json:"to"`
+	Quantity uint64 `json:"quantity"`
+}
 
 // MultisigPaymentRequest defines the input to ConstructMultisigPayment
 type MultisigPaymentRequest struct {
+	Multisig   string `json:"multisig"`
+	From       string `json:"from"`
+	Quantity   uint64 `json:"quantity"`
+	Metadata   TxMetadata `json:"metadata"`
+	Params     MultisigPaymentParams `json:"params"`
+}
+
+// SwapAuthorizedPartyParams defines the params
+type SwapAuthorizedPartyParams struct {
 	From     string `json:"from"`
 	To       string `json:"to"`
-	Quantity uint64 `json:"quantity"`
-	Metadata TxMetadata `json:"metadata"`
 }
 
 // SwapAuthorizedPartyRequest defines the input to ConstructSwapAuthorizedParty
 type SwapAuthorizedPartyRequest struct {
+	Multisig string `json: "multisig"`
 	From     string `json:"from"`
-	To       string `json:"to"`
 	Metadata TxMetadata `json:"metadata"`
+	Params   SwapAuthorizedPartyParams `json; "params"`
 }
 
 // ParseTxRequest defines the input to ParseTx
