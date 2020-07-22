@@ -185,6 +185,7 @@ github.com/filecoin-project/filecoin-ffi v0.0.0-20200326153646-e899cc1dd072/go.m
 github.com/filecoin-project/filecoin-ffi v0.26.1-0.20200508175440-05b30afeb00d h1:smoOJ2TGTYFsmBaH01WIx4crs8axosy1V9Pi+/bdk5Y=
 github.com/filecoin-project/filecoin-ffi v0.26.1-0.20200508175440-05b30afeb00d/go.mod h1:vlQ7sDkbrtM70QMJFDvEyTDywY5SvIjadRCUB+76l90=
 github.com/filecoin-project/go-address v0.0.0-20200107215422-da8eea2842b5/go.mod h1:SAOwJoakQ8EPjwNIsiakIQKsoKdkcbx8U3IapgCg9R0=
+github.com/filecoin-project/go-address v0.0.1 h1:P8MudT6kL/c4CUk+GgjULYEfVnJ7k1E+lE+sM14g7js=
 github.com/filecoin-project/go-address v0.0.2-0.20200218010043-eb9bb40ed5be/go.mod h1:SAOwJoakQ8EPjwNIsiakIQKsoKdkcbx8U3IapgCg9R0=
 github.com/filecoin-project/go-address v0.0.2-0.20200504173055-8b6f2fb2b3ef h1:Wi5E+P1QfHP8IF27eUiTx5vYfqQZwfPxzq3oFEq8w8U=
 github.com/filecoin-project/go-address v0.0.2-0.20200504173055-8b6f2fb2b3ef/go.mod h1:SrA+pWVoUivqKOfC+ckVYbx41hWz++HxJcrlmHNnebU=

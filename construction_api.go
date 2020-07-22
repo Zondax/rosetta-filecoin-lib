@@ -7,11 +7,11 @@ type RosettaConstructionTool interface {
 	//   - error when deriving address from the public key
 	DeriveFromPublicKey(publicKey []byte) (string, error)
 
-	// Sign defines the function to sign an arbitrary message with the private key (secp256k1)
+	// Sign defines the function to sign an arbitrary message with the secret key (secp256k1)
 	// @return (secp256k1)
 	//   - signature [string] the signature after the message is signed with the private key
 	//   - error when signing a message
-	Sign(message []byte, privateKey []byte) ([]byte, error)
+	Sign(message []byte, sk []byte) ([]byte, error)
 
 	// Verify defines the function to verify the signature of an arbitrary message with the public key (secp256k1)
 	// @return
@@ -36,17 +36,17 @@ type RosettaConstructionTool interface {
 	//   - error while constructing the multisig SwapAuthorizedParty call
 	ConstructSwapAuthorizedParty(request *MultisigPaymentRequest) (string, error)
 
-	// SignTx signs an unsignedTx using the private key (secp256k1) and return a signedTx that can be submitted to the node
+	// SignTx signs an unsignedTx using the secret key (secp256k1) and return a signedTx that can be submitted to the node
 	// @return
 	//   - signedTx [string] the signed transaction
 	//   - error when signing a transaction
-	SignTx(unsignedTransaction string, privateKey []byte) (string, error)
+	SignTx(unsignedTransaction string, sk []byte) (string, error)
 
 	// ParseTx defines the function to parse a transaction
 	// @return
-	//   - message [string] the parsed transaction (message), this will either be a Message or a SignedMessage
+	//   - message [bytes] the parsed transaction (message), this will either be a Message or a SignedMessage
 	//   - error when parsing a transaction
-	ParseTx(request *ParseTxRequest) (interface{}, error)
+	ParseTx(b []byte) (interface{}, error)
 
 	// Hash defines the function to calculate a tx hash
 	// @return
@@ -59,7 +59,7 @@ type RosettaConstructionTool interface {
 type TxMetadata struct {
 	Nonce               uint64 `json:"nonce"`
 	GasPrice            string `json:"gasPrice,omitempty"`
-	GasLimit            string `json:"gasLimit,omitempty"`
+	GasLimit            int64 `json:"gasLimit,omitempty"`
 	ChainId             string `json:"chainId"`
 	Method              uint64 `json:"method,omitempty"`
 	Params              []byte `json:"params,omitempty"`
@@ -73,20 +73,33 @@ type PaymentRequest struct {
 	Metadata TxMetadata `json:"metadata"`
 }
 
+// MultisigPaymentParams defines params for MultisigPaymentRequest
+type MultisigPaymentParams struct {
+	To       string `json:"to"`
+	Quantity uint64 `json:"quantity"`
+}
 
 // MultisigPaymentRequest defines the input to ConstructMultisigPayment
 type MultisigPaymentRequest struct {
+	Multisig   string `json:"multisig"`
+	From       string `json:"from"`
+	Quantity   uint64 `json:"quantity"`
+	Metadata   TxMetadata `json:"metadata"`
+	Params     MultisigPaymentParams `json:"params"`
+}
+
+// SwapAuthorizedPartyParams defines the params
+type SwapAuthorizedPartyParams struct {
 	From     string `json:"from"`
 	To       string `json:"to"`
-	Quantity uint64 `json:"quantity"`
-	Metadata TxMetadata `json:"metadata"`
 }
 
 // SwapAuthorizedPartyRequest defines the input to ConstructSwapAuthorizedParty
 type SwapAuthorizedPartyRequest struct {
+	Multisig string `json: "multisig"`
 	From     string `json:"from"`
-	To       string `json:"to"`
 	Metadata TxMetadata `json:"metadata"`
+	Params   SwapAuthorizedPartyParams `json; "params"`
 }
 
 // ParseTxRequest defines the input to ParseTx
