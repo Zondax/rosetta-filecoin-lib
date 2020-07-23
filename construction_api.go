@@ -105,17 +105,3 @@ type SwapAuthorizedPartyRequest struct {
 	Metadata TxMetadata `json:"metadata"`
 	Params   SwapAuthorizedPartyParams `json; "params"`
 }
-
-// ParseTxRequest defines the input to ParseTx
-type ParseTxRequest struct {
-	UnsignedTransaction string `json:"unsigned_tx"`
-	SignedTransaction   string `json:"signed_tx"`
-}
-
-// ParseTxResposne defines the response of a ParseTxRequest
-type ParseTxResponse struct {
-	From     string `json:"from"`
-	To       string `json:"to"`
-	Quantity uint64 `json:"quantity,omitempty"`
-	Method   uint64 `json:"method,omitempty"`
-}
