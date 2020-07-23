@@ -20,7 +20,6 @@ import (
   "encoding/hex"
   "encoding/base64"
   "encoding/json"
-  "reflect"
   "github.com/filecoin-project/lotus/chain/types"
   "github.com/filecoin-project/specs-actors/actors/abi"
 )
@@ -133,17 +132,7 @@ func TestVerify(t *testing.T) {
 }
 
 func TestConstructPayment(t *testing.T) {
-  expected := `{
-    "Version": 0,
-    "To": "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
-    "From": "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
-    "Nonce": 1,
-    "Value": "100000",
-    "GasPrice": "2500",
-    "GasLimit": 25000,
-    "Method": 0,
-    "Params": ""
-  }`
+  expected := `{"Version":0,"To":"t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy","From":"t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba","Nonce":1,"Value":"100000","GasPrice":"2500","GasLimit":25000,"Method":0,"Params":""}`
   r := &RosettaConstructionFilecoin{false}
   mtx := TxMetadata{
     Nonce: 1,
@@ -157,42 +146,19 @@ func TestConstructPayment(t *testing.T) {
     Metadata: mtx,
   }
 
-  tx, err := r.ConstructPayment(pr)
+  txBase64, err := r.ConstructPayment(pr)
   if err != nil {
     t.Errorf("FIX ME")
   }
 
-  var expectedTx types.Message
-  var resultTx types.Message
-
-  err = json.Unmarshal([]byte(expected), &expectedTx)
-  if err != nil {
-    t.Errorf("FIX ME")
-  }
-
-  err = json.Unmarshal([]byte(tx), &resultTx)
-  if err != nil {
-    t.Errorf("FIX ME")
-  }
-
-  if !reflect.DeepEqual(expectedTx, resultTx) {
+  if txBase64 != base64.StdEncoding.EncodeToString([]byte(expected)) {
     t.Fail()
   }
 
 }
 
 func TestConstructMultisigPayment(t *testing.T) {
-  expected := `{
-    "Version": 0,
-    "To": "t01002",
-    "From": "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
-    "Nonce": 1,
-    "Value": "0",
-    "GasPrice": "2500",
-    "GasLimit": 25000,
-    "Method": 2,
-    "Params": "hFUB/R0PTfzX6Zr8uZqDJrfcRZ0yxihDAAPoAEA="
-  }`
+  expected := `{"Version":0,"To":"t01002","From":"t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba","Nonce":1,"Value":"0","GasPrice":"2500","GasLimit":25000,"Method":2,"Params":"hFUB/R0PTfzX6Zr8uZqDJrfcRZ0yxihDAAPoAEA="}`
   r := &RosettaConstructionFilecoin{false}
   mtx := TxMetadata{
     Nonce: 1,
@@ -210,41 +176,18 @@ func TestConstructMultisigPayment(t *testing.T) {
     Params: params,
   }
 
-  result, err := r.ConstructMultisigPayment(request)
+  txBase64, err := r.ConstructMultisigPayment(request)
   if err != nil {
     t.Errorf("FIX ME")
   }
 
-  var expectedMessage types.Message
-  var resultMessage types.Message
-
-  err = json.Unmarshal([]byte(expected), &expectedMessage)
-  if err != nil {
-    t.Errorf("FIX ME")
-  }
-
-  err = json.Unmarshal([]byte(result), &resultMessage)
-  if err != nil {
-    t.Errorf("FIX ME")
-  }
-
-  if !reflect.DeepEqual(expectedMessage, resultMessage) {
+  if txBase64 != base64.StdEncoding.EncodeToString([]byte(expected)) {
     t.Fail()
   }
 }
 
 func TestConstructSwapAuthorizedParty(t *testing.T) {
-  expected := `{
-    "Version": 0,
-    "To": "t01002",
-    "From": "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
-    "Nonce": 1,
-    "Value": "0",
-    "GasPrice": "2500",
-    "GasLimit": 25000,
-    "Method": 7,
-    "Params": "glUB/R0PTfzX6Zr8uZqDJrfcRZ0yxihYMQOuzzY13jMOTmpShDszOIxbNhcAhlxVLRYZmVI87UlsVOZXuGJil7OSixyQSOsTXug="
-  }`
+  expected := `{"Version":0,"To":"t01002","From":"t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba","Nonce":1,"Value":"0","GasPrice":"2500","GasLimit":25000,"Method":7,"Params":"glUB/R0PTfzX6Zr8uZqDJrfcRZ0yxihYMQOuzzY13jMOTmpShDszOIxbNhcAhlxVLRYZmVI87UlsVOZXuGJil7OSixyQSOsTXug="}`
   r := &RosettaConstructionFilecoin{false}
   mtx := TxMetadata{
     Nonce: 1,
@@ -262,41 +205,19 @@ func TestConstructSwapAuthorizedParty(t *testing.T) {
     Params: params,
   }
 
-  result, err := r.ConstructSwapAuthorizedParty(request)
+  txBase64, err := r.ConstructSwapAuthorizedParty(request)
   if err != nil {
     t.Errorf("FIX ME")
   }
 
-  var expectedMessage types.Message
-  var resultMessage types.Message
-
-  err = json.Unmarshal([]byte(expected), &expectedMessage)
-  if err != nil {
-    t.Errorf("FIX ME")
-  }
-
-  err = json.Unmarshal([]byte(result), &resultMessage)
-  if err != nil {
-    t.Errorf("FIX ME")
-  }
-
-  if !reflect.DeepEqual(expectedMessage, resultMessage) {
+  if txBase64 != base64.StdEncoding.EncodeToString([]byte(expected)) {
     t.Fail()
   }
 
 }
 
 func TestSignTx(t *testing.T) {
-  unsignedTx := `{
-    "To": "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
-    "From": "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
-    "Nonce": 1,
-    "Value": "100000",
-    "GasPrice": "2500",
-    "GasLimit": 25000,
-    "Method": 0,
-    "Params": ""
-  }`
+  unsignedTxBase64 := "eyJWZXJzaW9uIjowLCJUbyI6InQxN3VvcTZ0cDQyN3V6djdmenRrYnNubjY0aXdvdGZycmlzdHdwcnl5IiwiRnJvbSI6InQxZDJ4cnpjc2x4N3hsYmJ5bGM1YzNkNWx2YW5kcXc0aXdsNmVweGJhIiwiTm9uY2UiOjEsIlZhbHVlIjoiMTAwMDAwIiwiR2FzUHJpY2UiOiIyNTAwIiwiR2FzTGltaXQiOjI1MDAwLCJNZXRob2QiOjAsIlBhcmFtcyI6IiJ9"
   sk := "f15716d3b003b304b8055d9cc62e6b9c869d56cc930c3858d4d7c31f5f53f14a"
   r := &RosettaConstructionFilecoin{false}
 
@@ -306,7 +227,7 @@ func TestSignTx(t *testing.T) {
     t.Errorf("Invalid test case")
   }
 
-  signedTx, err := r.SignTx(unsignedTx, skBytes)
+  signedTx, err := r.SignTx(unsignedTxBase64, skBytes)
   if err != nil {
     t.Error(err)
   }
