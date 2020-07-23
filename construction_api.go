@@ -20,35 +20,39 @@ type RosettaConstructionTool interface {
 
 	// ConstructPayment creates transaction for a normal send
 	// @return
-	//   - unsignedTx [string]
+	//   - unsignedTx [string] base64 encoded unsigned transaction
 	//   - error while constructing the normal send transaction
 	ConstructPayment(request *PaymentRequest) (string, error)
 
 	// ConstructMultisigPayment creates transaction for a multisig send
 	// @return
-	//   - unsignedTx [string]
+	//   - unsignedTx [string] base64 encoded unsigned transaction
 	//   - error while constructing the multisig send transaction
 	ConstructMultisigPayment(request *MultisigPaymentRequest) (string, error)
 
 	// ConstructSwapAuthorizedParty creates transaction for a multisig SwapAuthorizedParty call
 	// @return
-	//   - unsignedTx [string]
+	//   - unsignedTx [string] base64 encoded unsigned transaction
 	//   - error while constructing the multisig SwapAuthorizedParty call
 	ConstructSwapAuthorizedParty(request *MultisigPaymentRequest) (string, error)
 
 	// SignTx signs an unsignedTx using the secret key (secp256k1) and return a signedTx that can be submitted to the node
+	// @unsignedTransaction [string] base64 encoded unsigned transaction
+	// @sk [[]byte] secp256k1 secret key
 	// @return
 	//   - signedTx [string] the signed transaction
 	//   - error when signing a transaction
 	SignTx(unsignedTransaction string, sk []byte) (string, error)
 
 	// ParseTx defines the function to parse a transaction
+	// @tx [[]byte] singed or unsigned transaction
 	// @return
-	//   - message [bytes] the parsed transaction (message), this will either be a Message or a SignedMessage
+	//   - message [[]bytes] the parsed transaction (message), this will either be a Message or a SignedMessage
 	//   - error when parsing a transaction
-	ParseTx(b []byte) (interface{}, error)
+	ParseTx(tx []byte) (interface{}, error)
 
 	// Hash defines the function to calculate a tx hash
+	// @signedTx [string] base64 encoded signed transaction
 	// @return
 	//   - txHash [string] transaction hash
 	//   - error when calculating the tx hash
@@ -100,18 +104,4 @@ type SwapAuthorizedPartyRequest struct {
 	From     string `json:"from"`
 	Metadata TxMetadata `json:"metadata"`
 	Params   SwapAuthorizedPartyParams `json; "params"`
-}
-
-// ParseTxRequest defines the input to ParseTx
-type ParseTxRequest struct {
-	UnsignedTransaction string `json:"unsigned_tx"`
-	SignedTransaction   string `json:"signed_tx"`
-}
-
-// PaymentRequest defines the input to ConstructPayment
-type ParseTxResponse struct {
-	From     string `json:"from"`
-	To       string `json:"to"`
-	Quantity uint64 `json:"quantity,omitempty"`
-	Method   uint64 `json:"method,omitempty"`
 }
