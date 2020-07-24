@@ -27,7 +27,9 @@ import (
 	"github.com/filecoin-project/specs-actors/actors/builtin"
 	"github.com/minio/blake2b-simd"
 	cbg "github.com/whyrusleeping/cbor-gen"
+
 	"encoding/json"
+	"encoding/base64"
 )
 
 type RosettaConstructionFilecoin struct {
@@ -127,7 +129,7 @@ func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (
 		return "", err
 	}
 
-	return string(tx), nil
+	return base64.StdEncoding.EncodeToString(tx), nil
 }
 
 func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigPaymentRequest) (string, error) {
@@ -182,7 +184,7 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 		return "", err
 	}
 
-	return string(tx), nil
+	return base64.StdEncoding.EncodeToString(tx), nil
 }
 
 func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapAuthorizedPartyRequest) (string, error) {
@@ -238,10 +240,11 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 		return "", err
 	}
 
-	return string(tx), nil
+	return base64.StdEncoding.EncodeToString(tx), nil
 }
 
-func (r RosettaConstructionFilecoin) SignTx(unsignedTransaction string, privateKey []byte) (string, error) {
+func (r RosettaConstructionFilecoin) SignTx(unsignedTxBase64 string, privateKey []byte) (string, error) {
+	unsignedTransaction, err := base64.StdEncoding.DecodeString(unsignedTxBase64)
 	rawIn := json.RawMessage(unsignedTransaction)
 
 	bytes, err := rawIn.MarshalJSON()
