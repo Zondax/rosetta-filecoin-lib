@@ -13,7 +13,7 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 ********************************************************************************/
-package rosetta_filecoin_lib
+package rosettaFilecoinLib
 
 import (
 	"encoding/base64"
