@@ -1,4 +1,4 @@
-package rosetta_filecoin_lib
+package rosettaFilecoinLib
 
 type RosettaConstructionTool interface {
 	// DeriveFromPublicKey defines the function to derive the address from an public key (secp256k1)
@@ -65,7 +65,7 @@ type TxMetadata struct {
 	Nonce    uint64 `json:"nonce"`
 	GasPrice uint64 `json:"gasPrice,omitempty"`
 	GasLimit uint64 `json:"gasLimit,omitempty"`
-	ChainId  string `json:"chainId"`
+	ChainID  string `json:"chainId"`
 	Method   uint64 `json:"method,omitempty"`
 	Params   []byte `json:"params,omitempty"`
 }
@@ -101,8 +101,8 @@ type SwapAuthorizedPartyParams struct {
 
 // SwapAuthorizedPartyRequest defines the input to ConstructSwapAuthorizedParty
 type SwapAuthorizedPartyRequest struct {
-	Multisig string                    `json: "multisig"`
+	Multisig string                    `json:"multisig"`
 	From     string                    `json:"from"`
 	Metadata TxMetadata                `json:"metadata"`
-	Params   SwapAuthorizedPartyParams `json; "params"`
+	Params   SwapAuthorizedPartyParams `json:"params"`
 }

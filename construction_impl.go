@@ -13,7 +13,7 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 ********************************************************************************/
-package rosetta_filecoin_lib
+package rosettaFilecoinLib
 
 import (
 	"bytes"
@@ -68,7 +68,7 @@ func verifySecp256k1(sig []byte, a address.Address, msg []byte) error {
 		return nil
 	}
 
-	return fmt.Errorf("Invalid signature")
+	return fmt.Errorf("invalid signature")
 }
 
 func (r RosettaConstructionFilecoin) DeriveFromPublicKey(publicKey []byte) (string, error) {
@@ -110,15 +110,15 @@ func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (
 	gasprice := types.NewInt(request.Metadata.GasPrice)
 	gaslimit := int64(request.Metadata.GasLimit)
 
-	msg := &types.Message{types.MessageVersion,
-		to,
-		from,
-		request.Metadata.Nonce,
-		value,
-		gasprice,
-		gaslimit,
-		builtin.MethodSend,
-		make([]byte, 0),
+	msg := &types.Message{Version: types.MessageVersion,
+		To:       to,
+		From:     from,
+		Nonce:    request.Metadata.Nonce,
+		Value:    value,
+		GasPrice: gasprice,
+		GasLimit: gaslimit,
+		Method:   builtin.MethodSend,
+		Params:   make([]byte, 0),
 	}
 
 	tx, err := json.Marshal(msg)
@@ -160,17 +160,21 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 
 	buf := new(bytes.Buffer)
 	err = params.MarshalCBOR(buf)
+	if err != nil {
+		return "", err
+	}
+
 	serParams := buf.Bytes()
 
-	msg := &types.Message{types.MessageVersion,
-		to,
-		from,
-		request.Metadata.Nonce,
-		value,
-		gasprice,
-		gaslimit,
-		builtin.MethodsMultisig.Propose,
-		serParams,
+	msg := &types.Message{Version: types.MessageVersion,
+		To:       to,
+		From:     from,
+		Nonce:    request.Metadata.Nonce,
+		Value:    value,
+		GasPrice: gasprice,
+		GasLimit: gaslimit,
+		Method:   builtin.MethodsMultisig.Propose,
+		Params:   serParams,
 	}
 
 	tx, err := json.Marshal(msg)
@@ -213,17 +217,20 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 
 	buf := new(bytes.Buffer)
 	err = params.MarshalCBOR(buf)
+	if err != nil {
+		return "", err
+	}
 	serParams := buf.Bytes()
 
-	msg := &types.Message{types.MessageVersion,
-		to,
-		from,
-		request.Metadata.Nonce,
-		value,
-		gasprice,
-		gaslimit,
-		7,
-		serParams,
+	msg := &types.Message{Version: types.MessageVersion,
+		To:       to,
+		From:     from,
+		Nonce:    request.Metadata.Nonce,
+		Value:    value,
+		GasPrice: gasprice,
+		GasLimit: gaslimit,
+		Method:   7,
+		Params:   serParams,
 	}
 
 	tx, err := json.Marshal(msg)
@@ -236,6 +243,10 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 
 func (r RosettaConstructionFilecoin) SignTx(unsignedTxBase64 string, privateKey []byte) (string, error) {
 	unsignedTransaction, err := base64.StdEncoding.DecodeString(unsignedTxBase64)
+	if err != nil {
+		return "", err
+	}
+
 	rawIn := json.RawMessage(unsignedTransaction)
 
 	bytes, err := rawIn.MarshalJSON()
