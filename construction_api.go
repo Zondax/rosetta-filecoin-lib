@@ -62,19 +62,19 @@ type RosettaConstructionTool interface {
 
 // Modify this as needed to add in new fields
 type TxMetadata struct {
-	Nonce               uint64 `json:"nonce"`
-	GasPrice            string `json:"gasPrice,omitempty"`
-	GasLimit            int64 `json:"gasLimit,omitempty"`
-	ChainId             string `json:"chainId"`
-	Method              uint64 `json:"method,omitempty"`
-	Params              []byte `json:"params,omitempty"`
+	Nonce    uint64 `json:"nonce"`
+	GasPrice uint64 `json:"gasPrice,omitempty"`
+	GasLimit uint64 `json:"gasLimit,omitempty"`
+	ChainId  string `json:"chainId"`
+	Method   uint64 `json:"method,omitempty"`
+	Params   []byte `json:"params,omitempty"`
 }
 
 // PaymentRequest defines the input to ConstructPayment
 type PaymentRequest struct {
-	From     string `json:"from"`
-	To       string `json:"to"`
-	Quantity uint64 `json:"quantity"`
+	From     string     `json:"from"`
+	To       string     `json:"to"`
+	Quantity uint64     `json:"quantity"`
 	Metadata TxMetadata `json:"metadata"`
 }
 
@@ -86,23 +86,23 @@ type MultisigPaymentParams struct {
 
 // MultisigPaymentRequest defines the input to ConstructMultisigPayment
 type MultisigPaymentRequest struct {
-	Multisig   string `json:"multisig"`
-	From       string `json:"from"`
-	Quantity   uint64 `json:"quantity"`
-	Metadata   TxMetadata `json:"metadata"`
-	Params     MultisigPaymentParams `json:"params"`
+	Multisig string                `json:"multisig"`
+	From     string                `json:"from"`
+	Quantity uint64                `json:"quantity"`
+	Metadata TxMetadata            `json:"metadata"`
+	Params   MultisigPaymentParams `json:"params"`
 }
 
 // SwapAuthorizedPartyParams defines the params
 type SwapAuthorizedPartyParams struct {
-	From     string `json:"from"`
-	To       string `json:"to"`
+	From string `json:"from"`
+	To   string `json:"to"`
 }
 
 // SwapAuthorizedPartyRequest defines the input to ConstructSwapAuthorizedParty
 type SwapAuthorizedPartyRequest struct {
-	Multisig string `json: "multisig"`
-	From     string `json:"from"`
-	Metadata TxMetadata `json:"metadata"`
+	Multisig string                    `json: "multisig"`
+	From     string                    `json:"from"`
+	Metadata TxMetadata                `json:"metadata"`
 	Params   SwapAuthorizedPartyParams `json; "params"`
 }
