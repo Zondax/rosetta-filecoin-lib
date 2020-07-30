@@ -20,16 +20,16 @@ import (
 	"fmt"
 
 	"github.com/filecoin-project/go-address"
-	"github.com/filecoin-project/lotus/chain/types"
 	c "github.com/filecoin-project/go-crypto"
-	"github.com/filecoin-project/specs-actors/actors/crypto"
-	"github.com/filecoin-project/specs-actors/actors/builtin/multisig"
+	"github.com/filecoin-project/lotus/chain/types"
 	"github.com/filecoin-project/specs-actors/actors/builtin"
+	"github.com/filecoin-project/specs-actors/actors/builtin/multisig"
+	"github.com/filecoin-project/specs-actors/actors/crypto"
 	"github.com/minio/blake2b-simd"
 	cbg "github.com/whyrusleeping/cbor-gen"
 
-	"encoding/json"
 	"encoding/base64"
+	"encoding/json"
 )
 
 type RosettaConstructionFilecoin struct {
@@ -107,11 +107,8 @@ func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (
 	}
 
 	value := types.NewInt(request.Quantity)
-
-	gasprice, err := types.BigFromString(request.Metadata.GasPrice)
-	if err != nil {
-		return "", err
-	}
+	gasprice := types.NewInt(request.Metadata.GasPrice)
+	gaslimit := int64(request.Metadata.GasLimit)
 
 	msg := &types.Message{types.MessageVersion,
 		to,
@@ -119,9 +116,9 @@ func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (
 		request.Metadata.Nonce,
 		value,
 		gasprice,
-		request.Metadata.GasLimit,
+		gaslimit,
 		builtin.MethodSend,
-		make([]byte,0),
+		make([]byte, 0),
 	}
 
 	tx, err := json.Marshal(msg)
@@ -144,11 +141,8 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 	}
 
 	value := types.NewInt(0)
-
-	gasprice, err := types.BigFromString(request.Metadata.GasPrice)
-	if err != nil {
-		return "", err
-	}
+	gasprice := types.NewInt(request.Metadata.GasPrice)
+	gaslimit := int64(request.Metadata.GasLimit)
 
 	toParams, err := address.NewFromString(request.Params.To)
 	if err != nil {
@@ -158,8 +152,8 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 	valueParams := types.NewInt(request.Params.Quantity)
 
 	params := &multisig.ProposeParams{
-		To: toParams,
-		Value: valueParams,
+		To:     toParams,
+		Value:  valueParams,
 		Method: builtin.MethodSend,
 		Params: make([]byte, 0),
 	}
@@ -174,7 +168,7 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 		request.Metadata.Nonce,
 		value,
 		gasprice,
-		request.Metadata.GasLimit,
+		gaslimit,
 		builtin.MethodsMultisig.Propose,
 		serParams,
 	}
@@ -199,11 +193,8 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 	}
 
 	value := types.NewInt(0)
-
-	gasprice, err := types.BigFromString(request.Metadata.GasPrice)
-	if err != nil {
-		return "", err
-	}
+	gasprice := types.NewInt(request.Metadata.GasPrice)
+	gaslimit := int64(request.Metadata.GasLimit)
 
 	toParams, err := address.NewFromString(request.Params.To)
 	if err != nil {
@@ -217,7 +208,7 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 
 	params := &multisig.SwapSignerParams{
 		From: fromParams,
-		To: toParams,
+		To:   toParams,
 	}
 
 	buf := new(bytes.Buffer)
@@ -230,7 +221,7 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 		request.Metadata.Nonce,
 		value,
 		gasprice,
-		request.Metadata.GasLimit,
+		gaslimit,
 		7,
 		serParams,
 	}
@@ -271,7 +262,7 @@ func (r RosettaConstructionFilecoin) SignTx(unsignedTxBase64 string, privateKey 
 	}
 
 	sm := &types.SignedMessage{
-		Message: msg,
+		Message:   msg,
 		Signature: signature,
 	}
 
@@ -297,22 +288,22 @@ func (r RosettaConstructionFilecoin) ParseTx(b []byte) (interface{}, error) {
 	}
 
 	switch extra {
-		case 9:
-			// Unsigned message
-			msg, err := types.DecodeMessage(b)
-			if err != nil {
-				return nil, err
-			}
-			return *msg, nil
-		case 2:
-			// Signed message
-			msg, err := types.DecodeSignedMessage(b)
-			if err != nil {
-				return nil, err
-			}
-			return *msg, nil
-		default:
-			return nil, fmt.Errorf("cbor input had wrong number of fields")
+	case 9:
+		// Unsigned message
+		msg, err := types.DecodeMessage(b)
+		if err != nil {
+			return nil, err
+		}
+		return *msg, nil
+	case 2:
+		// Signed message
+		msg, err := types.DecodeSignedMessage(b)
+		if err != nil {
+			return nil, err
+		}
+		return *msg, nil
+	default:
+		return nil, fmt.Errorf("cbor input had wrong number of fields")
 	}
 
 }
