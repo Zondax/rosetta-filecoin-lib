@@ -45,12 +45,11 @@ type RosettaConstructionTool interface {
 	SignTx(unsignedTransaction string, sk []byte) (string, error)
 
 	// ParseTx defines the function to parse a transaction
-	// @tx [[]byte] signed or unsigned transaction
+	// @tx [string] signed or unsigned transaction base64 encoded
 	// @return
-	//   - message [interface{}] the parsed transaction (message), this will either be a Message (https://github.com/filecoin-project/lotus/blob/master/chain/types/message.go#L28)
-	//  	or a SignedMessage (https://github.com/filecoin-project/lotus/blob/master/chain/types/signedmessage.go#L44)
+	//   - message [string] the parsed transaction (message or unsigned message) represented as a base64 string
 	//   - error when parsing a transaction
-	ParseTx(tx []byte) (interface{}, error)
+	ParseTx(tx string) (string, error)
 
 	// Hash defines the function to calculate a tx hash
 	// @signedTx [string] base64 encoded signed transaction

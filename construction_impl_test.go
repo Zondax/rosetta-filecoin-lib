@@ -20,7 +20,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"github.com/filecoin-project/lotus/chain/types"
-	"github.com/filecoin-project/specs-actors/actors/abi"
 	"testing"
 )
 
@@ -255,53 +254,27 @@ func TestSignTx(t *testing.T) {
 }
 
 func TestParseTx(t *testing.T) {
+	expected := `{"Version":0,"To":"t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy","From":"t1xcbgdhkgkwht3hrrnui3jdopeejsoas2rujnkdi","Nonce":1,"Value":"100000","GasPrice":"2500","GasLimit":25000,"Method":0,"Params":""}`
 	serializedTx := "89005501fd1d0f4dfcd7e99afcb99a8326b7dc459d32c6285501b882619d46558f3d9e316d11b48dcf211327025a0144000186a0430009c41961a80040"
 	r := &RosettaConstructionFilecoin{false}
 	b, err := hex.DecodeString(serializedTx)
+
+	msgBase64 := base64.StdEncoding.EncodeToString(b)
 
 	if err != nil {
 		t.Errorf("Invalid test case")
 	}
 
-	msg, err := r.ParseTx(b)
+	msg, err := r.ParseTx(msgBase64)
 
 	if err != nil {
+		t.Errorf("Parsing failed")
+	}
+
+	if msg != base64.StdEncoding.EncodeToString([]byte(expected)) {
 		t.Fail()
 	}
 
-	switch msg := msg.(type) {
-	case types.Message:
-		if msg.To.String() != "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy" {
-			t.Errorf("Invalid To address returned")
-		}
-		if msg.From.String() != "t1xcbgdhkgkwht3hrrnui3jdopeejsoas2rujnkdi" {
-			t.Errorf("Invalid From address returned")
-		}
-		if msg.Nonce != uint64(1) {
-			t.Errorf("Invalid Nonce returned")
-		}
-		if types.BigCmp(msg.Value, types.NewInt(100000)) > 0 {
-			t.Errorf("Invalid Value returned")
-		}
-		if types.BigCmp(msg.GasPrice, types.NewInt(2500)) > 0 {
-			t.Errorf("Invalid GasPrice returned")
-		}
-		if msg.GasLimit != int64(25000) {
-			t.Errorf("Invalid GasLimit returned")
-		}
-		if msg.Method != abi.MethodNum(0) {
-			t.Errorf("Invalid Method returned")
-		}
-		// FIXME
-		/*if msg.Params != make([]byte, 0) {
-		  t.Errorf("Invalid Params returned")
-		}*/
-	case types.SignedMessage:
-		t.Log(msg.Message.To)
-	default:
-		t.Errorf("This should never happened")
-
-	}
 }
 
 func TestHash(t *testing.T) {
