@@ -1,4 +1,4 @@
-package rosetta_filecoin_lib
+package rosettaFilecoinLib
 
 type RosettaConstructionTool interface {
 	// DeriveFromPublicKey defines the function to derive the address from an public key (secp256k1)
@@ -45,12 +45,11 @@ type RosettaConstructionTool interface {
 	SignTx(unsignedTransaction string, sk []byte) (string, error)
 
 	// ParseTx defines the function to parse a transaction
-	// @tx [[]byte] signed or unsigned transaction
+	// @tx [string] signed or unsigned transaction base64 encoded
 	// @return
-	//   - message [interface{}] the parsed transaction (message), this will either be a Message (https://github.com/filecoin-project/lotus/blob/master/chain/types/message.go#L28)
-	//  	or a SignedMessage (https://github.com/filecoin-project/lotus/blob/master/chain/types/signedmessage.go#L44)
+	//   - message [string] the parsed transaction (message or unsigned message) represented as a base64 string
 	//   - error when parsing a transaction
-	ParseTx(tx []byte) (interface{}, error)
+	ParseTx(tx string) (string, error)
 
 	// Hash defines the function to calculate a tx hash
 	// @signedTx [string] base64 encoded signed transaction
@@ -62,19 +61,19 @@ type RosettaConstructionTool interface {
 
 // Modify this as needed to add in new fields
 type TxMetadata struct {
-	Nonce               uint64 `json:"nonce"`
-	GasPrice            string `json:"gasPrice,omitempty"`
-	GasLimit            int64 `json:"gasLimit,omitempty"`
-	ChainId             string `json:"chainId"`
-	Method              uint64 `json:"method,omitempty"`
-	Params              []byte `json:"params,omitempty"`
+	Nonce    uint64 `json:"nonce"`
+	GasPrice uint64 `json:"gasPrice,omitempty"`
+	GasLimit uint64 `json:"gasLimit,omitempty"`
+	ChainID  string `json:"chainId"`
+	Method   uint64 `json:"method,omitempty"`
+	Params   []byte `json:"params,omitempty"`
 }
 
 // PaymentRequest defines the input to ConstructPayment
 type PaymentRequest struct {
-	From     string `json:"from"`
-	To       string `json:"to"`
-	Quantity uint64 `json:"quantity"`
+	From     string     `json:"from"`
+	To       string     `json:"to"`
+	Quantity uint64     `json:"quantity"`
 	Metadata TxMetadata `json:"metadata"`
 }
 
@@ -86,23 +85,23 @@ type MultisigPaymentParams struct {
 
 // MultisigPaymentRequest defines the input to ConstructMultisigPayment
 type MultisigPaymentRequest struct {
-	Multisig   string `json:"multisig"`
-	From       string `json:"from"`
-	Quantity   uint64 `json:"quantity"`
-	Metadata   TxMetadata `json:"metadata"`
-	Params     MultisigPaymentParams `json:"params"`
+	Multisig string                `json:"multisig"`
+	From     string                `json:"from"`
+	Quantity uint64                `json:"quantity"`
+	Metadata TxMetadata            `json:"metadata"`
+	Params   MultisigPaymentParams `json:"params"`
 }
 
 // SwapAuthorizedPartyParams defines the params
 type SwapAuthorizedPartyParams struct {
-	From     string `json:"from"`
-	To       string `json:"to"`
+	From string `json:"from"`
+	To   string `json:"to"`
 }
 
 // SwapAuthorizedPartyRequest defines the input to ConstructSwapAuthorizedParty
 type SwapAuthorizedPartyRequest struct {
-	Multisig string `json: "multisig"`
-	From     string `json:"from"`
-	Metadata TxMetadata `json:"metadata"`
-	Params   SwapAuthorizedPartyParams `json; "params"`
+	Multisig string                    `json:"multisig"`
+	From     string                    `json:"from"`
+	Metadata TxMetadata                `json:"metadata"`
+	Params   SwapAuthorizedPartyParams `json:"params"`
 }
