@@ -16,11 +16,11 @@
 package rosettaFilecoinLib
 
 import (
-  "testing"
-  "encoding/hex"
-  "encoding/base64"
-  "encoding/json"
-  "github.com/filecoin-project/lotus/chain/types"
+	"encoding/base64"
+	"encoding/hex"
+	"encoding/json"
+	"github.com/filecoin-project/lotus/chain/types"
+	"testing"
 )
 
 func TestDeriveFromPublicKey(t *testing.T) {
@@ -254,27 +254,27 @@ func TestSignTx(t *testing.T) {
 }
 
 func TestParseTx(t *testing.T) {
-  expected := `{"Version":0,"To":"t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy","From":"t1xcbgdhkgkwht3hrrnui3jdopeejsoas2rujnkdi","Nonce":1,"Value":"100000","GasPrice":"2500","GasLimit":25000,"Method":0,"Params":""}`
-  serializedTx := "89005501fd1d0f4dfcd7e99afcb99a8326b7dc459d32c6285501b882619d46558f3d9e316d11b48dcf211327025a0144000186a0430009c41961a80040"
-  r := &RosettaConstructionFilecoin{false}
-  b, err := hex.DecodeString(serializedTx)
+	expected := `{"Version":0,"To":"t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy","From":"t1xcbgdhkgkwht3hrrnui3jdopeejsoas2rujnkdi","Nonce":1,"Value":"100000","GasPrice":"2500","GasLimit":25000,"Method":0,"Params":""}`
+	serializedTx := "89005501fd1d0f4dfcd7e99afcb99a8326b7dc459d32c6285501b882619d46558f3d9e316d11b48dcf211327025a0144000186a0430009c41961a80040"
+	r := &RosettaConstructionFilecoin{false}
+	b, err := hex.DecodeString(serializedTx)
 
-  msgBase64 := base64.StdEncoding.EncodeToString(b)
+	msgBase64 := base64.StdEncoding.EncodeToString(b)
 
-  if err != nil {
-    t.Errorf("Invalid test case")
-  }
+	if err != nil {
+		t.Errorf("Invalid test case")
+	}
 
-  msg, err := r.ParseTx(msgBase64)
+	msg, err := r.ParseTx(msgBase64)
 
-  if err != nil {
-    t.Errorf("Parsing failed")
-  }
-  
-  if msg != base64.StdEncoding.EncodeToString([]byte(expected)) {
-    t.Fail()
-  }
-  
+	if err != nil {
+		t.Errorf("Parsing failed")
+	}
+
+	if msg != base64.StdEncoding.EncodeToString([]byte(expected)) {
+		t.Fail()
+	}
+
 }
 
 func TestHash(t *testing.T) {
