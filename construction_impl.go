@@ -287,6 +287,10 @@ func (r RosettaConstructionFilecoin) SignTx(unsignedTxBase64 string, privateKey 
 
 func (r RosettaConstructionFilecoin) ParseTx(messageBase64 string) (string, error) {
 	messageCbor, err := base64.StdEncoding.DecodeString(messageBase64)
+	if err != nil {
+		return "", err
+	}
+
 	br := cbg.GetPeeker(bytes.NewReader(messageCbor))
 	scratch := make([]byte, 8)
 	maj, extra, err := cbg.CborReadHeaderBuf(br, scratch)
@@ -298,26 +302,26 @@ func (r RosettaConstructionFilecoin) ParseTx(messageBase64 string) (string, erro
 	if maj != cbg.MajArray {
 		return "", fmt.Errorf("cbor input should be of type array")
 	}
-	
+
 	var msg interface{}
 
 	switch extra {
-		case 9:
-			// Unsigned message
-			msg, err = types.DecodeMessage(messageCbor)
-			if err != nil {
-				return "", err
-			}
-		case 2:
-			// Signed message
-			msg, err = types.DecodeSignedMessage(messageCbor)
-			if err != nil {
-				return "", err
-			}
-		default:
-			return "", fmt.Errorf("cbor input had wrong number of fields")
+	case 9:
+		// Unsigned message
+		msg, err = types.DecodeMessage(messageCbor)
+		if err != nil {
+			return "", err
+		}
+	case 2:
+		// Signed message
+		msg, err = types.DecodeSignedMessage(messageCbor)
+		if err != nil {
+			return "", err
+		}
+	default:
+		return "", fmt.Errorf("cbor input had wrong number of fields")
 	}
-	
+
 	msgBytes, err := json.Marshal(msg)
 	if err != nil {
 		return "", err
