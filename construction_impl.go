@@ -316,7 +316,6 @@ func (r RosettaConstructionFilecoin) ParseTx(messageBase64 string) (string, erro
 	case 10:
 		// Unsigned message
 		msg, err = types.DecodeMessage(messageCbor)
-		fmt.Println(msg)
 		if err != nil {
 			return "", err
 		}
@@ -347,7 +346,6 @@ func (r RosettaConstructionFilecoin) Hash(signedMessage string) (string, error) 
 
 	var msg types.SignedMessage
 	err = json.Unmarshal(bytes, &msg)
-	fmt.Println(msg)
 	if err != nil {
 		return "", err
 	}
