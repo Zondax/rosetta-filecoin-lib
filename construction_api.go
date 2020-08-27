@@ -61,12 +61,13 @@ type RosettaConstructionTool interface {
 
 // Modify this as needed to add in new fields
 type TxMetadata struct {
-	Nonce    uint64 `json:"nonce"`
-	GasPrice uint64 `json:"gasPrice,omitempty"`
-	GasLimit uint64 `json:"gasLimit,omitempty"`
-	ChainID  string `json:"chainId"`
-	Method   uint64 `json:"method,omitempty"`
-	Params   []byte `json:"params,omitempty"`
+	Nonce      uint64 `json:"nonce"`
+	GasPremium uint64 `json:"gasPremium,omitempty"`
+	GasFeeCap  uint64 `json:"gasFeeCap,omitempty"`
+	GasLimit   uint64 `json:"gasLimit,omitempty"`
+	ChainID    string `json:"chainId"`
+	Method     uint64 `json:"method,omitempty"`
+	Params     []byte `json:"params,omitempty"`
 }
 
 // PaymentRequest defines the input to ConstructPayment
