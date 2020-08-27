@@ -113,15 +113,15 @@ func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (
 	gaslimit := int64(request.Metadata.GasLimit)
 
 	msg := &types.Message{Version: types.MessageVersion,
-		To:       to,
-		From:     from,
-		Nonce:    request.Metadata.Nonce,
-		Value:    value,
-		GasFeeCap: gasfeecap,
+		To:         to,
+		From:       from,
+		Nonce:      request.Metadata.Nonce,
+		Value:      value,
+		GasFeeCap:  gasfeecap,
 		GasPremium: gaspremium,
-		GasLimit: gaslimit,
-		Method:   builtin.MethodSend,
-		Params:   make([]byte, 0),
+		GasLimit:   gaslimit,
+		Method:     builtin.MethodSend,
+		Params:     make([]byte, 0),
 	}
 
 	tx, err := json.Marshal(msg)
@@ -171,15 +171,15 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 	serParams := buf.Bytes()
 
 	msg := &types.Message{Version: types.MessageVersion,
-		To:       to,
-		From:     from,
-		Nonce:    request.Metadata.Nonce,
-		Value:    value,
-		GasFeeCap: gasfeecap,
+		To:         to,
+		From:       from,
+		Nonce:      request.Metadata.Nonce,
+		Value:      value,
+		GasFeeCap:  gasfeecap,
 		GasPremium: gaspremium,
-		GasLimit: gaslimit,
-		Method:   builtin.MethodsMultisig.Propose,
-		Params:   serParams,
+		GasLimit:   gaslimit,
+		Method:     builtin.MethodsMultisig.Propose,
+		Params:     serParams,
 	}
 
 	tx, err := json.Marshal(msg)
@@ -229,15 +229,15 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 	serParams := buf.Bytes()
 
 	msg := &types.Message{Version: types.MessageVersion,
-		To:       to,
-		From:     from,
-		Nonce:    request.Metadata.Nonce,
-		Value:    value,
-		GasFeeCap: gasfeecap,
+		To:         to,
+		From:       from,
+		Nonce:      request.Metadata.Nonce,
+		Value:      value,
+		GasFeeCap:  gasfeecap,
 		GasPremium: gaspremium,
-		GasLimit: gaslimit,
-		Method:   7,
-		Params:   serParams,
+		GasLimit:   gaslimit,
+		Method:     7,
+		Params:     serParams,
 	}
 
 	tx, err := json.Marshal(msg)

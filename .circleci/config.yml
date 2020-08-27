@@ -15,10 +15,8 @@ jobs:
       - image: golang:1.14
     steps:
       - checkout
-      - run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.27.0
-      - run: golangci-lint --version
-      - run: golangci-lint run -E gofmt -E gosec -E goconst -E gocritic
-#      - run: golangci-lint run -E stylecheck -E gosec -E goconst -E godox -E gocritic
+      - run: make install_lint
+      - run: make lint
 
 workflows:
   version: 2

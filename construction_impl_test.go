@@ -136,10 +136,10 @@ func TestConstructPayment(t *testing.T) {
 	expected := `{"Version":0,"To":"t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy","From":"t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba","Nonce":1,"Value":"100000","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":0,"Params":""}`
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
-		Nonce:    1,
-		GasFeeCap: 1,
+		Nonce:      1,
+		GasFeeCap:  1,
 		GasPremium: 1,
-		GasLimit: 25000,
+		GasLimit:   25000,
 	}
 	pr := &PaymentRequest{
 		From:     "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
@@ -163,10 +163,10 @@ func TestConstructMultisigPayment(t *testing.T) {
 	expected := `{"Version":0,"To":"t01002","From":"t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba","Nonce":1,"Value":"0","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":2,"Params":"hFUB/R0PTfzX6Zr8uZqDJrfcRZ0yxihDAAPoAEA="}`
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
-		Nonce:    1,
-		GasFeeCap: 1,
+		Nonce:      1,
+		GasFeeCap:  1,
 		GasPremium: 1,
-		GasLimit: 25000,
+		GasLimit:   25000,
 	}
 	params := MultisigPaymentParams{
 		To:       "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
@@ -193,10 +193,10 @@ func TestConstructSwapAuthorizedParty(t *testing.T) {
 	expected := `{"Version":0,"To":"t01002","From":"t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba","Nonce":1,"Value":"0","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":7,"Params":"glUB/R0PTfzX6Zr8uZqDJrfcRZ0yxihYMQOuzzY13jMOTmpShDszOIxbNhcAhlxVLRYZmVI87UlsVOZXuGJil7OSixyQSOsTXug="}`
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
-		Nonce:    1,
-		GasFeeCap: 1,
+		Nonce:      1,
+		GasFeeCap:  1,
 		GasPremium: 1,
-		GasLimit: 25000,
+		GasLimit:   25000,
 	}
 	params := SwapAuthorizedPartyParams{
 		From: "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
@@ -261,7 +261,7 @@ func TestSignTx(t *testing.T) {
 func TestParseTx(t *testing.T) {
 	expected := `{"Version":0,"To":"t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy","From":"t1xcbgdhkgkwht3hrrnui3jdopeejsoas2rujnkdi","Nonce":1,"Value":"100000","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":0,"Params":null}`
 	serializedTx := "8A005501FD1D0F4DFCD7E99AFCB99A8326B7DC459D32C6285501B882619D46558F3D9E316D11B48DCF211327025A0144000186A01961A84200014200010040"
-	
+
 	r := &RosettaConstructionFilecoin{false}
 	b, err := hex.DecodeString(serializedTx)
 
@@ -272,7 +272,7 @@ func TestParseTx(t *testing.T) {
 	}
 
 	msg, err := r.ParseTx(msgBase64)
-	
+
 	t.Log(msg)
 
 	if err != nil {
@@ -293,7 +293,7 @@ func TestHash(t *testing.T) {
       "Nonce": 1,
       "Value": "100000",
       "GasFeeCap": "1",
-			"GasPremium": "1",
+  	  "GasPremium": "1",
       "GasLimit": 2500000,
       "Method": 0,
       "Params": ""

@@ -62,8 +62,8 @@ type RosettaConstructionTool interface {
 // Modify this as needed to add in new fields
 type TxMetadata struct {
 	Nonce      uint64 `json:"nonce"`
-	GasFeeCap  int64 `json:"gas_fee_cap"`
-	GasPremium int64 `json:"gas_premium"`
+	GasFeeCap  int64  `json:"gas_fee_cap"`
+	GasPremium int64  `json:"gas_premium"`
 	GasLimit   int64  `json:"gas_limit,omitempty"`
 	ChainID    string `json:"chain_id,omitempty"`
 	Method     uint64 `json:"method,omitempty"`
