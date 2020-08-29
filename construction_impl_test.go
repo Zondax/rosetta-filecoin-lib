@@ -299,7 +299,7 @@ func TestHash(t *testing.T) {
       "Params": ""
     },
     "Signature": {
-      "Types": 1,
+      "Type": 1,
       "Data": "0wRrFJZFIVh8m0JD+f5C55YrxD6YAWtCXWYihrPTKdMfgMhYAy86MVhs43hSLXnV+47UReRIe8qFdHRJqFlreAE="
     }
   }`
