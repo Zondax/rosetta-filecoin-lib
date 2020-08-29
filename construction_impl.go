@@ -22,6 +22,7 @@ import (
 	"github.com/filecoin-project/go-address"
 	c "github.com/filecoin-project/go-crypto"
 	"github.com/filecoin-project/lotus/chain/types"
+	"github.com/filecoin-project/specs-actors/actors/abi"
 	"github.com/filecoin-project/specs-actors/actors/builtin"
 	"github.com/filecoin-project/specs-actors/actors/builtin/multisig"
 	"github.com/filecoin-project/specs-actors/actors/crypto"
@@ -107,18 +108,20 @@ func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (
 	}
 
 	value := types.NewInt(request.Quantity)
-	gasprice := types.NewInt(request.Metadata.GasPrice)
+	gasfeecap := abi.NewTokenAmount(request.Metadata.GasFeeCap)
+	gaspremium := abi.NewTokenAmount(request.Metadata.GasPremium)
 	gaslimit := int64(request.Metadata.GasLimit)
 
 	msg := &types.Message{Version: types.MessageVersion,
-		To:       to,
-		From:     from,
-		Nonce:    request.Metadata.Nonce,
-		Value:    value,
-		GasPrice: gasprice,
-		GasLimit: gaslimit,
-		Method:   builtin.MethodSend,
-		Params:   make([]byte, 0),
+		To:         to,
+		From:       from,
+		Nonce:      request.Metadata.Nonce,
+		Value:      value,
+		GasFeeCap:  gasfeecap,
+		GasPremium: gaspremium,
+		GasLimit:   gaslimit,
+		Method:     builtin.MethodSend,
+		Params:     make([]byte, 0),
 	}
 
 	tx, err := json.Marshal(msg)
@@ -141,7 +144,8 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 	}
 
 	value := types.NewInt(0)
-	gasprice := types.NewInt(request.Metadata.GasPrice)
+	gasfeecap := abi.NewTokenAmount(request.Metadata.GasFeeCap)
+	gaspremium := abi.NewTokenAmount(request.Metadata.GasPremium)
 	gaslimit := int64(request.Metadata.GasLimit)
 
 	toParams, err := address.NewFromString(request.Params.To)
@@ -167,14 +171,15 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 	serParams := buf.Bytes()
 
 	msg := &types.Message{Version: types.MessageVersion,
-		To:       to,
-		From:     from,
-		Nonce:    request.Metadata.Nonce,
-		Value:    value,
-		GasPrice: gasprice,
-		GasLimit: gaslimit,
-		Method:   builtin.MethodsMultisig.Propose,
-		Params:   serParams,
+		To:         to,
+		From:       from,
+		Nonce:      request.Metadata.Nonce,
+		Value:      value,
+		GasFeeCap:  gasfeecap,
+		GasPremium: gaspremium,
+		GasLimit:   gaslimit,
+		Method:     builtin.MethodsMultisig.Propose,
+		Params:     serParams,
 	}
 
 	tx, err := json.Marshal(msg)
@@ -197,7 +202,8 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 	}
 
 	value := types.NewInt(0)
-	gasprice := types.NewInt(request.Metadata.GasPrice)
+	gasfeecap := abi.NewTokenAmount(request.Metadata.GasFeeCap)
+	gaspremium := abi.NewTokenAmount(request.Metadata.GasPremium)
 	gaslimit := int64(request.Metadata.GasLimit)
 
 	toParams, err := address.NewFromString(request.Params.To)
@@ -223,14 +229,15 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 	serParams := buf.Bytes()
 
 	msg := &types.Message{Version: types.MessageVersion,
-		To:       to,
-		From:     from,
-		Nonce:    request.Metadata.Nonce,
-		Value:    value,
-		GasPrice: gasprice,
-		GasLimit: gaslimit,
-		Method:   7,
-		Params:   serParams,
+		To:         to,
+		From:       from,
+		Nonce:      request.Metadata.Nonce,
+		Value:      value,
+		GasFeeCap:  gasfeecap,
+		GasPremium: gaspremium,
+		GasLimit:   gaslimit,
+		Method:     7,
+		Params:     serParams,
 	}
 
 	tx, err := json.Marshal(msg)
@@ -306,7 +313,7 @@ func (r RosettaConstructionFilecoin) ParseTx(messageBase64 string) (string, erro
 	var msg interface{}
 
 	switch extra {
-	case 9:
+	case 10:
 		// Unsigned message
 		msg, err = types.DecodeMessage(messageCbor)
 		if err != nil {
