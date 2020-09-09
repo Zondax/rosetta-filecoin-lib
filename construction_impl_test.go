@@ -428,7 +428,7 @@ func TestSendTransaction(t *testing.T) {
 		t.Errorf("FIX ME")
 		t.FailNow()
 	}
-	
+
 	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateWaitMsg","id": 1, "params": [` + res2["result"].(string) + `, null]}`)
 
 	t.Log(string(data))
@@ -449,7 +449,7 @@ func TestSendTransaction(t *testing.T) {
 	if err != nil {
 		t.Errorf("FIX ME")
 	}
-	
+
 	var res3 map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&res3)
 	if err != nil {
@@ -571,7 +571,7 @@ func TestSendFromMultisig(t *testing.T) {
 		t.Errorf("FIX ME")
 		t.FailNow()
 	}
-	
+
 	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateWaitMsg","id": 1, "params": [` + res2["result"].(string) + `, null]}`)
 
 	t.Log(string(data))
@@ -592,7 +592,7 @@ func TestSendFromMultisig(t *testing.T) {
 	if err != nil {
 		t.Errorf("FIX ME")
 	}
-	
+
 	var res3 map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&res3)
 	if err != nil {
@@ -714,7 +714,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 		t.Errorf("FIX ME")
 		t.FailNow()
 	}
-	
+
 	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateWaitMsg","id": 1, "params": [` + res2["result"].(string) + `, null]}`)
 
 	t.Log(string(data))
@@ -735,7 +735,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 	if err != nil {
 		t.Errorf("FIX ME")
 	}
-	
+
 	var res3 map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&res3)
 	if err != nil {
