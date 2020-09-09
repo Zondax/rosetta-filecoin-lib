@@ -358,11 +358,17 @@ func TestSendTransaction(t *testing.T) {
 
 	t.Log(res["result"])
 	
+	nonce := res["result"].(float64)
+	if err != nil {
+			t.Errorf("FIX ME")
+	}
+	
+	
 	/* Create Transaction */
 	
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
-		Nonce:      1,
+		Nonce:      uint64(nonce)+1,
 		GasFeeCap:  2500,
 		GasPremium: 2500,
 		GasLimit:   2500000,
@@ -452,11 +458,16 @@ func TestSendFromMultisig(t *testing.T) {
 
 	t.Log(res["result"])
 	
+	nonce := res["result"].(float64)
+	if err != nil {
+			t.Errorf("FIX ME")
+	}
+	
 	/* Create Transaction */
 	
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
-		Nonce:      1, // Update with nonce from request
+		Nonce:      uint64(nonce)+1,
 		GasFeeCap:  2500,
 		GasPremium: 2500,
 		GasLimit:   2500000,
@@ -550,14 +561,20 @@ func TestSwapKeysMultisig(t *testing.T) {
 
 	t.Log(res["result"])
 	
+	nonce := res["result"].(float64)
+	if err != nil {
+			t.Errorf("FIX ME")
+	}
+	
+	
 	/* Create Transaction */
 	
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
-		Nonce:      1,
-		GasFeeCap:  1,
-		GasPremium: 1,
-		GasLimit:   25000,
+		Nonce:      uint64(nonce)+1,
+		GasFeeCap:  2500,
+		GasPremium: 2500,
+		GasLimit:   2500000,
 	}
 	params := SwapAuthorizedPartyParams{
 		From: "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
