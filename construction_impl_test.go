@@ -427,6 +427,39 @@ func TestSendTransaction(t *testing.T) {
 	if res2["result"] == nil {
 		t.Errorf("FIX ME")
 	}
+	
+	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateWaitMsg","id": 1, "params": [` + res2["result"] + `, null]}`)
+
+	t.Log(string(data))
+
+	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	// Set headers
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
+
+	// Set client timeout
+	client = &http.Client{Timeout: time.Second * 60}
+	// Send request
+	resp, err = client.Do(req)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+	
+	var res3 map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&res3)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	t.Log(res3)
+
+	if res3["result"] == nil {
+		t.Errorf("FIX ME")
+	}
 }
 
 // Send from multisig
@@ -536,6 +569,39 @@ func TestSendFromMultisig(t *testing.T) {
 	if res2["result"] == nil {
 		t.Errorf("FIX ME")
 	}
+	
+	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateWaitMsg","id": 1, "params": [` + res2["result"] + `, null]}`)
+
+	t.Log(string(data))
+
+	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	// Set headers
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
+
+	// Set client timeout
+	client = &http.Client{Timeout: time.Second * 60}
+	// Send request
+	resp, err = client.Do(req)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+	
+	var res3 map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&res3)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	t.Log(res3)
+
+	if res3["result"] == nil {
+		t.Errorf("FIX ME")
+	}
 }
 
 // Key swap for a multisig
@@ -643,6 +709,39 @@ func TestSwapKeysMultisig(t *testing.T) {
 	t.Log(res2)
 
 	if res2["result"] == nil {
+		t.Errorf("FIX ME")
+	}
+	
+	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateWaitMsg","id": 1, "params": [` + res2["result"] + `, null]}`)
+
+	t.Log(string(data))
+
+	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	// Set headers
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
+
+	// Set client timeout
+	client = &http.Client{Timeout: time.Second * 60}
+	// Send request
+	resp, err = client.Do(req)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+	
+	var res3 map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&res3)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	t.Log(res3)
+
+	if res3["result"] == nil {
 		t.Errorf("FIX ME")
 	}
 }
