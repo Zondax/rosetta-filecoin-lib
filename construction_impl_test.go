@@ -327,7 +327,7 @@ func TestHash(t *testing.T) {
 // send from regular address
 func TestSendTransaction(t *testing.T) {
 	/* Secret Key */
-	sk, err := hex.DecodeString("f15716d3b003b304b8055d9cc62e6b9c869d56cc930c3858d4d7c31f5f53f14a")
+	sk, _ := hex.DecodeString("f15716d3b003b304b8055d9cc62e6b9c869d56cc930c3858d4d7c31f5f53f14a")
 	
 	/* Get Nonce */
 	data :=  []byte(`{"jsonrpc": "2.0","method": "Filecoin.MpoolGetNonce","id": 1, "params": ["t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba"]}`)
@@ -354,8 +354,11 @@ func TestSendTransaction(t *testing.T) {
 
 	t.Log(resp)
 
-	json.NewDecoder(resp.Body).Decode(&res)
-
+	err = json.NewDecoder(resp.Body).Decode(&res)
+	if err != nil {
+			t.Errorf("FIX ME")
+	}
+	
 	t.Log(res["result"])
 	
 	nonce := res["result"].(float64)
@@ -415,8 +418,11 @@ func TestSendTransaction(t *testing.T) {
 	}
 	
 	var res2 map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&res2)
-
+	err = json.NewDecoder(resp.Body).Decode(&res2)
+	if err != nil {
+			t.Errorf("FIX ME")
+	}
+	
 	t.Log(res2)
 
 	if res2["result"] == nil {
@@ -427,7 +433,7 @@ func TestSendTransaction(t *testing.T) {
 // Send from multisig
 func TestSendFromMultisig(t *testing.T) {
 	/* Secret Key */
-	sk, err := hex.DecodeString("f15716d3b003b304b8055d9cc62e6b9c869d56cc930c3858d4d7c31f5f53f14a")
+	sk, _ := hex.DecodeString("f15716d3b003b304b8055d9cc62e6b9c869d56cc930c3858d4d7c31f5f53f14a")
 	
 	/* Get Nonce */
 	data :=  []byte(`{"jsonrpc": "2.0","method": "Filecoin.MpoolGetNonce","id": 1, "params": ["t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba"]}`)
@@ -454,7 +460,10 @@ func TestSendFromMultisig(t *testing.T) {
 
 	t.Log(resp)
 
-	json.NewDecoder(resp.Body).Decode(&res)
+	err = json.NewDecoder(resp.Body).Decode(&res)
+	if err != nil {
+			t.Errorf("FIX ME")
+	}
 
 	t.Log(res["result"])
 	
@@ -518,8 +527,11 @@ func TestSendFromMultisig(t *testing.T) {
 	}
 	
 	var res2 map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&res2)
-
+	err = json.NewDecoder(resp.Body).Decode(&res2)
+	if err != nil {
+			t.Errorf("FIX ME")
+	}
+	
 	t.Log(res2)
 
 	if res2["result"] == nil {
@@ -530,7 +542,7 @@ func TestSendFromMultisig(t *testing.T) {
 // Key swap for a multisig
 func TestSwapKeysMultisig(t *testing.T) {
 	/* Secret Key */
-	sk, err := hex.DecodeString("f15716d3b003b304b8055d9cc62e6b9c869d56cc930c3858d4d7c31f5f53f14a")
+	sk, _ := hex.DecodeString("f15716d3b003b304b8055d9cc62e6b9c869d56cc930c3858d4d7c31f5f53f14a")
 	
 	/* Get Nonce */
 	data :=  []byte(`{"jsonrpc": "2.0","method": "Filecoin.MpoolGetNonce","id": 1, "params": ["t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba"]}`)
@@ -557,7 +569,11 @@ func TestSwapKeysMultisig(t *testing.T) {
 
 	t.Log(resp)
 
-	json.NewDecoder(resp.Body).Decode(&res)
+	err = json.NewDecoder(resp.Body).Decode(&res)
+	if err != nil {
+			t.Errorf("FIX ME")
+	}
+
 
 	t.Log(res["result"])
 	
@@ -622,8 +638,11 @@ func TestSwapKeysMultisig(t *testing.T) {
 	}
 	
 	var res2 map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&res2)
-
+	err = json.NewDecoder(resp.Body).Decode(&res2)
+	if err != nil {
+			t.Errorf("FIX ME")
+	}
+	
 	t.Log(res2)
 
 	if res2["result"] == nil {
