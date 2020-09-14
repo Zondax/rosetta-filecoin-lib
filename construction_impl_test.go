@@ -694,7 +694,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 		To:   "t3v3htmno6gmhe42ssqq5tgoemlm3boaeglrks2fqztfjdz3kjnrkomv5ymjrjpm4srmojashlcnporcluiyaa",
 	}
 	request := &SwapAuthorizedPartyRequest{
-		Multisig: "t020286", // Update with multisig
+		Multisig: "t020286",
 		From:     "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
 		Metadata: mtx,
 		Params:   params,
