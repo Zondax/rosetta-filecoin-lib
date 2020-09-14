@@ -25,7 +25,17 @@ import (
 	"os"
 	"testing"
 	"time"
+	"sync"
 )
+
+var seqMutex sync.Mutex
+
+func seq() func() {
+	seqMutex.Lock()
+	return func() {
+		seqMutex.Unlock()
+	}
+}
 
 func TestDeriveFromPublicKey(t *testing.T) {
 	pk, err := hex.DecodeString("04fc016f3d88dc7070cdd95b5754d32fd5290f850b7c2208fca0f715d35861de1841d9a342a487692a63810a6c906b443a18aa804d9d508d69facc5b06789a01b4")
@@ -326,6 +336,8 @@ func TestHash(t *testing.T) {
 
 // send from regular address
 func TestSendTransaction(t *testing.T) {
+	defer seq()()
+	
 	/* Secret Key */
 	sk, _ := hex.DecodeString("f15716d3b003b304b8055d9cc62e6b9c869d56cc930c3858d4d7c31f5f53f14a")
 
@@ -335,6 +347,7 @@ func TestSendTransaction(t *testing.T) {
 	req, err := http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
 	if err != nil {
 		t.Errorf("Fail to get nonce")
+		t.Fail()
 	}
 
 	// Set headers
@@ -342,7 +355,7 @@ func TestSendTransaction(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
 
 	// Set client timeout
-	client := &http.Client{Timeout: time.Second * 10}
+	client := &http.Client{Timeout: time.Second * 60}
 
 	// Send request
 	resp, err := client.Do(req)
@@ -364,16 +377,17 @@ func TestSendTransaction(t *testing.T) {
 	nonce := res["result"].(float64)
 	if err != nil {
 		t.Errorf("FIX ME")
+		t.FailNow()
 	}
 
 	/* Create Transaction */
 
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
-		Nonce:      uint64(nonce) + 1,
-		GasFeeCap:  2500,
-		GasPremium: 2500,
-		GasLimit:   2500000,
+		Nonce:      uint64(nonce),
+		GasFeeCap:  137904,
+		GasPremium: 137284,
+		GasLimit:   539085,
 	}
 	pr := &PaymentRequest{
 		From:     "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
@@ -408,7 +422,7 @@ func TestSendTransaction(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
 
 	// Set client timeout
-	client = &http.Client{Timeout: time.Second * 10}
+	client = &http.Client{Timeout: time.Second * 60}
 
 	// Send request
 	resp, err = client.Do(req)
@@ -428,8 +442,13 @@ func TestSendTransaction(t *testing.T) {
 		t.Errorf("FIX ME")
 		t.FailNow()
 	}
+	
+	h, err := json.Marshal(res2["result"])
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
 
-	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateWaitMsg","id": 1, "params": [` + res2["result"].(string) + `, null]}`)
+	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateWaitMsg","id": 1, "params": [` + string(h) + `, null]}`)
 
 	t.Log(string(data))
 
@@ -443,11 +462,12 @@ func TestSendTransaction(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
 
 	// Set client timeout
-	client = &http.Client{Timeout: time.Second * 60}
+	client = &http.Client{Timeout: time.Second * 600}
 	// Send request
 	resp, err = client.Do(req)
 	if err != nil {
 		t.Errorf("FIX ME")
+		t.FailNow()
 	}
 
 	var res3 map[string]interface{}
@@ -465,6 +485,8 @@ func TestSendTransaction(t *testing.T) {
 
 // Send from multisig
 func TestSendFromMultisig(t *testing.T) {
+	defer seq()()
+	
 	/* Secret Key */
 	sk, _ := hex.DecodeString("f15716d3b003b304b8055d9cc62e6b9c869d56cc930c3858d4d7c31f5f53f14a")
 
@@ -481,7 +503,7 @@ func TestSendFromMultisig(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
 
 	// Set client timeout
-	client := &http.Client{Timeout: time.Second * 10}
+	client := &http.Client{Timeout: time.Second * 60}
 
 	// Send request
 	resp, err := client.Do(req)
@@ -503,23 +525,24 @@ func TestSendFromMultisig(t *testing.T) {
 	nonce := res["result"].(float64)
 	if err != nil {
 		t.Errorf("FIX ME")
+		t.FailNow()
 	}
 
 	/* Create Transaction */
 
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
-		Nonce:      uint64(nonce) + 1,
-		GasFeeCap:  2500,
-		GasPremium: 2500,
-		GasLimit:   2500000,
+		Nonce:      uint64(nonce),
+		GasFeeCap:  137904,
+		GasPremium: 137284,
+		GasLimit:   539085,
 	}
 	params := MultisigPaymentParams{
 		To:       "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
-		Quantity: 1000,
+		Quantity: 1,
 	}
 	request := &MultisigPaymentRequest{
-		Multisig: "t01002", // Update with Multisig address from space_race
+		Multisig: "t020286",
 		From:     "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
 		Metadata: mtx,
 		Params:   params,
@@ -551,7 +574,7 @@ func TestSendFromMultisig(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
 
 	// Set client timeout
-	client = &http.Client{Timeout: time.Second * 10}
+	client = &http.Client{Timeout: time.Second * 60}
 
 	// Send request
 	resp, err = client.Do(req)
@@ -571,8 +594,13 @@ func TestSendFromMultisig(t *testing.T) {
 		t.Errorf("FIX ME")
 		t.FailNow()
 	}
+	
+	h, err := json.Marshal(res2["result"])
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
 
-	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateWaitMsg","id": 1, "params": [` + res2["result"].(string) + `, null]}`)
+	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateWaitMsg","id": 1, "params": [` + string(h) + `, null]}`)
 
 	t.Log(string(data))
 
@@ -586,11 +614,12 @@ func TestSendFromMultisig(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
 
 	// Set client timeout
-	client = &http.Client{Timeout: time.Second * 60}
+	client = &http.Client{Timeout: time.Second * 600}
 	// Send request
 	resp, err = client.Do(req)
 	if err != nil {
 		t.Errorf("FIX ME")
+		t.FailNow()
 	}
 
 	var res3 map[string]interface{}
@@ -608,6 +637,8 @@ func TestSendFromMultisig(t *testing.T) {
 
 // Key swap for a multisig
 func TestSwapKeysMultisig(t *testing.T) {
+	defer seq()()
+	
 	/* Secret Key */
 	sk, _ := hex.DecodeString("f15716d3b003b304b8055d9cc62e6b9c869d56cc930c3858d4d7c31f5f53f14a")
 
@@ -624,7 +655,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
 
 	// Set client timeout
-	client := &http.Client{Timeout: time.Second * 10}
+	client := &http.Client{Timeout: time.Second * 60}
 
 	// Send request
 	resp, err := client.Do(req)
@@ -646,23 +677,24 @@ func TestSwapKeysMultisig(t *testing.T) {
 	nonce := res["result"].(float64)
 	if err != nil {
 		t.Errorf("FIX ME")
+		t.FailNow()
 	}
 
 	/* Create Transaction */
 
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
-		Nonce:      uint64(nonce) + 1,
-		GasFeeCap:  2500,
-		GasPremium: 2500,
-		GasLimit:   2500000,
+		Nonce:      uint64(nonce),
+		GasFeeCap:  137904,
+		GasPremium: 137284,
+		GasLimit:   539085,
 	}
 	params := SwapAuthorizedPartyParams{
 		From: "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
 		To:   "t3v3htmno6gmhe42ssqq5tgoemlm3boaeglrks2fqztfjdz3kjnrkomv5ymjrjpm4srmojashlcnporcluiyaa",
 	}
 	request := &SwapAuthorizedPartyRequest{
-		Multisig: "t01002", // Update with multisig
+		Multisig: "t020286", // Update with multisig
 		From:     "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
 		Metadata: mtx,
 		Params:   params,
@@ -694,7 +726,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
 
 	// Set client timeout
-	client = &http.Client{Timeout: time.Second * 10}
+	client = &http.Client{Timeout: time.Second * 60}
 
 	// Send request
 	resp, err = client.Do(req)
@@ -715,7 +747,12 @@ func TestSwapKeysMultisig(t *testing.T) {
 		t.FailNow()
 	}
 
-	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateWaitMsg","id": 1, "params": [` + res2["result"].(string) + `, null]}`)
+	h, err := json.Marshal(res2["result"])
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateWaitMsg","id": 1, "params": [` + string(h) + `, null]}`)
 
 	t.Log(string(data))
 
@@ -729,11 +766,12 @@ func TestSwapKeysMultisig(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
 
 	// Set client timeout
-	client = &http.Client{Timeout: time.Second * 60}
+	client = &http.Client{Timeout: time.Second * 600}
 	// Send request
 	resp, err = client.Do(req)
 	if err != nil {
 		t.Errorf("FIX ME")
+		t.FailNow()
 	}
 
 	var res3 map[string]interface{}
