@@ -16,12 +16,26 @@
 package rosettaFilecoinLib
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"github.com/filecoin-project/lotus/chain/types"
+	"net/http"
+	"os"
+	"sync"
 	"testing"
+	"time"
 )
+
+var seqMutex sync.Mutex
+
+func seq() func() {
+	seqMutex.Lock()
+	return func() {
+		seqMutex.Unlock()
+	}
+}
 
 func TestDeriveFromPublicKey(t *testing.T) {
 	pk, err := hex.DecodeString("04fc016f3d88dc7070cdd95b5754d32fd5290f850b7c2208fca0f715d35861de1841d9a342a487692a63810a6c906b443a18aa804d9d508d69facc5b06789a01b4")
@@ -315,5 +329,460 @@ func TestHash(t *testing.T) {
 
 	if cid != "bafy2bzacebaiinljwwctblf7czp4zxwhz4747z6tpricgn5cumd4xhebftcvu" {
 		t.Fail()
+	}
+}
+
+/*  On Chain Tests */
+
+// send from regular address
+func TestSendTransaction(t *testing.T) {
+	defer seq()()
+
+	/* Secret Key */
+	sk, _ := hex.DecodeString("f15716d3b003b304b8055d9cc62e6b9c869d56cc930c3858d4d7c31f5f53f14a")
+
+	/* Get Nonce */
+	data := []byte(`{"jsonrpc": "2.0","method": "Filecoin.MpoolGetNonce","id": 1, "params": ["t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba"]}`)
+
+	req, err := http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
+	if err != nil {
+		t.Errorf("Fail to get nonce")
+		t.Fail()
+	}
+
+	// Set headers
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
+
+	// Set client timeout
+	client := &http.Client{Timeout: time.Second * 60}
+
+	// Send request
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Errorf("Fail to get nonce")
+	}
+
+	var res map[string]interface{}
+
+	t.Log(resp)
+
+	err = json.NewDecoder(resp.Body).Decode(&res)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	t.Log(res["result"])
+
+	nonce := res["result"].(float64)
+	if err != nil {
+		t.Errorf("FIX ME")
+		t.FailNow()
+	}
+
+	/* Create Transaction */
+
+	r := &RosettaConstructionFilecoin{false}
+	mtx := TxMetadata{
+		Nonce:      uint64(nonce),
+		GasFeeCap:  137904,
+		GasPremium: 137284,
+		GasLimit:   539085,
+	}
+	pr := &PaymentRequest{
+		From:     "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
+		To:       "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
+		Quantity: 100000,
+		Metadata: mtx,
+	}
+
+	unsignedTxBase64, err := r.ConstructPayment(pr)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	signedTx, err := r.SignTx(unsignedTxBase64, sk)
+	if err != nil {
+		t.Error(err)
+	}
+
+	t.Log(signedTx)
+
+	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.MpoolPush","id": 1, "params": [` + signedTx + `]}`)
+
+	t.Log(string(data))
+
+	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	// Set headers
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
+
+	// Set client timeout
+	client = &http.Client{Timeout: time.Second * 60}
+
+	// Send request
+	resp, err = client.Do(req)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	var res2 map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&res2)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	t.Log(res2)
+
+	if res2["result"] == nil {
+		t.Errorf("FIX ME")
+		t.FailNow()
+	}
+
+	h, err := json.Marshal(res2["result"])
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateWaitMsg","id": 1, "params": [` + string(h) + `, null]}`)
+
+	t.Log(string(data))
+
+	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	// Set headers
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
+
+	// Set client timeout
+	client = &http.Client{Timeout: time.Second * 600}
+	// Send request
+	resp, err = client.Do(req)
+	if err != nil {
+		t.Errorf("FIX ME")
+		t.FailNow()
+	}
+
+	var res3 map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&res3)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	t.Log(res3)
+
+	if res3["result"] == nil {
+		t.Errorf("FIX ME")
+	}
+}
+
+// Send from multisig
+func TestSendFromMultisig(t *testing.T) {
+	defer seq()()
+
+	/* Secret Key */
+	sk, _ := hex.DecodeString("f15716d3b003b304b8055d9cc62e6b9c869d56cc930c3858d4d7c31f5f53f14a")
+
+	/* Get Nonce */
+	data := []byte(`{"jsonrpc": "2.0","method": "Filecoin.MpoolGetNonce","id": 1, "params": ["t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba"]}`)
+
+	req, err := http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
+	if err != nil {
+		t.Errorf("Fail to get nonce")
+	}
+
+	// Set headers
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
+
+	// Set client timeout
+	client := &http.Client{Timeout: time.Second * 60}
+
+	// Send request
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Errorf("Fail to get nonce")
+	}
+
+	var res map[string]interface{}
+
+	t.Log(resp)
+
+	err = json.NewDecoder(resp.Body).Decode(&res)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	t.Log(res["result"])
+
+	nonce := res["result"].(float64)
+	if err != nil {
+		t.Errorf("FIX ME")
+		t.FailNow()
+	}
+
+	/* Create Transaction */
+
+	r := &RosettaConstructionFilecoin{false}
+	mtx := TxMetadata{
+		Nonce:      uint64(nonce),
+		GasFeeCap:  137904,
+		GasPremium: 137284,
+		GasLimit:   539085,
+	}
+	params := MultisigPaymentParams{
+		To:       "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
+		Quantity: 1,
+	}
+	request := &MultisigPaymentRequest{
+		Multisig: "t020286",
+		From:     "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
+		Metadata: mtx,
+		Params:   params,
+	}
+
+	unsignedTxBase64, err := r.ConstructMultisigPayment(request)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	signedTx, err := r.SignTx(unsignedTxBase64, sk)
+	if err != nil {
+		t.Error(err)
+	}
+
+	t.Log(signedTx)
+
+	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.MpoolPush","id": 1, "params": [` + signedTx + `]}`)
+
+	t.Log(string(data))
+
+	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	// Set headers
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
+
+	// Set client timeout
+	client = &http.Client{Timeout: time.Second * 60}
+
+	// Send request
+	resp, err = client.Do(req)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	var res2 map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&res2)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	t.Log(res2)
+
+	if res2["result"] == nil {
+		t.Errorf("FIX ME")
+		t.FailNow()
+	}
+
+	h, err := json.Marshal(res2["result"])
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateWaitMsg","id": 1, "params": [` + string(h) + `, null]}`)
+
+	t.Log(string(data))
+
+	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	// Set headers
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
+
+	// Set client timeout
+	client = &http.Client{Timeout: time.Second * 600}
+	// Send request
+	resp, err = client.Do(req)
+	if err != nil {
+		t.Errorf("FIX ME")
+		t.FailNow()
+	}
+
+	var res3 map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&res3)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	t.Log(res3)
+
+	if res3["result"] == nil {
+		t.Errorf("FIX ME")
+	}
+}
+
+// Key swap for a multisig
+func TestSwapKeysMultisig(t *testing.T) {
+	defer seq()()
+
+	/* Secret Key */
+	sk, _ := hex.DecodeString("f15716d3b003b304b8055d9cc62e6b9c869d56cc930c3858d4d7c31f5f53f14a")
+
+	/* Get Nonce */
+	data := []byte(`{"jsonrpc": "2.0","method": "Filecoin.MpoolGetNonce","id": 1, "params": ["t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba"]}`)
+
+	req, err := http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
+	if err != nil {
+		t.Errorf("Fail to get nonce")
+	}
+
+	// Set headers
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
+
+	// Set client timeout
+	client := &http.Client{Timeout: time.Second * 60}
+
+	// Send request
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Errorf("Fail to get nonce")
+	}
+
+	var res map[string]interface{}
+
+	t.Log(resp)
+
+	err = json.NewDecoder(resp.Body).Decode(&res)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	t.Log(res["result"])
+
+	nonce := res["result"].(float64)
+	if err != nil {
+		t.Errorf("FIX ME")
+		t.FailNow()
+	}
+
+	/* Create Transaction */
+
+	r := &RosettaConstructionFilecoin{false}
+	mtx := TxMetadata{
+		Nonce:      uint64(nonce),
+		GasFeeCap:  137904,
+		GasPremium: 137284,
+		GasLimit:   539085,
+	}
+	params := SwapAuthorizedPartyParams{
+		From: "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
+		To:   "t3v3htmno6gmhe42ssqq5tgoemlm3boaeglrks2fqztfjdz3kjnrkomv5ymjrjpm4srmojashlcnporcluiyaa",
+	}
+	request := &SwapAuthorizedPartyRequest{
+		Multisig: "t020286",
+		From:     "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
+		Metadata: mtx,
+		Params:   params,
+	}
+
+	unsignedTxBase64, err := r.ConstructSwapAuthorizedParty(request)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	signedTx, err := r.SignTx(unsignedTxBase64, sk)
+	if err != nil {
+		t.Error(err)
+	}
+
+	t.Log(signedTx)
+
+	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.MpoolPush","id": 1, "params": [` + signedTx + `]}`)
+
+	t.Log(string(data))
+
+	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	// Set headers
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
+
+	// Set client timeout
+	client = &http.Client{Timeout: time.Second * 60}
+
+	// Send request
+	resp, err = client.Do(req)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	var res2 map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&res2)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	t.Log(res2)
+
+	if res2["result"] == nil {
+		t.Errorf("FIX ME")
+		t.FailNow()
+	}
+
+	h, err := json.Marshal(res2["result"])
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateWaitMsg","id": 1, "params": [` + string(h) + `, null]}`)
+
+	t.Log(string(data))
+
+	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	// Set headers
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
+
+	// Set client timeout
+	client = &http.Client{Timeout: time.Second * 600}
+	// Send request
+	resp, err = client.Do(req)
+	if err != nil {
+		t.Errorf("FIX ME")
+		t.FailNow()
+	}
+
+	var res3 map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&res3)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	t.Log(res3)
+
+	if res3["result"] == nil {
+		t.Errorf("FIX ME")
 	}
 }
