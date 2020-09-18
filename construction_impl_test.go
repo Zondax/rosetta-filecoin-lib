@@ -666,18 +666,18 @@ func TestSwapKeysMultisig(t *testing.T) {
 	/* Secret Key */
 	sk, _ := hex.DecodeString("61b0cf875beaddf0429736e2c03b7a5a39e201d667f2d35c0b07013b6843c329")
 	sk2, _ := hex.DecodeString("8ad463d0fb5ab06172dd3c2b005c1d634e3a6576f8c1d6eb1796ba8d94c00469")
-	
+
 	/* Addresses */
 	address := "t137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy"
 	address2 := "t1itpqzzcx6yf52oc35dgsoxfqkoxpy6kdmygbaja"
-	
+
 	addressID1 := "t09524"
 
 	/* Get Multisig signers */
-	data := []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateReadState","id": 1, "params": ["`+ MULTISIG_ADDRESS +`", null]}`)
-	
+	data := []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateReadState","id": 1, "params": ["` + MULTISIG_ADDRESS + `", null]}`)
+
 	t.Log(string(data))
-	
+
 	req, err := http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
 	if err != nil {
 		t.Errorf("Fail to get nonce")
@@ -707,7 +707,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 	result := res["result"].(map[string]interface{})
 	state := result["State"].(map[string]interface{})
 	signers := state["Signers"].([]interface{})
-	
+
 	var to, from string
 	var secretKey []byte
 	if signers[0] == addressID1 {
@@ -721,7 +721,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 	}
 
 	/* Get Nonce */
-	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.MpoolGetNonce","id": 1, "params": ["`+ from +`"]}`)
+	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.MpoolGetNonce","id": 1, "params": ["` + from + `"]}`)
 
 	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
 	if err != nil {
@@ -742,7 +742,6 @@ func TestSwapKeysMultisig(t *testing.T) {
 	}
 
 	var res1 map[string]interface{}
-
 
 	err = json.NewDecoder(resp.Body).Decode(&res1)
 	if err != nil {
