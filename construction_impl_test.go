@@ -28,6 +28,8 @@ import (
 	"time"
 )
 
+const MULTISIG_ADDRESS = "t020286"
+
 var seqMutex sync.Mutex
 
 func seq() func() {
@@ -385,9 +387,9 @@ func TestSendTransaction(t *testing.T) {
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      uint64(nonce),
-		GasFeeCap:  137904,
-		GasPremium: 137284,
-		GasLimit:   539085,
+		GasFeeCap:  149794,
+		GasPremium: 149470,
+		GasLimit:   2180810,
 	}
 	pr := &PaymentRequest{
 		From:     "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
@@ -480,7 +482,17 @@ func TestSendTransaction(t *testing.T) {
 
 	if res3["result"] == nil {
 		t.Errorf("FIX ME")
+		t.FailNow()
 	}
+	
+	var result = res3["result"].(map[string]interface{})
+	var receipt = result["Receipt"].(map[string]interface{})
+	
+	if receipt["ExitCode"] != 0 {
+		t.Errorf("FIX ME")
+		t.FailNow()
+	}
+	
 }
 
 // Send from multisig
@@ -533,16 +545,16 @@ func TestSendFromMultisig(t *testing.T) {
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      uint64(nonce),
-		GasFeeCap:  137904,
-		GasPremium: 137284,
-		GasLimit:   539085,
+		GasFeeCap:  149794,
+		GasPremium: 149470,
+		GasLimit:   2180810,
 	}
 	params := MultisigPaymentParams{
 		To:       "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
 		Quantity: 1,
 	}
 	request := &MultisigPaymentRequest{
-		Multisig: "t020286",
+		Multisig: MULTISIG_ADDRESS,
 		From:     "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
 		Metadata: mtx,
 		Params:   params,
@@ -632,7 +644,17 @@ func TestSendFromMultisig(t *testing.T) {
 
 	if res3["result"] == nil {
 		t.Errorf("FIX ME")
+		t.FailNow()
 	}
+	
+	var result = res3["result"].(map[string]interface{})
+	var receipt = result["Receipt"].(map[string]interface{})
+	
+	if receipt["ExitCode"] != 0 {
+		t.Errorf("FIX ME")
+		t.FailNow()
+	}
+	
 }
 
 // Key swap for a multisig
@@ -685,16 +707,16 @@ func TestSwapKeysMultisig(t *testing.T) {
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      uint64(nonce),
-		GasFeeCap:  137904,
-		GasPremium: 137284,
-		GasLimit:   539085,
+		GasFeeCap:  149794,
+		GasPremium: 149470,
+		GasLimit:   2180810,
 	}
 	params := SwapAuthorizedPartyParams{
 		From: "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
 		To:   "t3v3htmno6gmhe42ssqq5tgoemlm3boaeglrks2fqztfjdz3kjnrkomv5ymjrjpm4srmojashlcnporcluiyaa",
 	}
 	request := &SwapAuthorizedPartyRequest{
-		Multisig: "t020286",
+		Multisig: MULTISIG_ADDRESS,
 		From:     "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
 		Metadata: mtx,
 		Params:   params,
@@ -784,5 +806,14 @@ func TestSwapKeysMultisig(t *testing.T) {
 
 	if res3["result"] == nil {
 		t.Errorf("FIX ME")
+		t.FailNow()
+	}
+	
+	var result = res3["result"].(map[string]interface{})
+	var receipt = result["Receipt"].(map[string]interface{})
+	
+	if receipt["ExitCode"] != 0 {
+		t.Errorf("FIX ME")
+		t.FailNow()
 	}
 }
