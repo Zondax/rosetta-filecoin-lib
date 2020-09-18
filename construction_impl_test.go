@@ -484,15 +484,15 @@ func TestSendTransaction(t *testing.T) {
 		t.Errorf("FIX ME")
 		t.FailNow()
 	}
-	
+
 	var result = res3["result"].(map[string]interface{})
 	var receipt = result["Receipt"].(map[string]interface{})
-	
+
 	if receipt["ExitCode"] != 0 {
 		t.Errorf("FIX ME")
 		t.FailNow()
 	}
-	
+
 }
 
 // Send from multisig
@@ -646,15 +646,15 @@ func TestSendFromMultisig(t *testing.T) {
 		t.Errorf("FIX ME")
 		t.FailNow()
 	}
-	
+
 	var result = res3["result"].(map[string]interface{})
 	var receipt = result["Receipt"].(map[string]interface{})
-	
+
 	if receipt["ExitCode"] != 0 {
 		t.Errorf("FIX ME")
 		t.FailNow()
 	}
-	
+
 }
 
 // Key swap for a multisig
@@ -808,10 +808,10 @@ func TestSwapKeysMultisig(t *testing.T) {
 		t.Errorf("FIX ME")
 		t.FailNow()
 	}
-	
+
 	var result = res3["result"].(map[string]interface{})
 	var receipt = result["Receipt"].(map[string]interface{})
-	
+
 	if receipt["ExitCode"] != 0 {
 		t.Errorf("FIX ME")
 		t.FailNow()
