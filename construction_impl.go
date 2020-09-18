@@ -216,9 +216,23 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 		return "", err
 	}
 
-	params := &multisig.SwapSignerParams{
+	swapSignerParams := &multisig.SwapSignerParams{
 		From: fromParams,
 		To:   toParams,
+	}
+
+	bufSwapSigner := new(bytes.Buffer)
+	err = swapSignerParams.MarshalCBOR(bufSwapSigner)
+	if err != nil {
+		return "", err
+	}
+	serSwapSignersParams := bufSwapSigner.Bytes()
+
+	params := &multisig.ProposeParams{
+		To:     to,
+		Value:  value,
+		Method: builtin.MethodsMultisig.SwapSigner,
+		Params: serSwapSignersParams,
 	}
 
 	buf := new(bytes.Buffer)
@@ -236,7 +250,7 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 		GasFeeCap:  gasfeecap,
 		GasPremium: gaspremium,
 		GasLimit:   gaslimit,
-		Method:     7,
+		Method:     builtin.MethodsMultisig.Propose,
 		Params:     serParams,
 	}
 
