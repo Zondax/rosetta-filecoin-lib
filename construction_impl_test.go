@@ -487,8 +487,9 @@ func TestSendTransaction(t *testing.T) {
 
 	var result = res3["result"].(map[string]interface{})
 	var receipt = result["Receipt"].(map[string]interface{})
+	var exitCode = receipt["ExitCode"].(float64)
 
-	if receipt["ExitCode"] != 0 {
+	if exitCode != 0 {
 		t.Errorf("FIX ME")
 		t.FailNow()
 	}
@@ -649,8 +650,9 @@ func TestSendFromMultisig(t *testing.T) {
 
 	var result = res3["result"].(map[string]interface{})
 	var receipt = result["Receipt"].(map[string]interface{})
+	var exitCode = receipt["ExitCode"].(float64)
 
-	if receipt["ExitCode"] != 0 {
+	if exitCode != 0 {
 		t.Errorf("FIX ME")
 		t.FailNow()
 	}
@@ -811,8 +813,9 @@ func TestSwapKeysMultisig(t *testing.T) {
 
 	var result = res3["result"].(map[string]interface{})
 	var receipt = result["Receipt"].(map[string]interface{})
+	var exitCode = receipt["ExitCode"].(float64)
 
-	if receipt["ExitCode"] != 0 {
+	if exitCode != 0 {
 		t.Errorf("FIX ME")
 		t.FailNow()
 	}
