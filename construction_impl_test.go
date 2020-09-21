@@ -28,6 +28,8 @@ import (
 	"time"
 )
 
+const MULTISIG_ADDRESS = "t020286"
+
 var seqMutex sync.Mutex
 
 func seq() func() {
@@ -204,7 +206,7 @@ func TestConstructMultisigPayment(t *testing.T) {
 }
 
 func TestConstructSwapAuthorizedParty(t *testing.T) {
-	expected := `{"Version":0,"To":"t01002","From":"t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba","Nonce":1,"Value":"0","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":7,"Params":"glUB/R0PTfzX6Zr8uZqDJrfcRZ0yxihYMQOuzzY13jMOTmpShDszOIxbNhcAhlxVLRYZmVI87UlsVOZXuGJil7OSixyQSOsTXug="}`
+	expected := `{"Version":0,"To":"t01002","From":"t137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy","Nonce":1,"Value":"0","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":2,"Params":"hEMA6gdAB1gtglUB3+SRhNRq3I+J1EY4vrRfePytJZBVAeQ8w10L4iTPA9V+iE3/tipwhzV8"}`
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      1,
@@ -213,12 +215,12 @@ func TestConstructSwapAuthorizedParty(t *testing.T) {
 		GasLimit:   25000,
 	}
 	params := SwapAuthorizedPartyParams{
-		From: "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
-		To:   "t3v3htmno6gmhe42ssqq5tgoemlm3boaeglrks2fqztfjdz3kjnrkomv5ymjrjpm4srmojashlcnporcluiyaa",
+		From: "t137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy",
+		To:   "t14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q",
 	}
 	request := &SwapAuthorizedPartyRequest{
 		Multisig: "t01002",
-		From:     "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
+		From:     "t137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy",
 		Metadata: mtx,
 		Params:   params,
 	}
@@ -385,9 +387,9 @@ func TestSendTransaction(t *testing.T) {
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      uint64(nonce),
-		GasFeeCap:  137904,
-		GasPremium: 137284,
-		GasLimit:   539085,
+		GasFeeCap:  149794,
+		GasPremium: 149470,
+		GasLimit:   2180810,
 	}
 	pr := &PaymentRequest{
 		From:     "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
@@ -480,7 +482,18 @@ func TestSendTransaction(t *testing.T) {
 
 	if res3["result"] == nil {
 		t.Errorf("FIX ME")
+		t.FailNow()
 	}
+
+	var result = res3["result"].(map[string]interface{})
+	var receipt = result["Receipt"].(map[string]interface{})
+	var exitCode = receipt["ExitCode"].(float64)
+
+	if exitCode != 0 {
+		t.Errorf("FIX ME")
+		t.FailNow()
+	}
+
 }
 
 // Send from multisig
@@ -533,16 +546,16 @@ func TestSendFromMultisig(t *testing.T) {
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      uint64(nonce),
-		GasFeeCap:  137904,
-		GasPremium: 137284,
-		GasLimit:   539085,
+		GasFeeCap:  149794,
+		GasPremium: 149470,
+		GasLimit:   2180810,
 	}
 	params := MultisigPaymentParams{
 		To:       "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
 		Quantity: 1,
 	}
 	request := &MultisigPaymentRequest{
-		Multisig: "t020286",
+		Multisig: MULTISIG_ADDRESS,
 		From:     "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
 		Metadata: mtx,
 		Params:   params,
@@ -632,7 +645,18 @@ func TestSendFromMultisig(t *testing.T) {
 
 	if res3["result"] == nil {
 		t.Errorf("FIX ME")
+		t.FailNow()
 	}
+
+	var result = res3["result"].(map[string]interface{})
+	var receipt = result["Receipt"].(map[string]interface{})
+	var exitCode = receipt["ExitCode"].(float64)
+
+	if exitCode != 0 {
+		t.Errorf("FIX ME")
+		t.FailNow()
+	}
+
 }
 
 // Key swap for a multisig
@@ -640,10 +664,19 @@ func TestSwapKeysMultisig(t *testing.T) {
 	defer seq()()
 
 	/* Secret Key */
-	sk, _ := hex.DecodeString("f15716d3b003b304b8055d9cc62e6b9c869d56cc930c3858d4d7c31f5f53f14a")
+	sk, _ := hex.DecodeString("61b0cf875beaddf0429736e2c03b7a5a39e201d667f2d35c0b07013b6843c329")
+	sk2, _ := hex.DecodeString("8ad463d0fb5ab06172dd3c2b005c1d634e3a6576f8c1d6eb1796ba8d94c00469")
 
-	/* Get Nonce */
-	data := []byte(`{"jsonrpc": "2.0","method": "Filecoin.MpoolGetNonce","id": 1, "params": ["t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba"]}`)
+	/* Addresses */
+	address := "t137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy"
+	address2 := "t1itpqzzcx6yf52oc35dgsoxfqkoxpy6kdmygbaja"
+
+	addressID1 := "t09524"
+
+	/* Get Multisig signers */
+	data := []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateReadState","id": 1, "params": ["` + MULTISIG_ADDRESS + `", null]}`)
+
+	t.Log(string(data))
 
 	req, err := http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
 	if err != nil {
@@ -663,18 +696,61 @@ func TestSwapKeysMultisig(t *testing.T) {
 		t.Errorf("Fail to get nonce")
 	}
 
-	var res map[string]interface{}
-
 	t.Log(resp)
 
+	var res map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&res)
+	if err != nil {
+		t.Errorf("FIX ME")
+	}
+
+	result := res["result"].(map[string]interface{})
+	state := result["State"].(map[string]interface{})
+	signers := state["Signers"].([]interface{})
+
+	var to, from string
+	var secretKey []byte
+	if signers[0] == addressID1 || signers[1] == addressID1 {
+		from = address
+		to = address2
+		secretKey = sk
+	} else {
+		from = address2
+		to = address
+		secretKey = sk2
+	}
+
+	/* Get Nonce */
+	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.MpoolGetNonce","id": 1, "params": ["` + from + `"]}`)
+
+	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
+	if err != nil {
+		t.Errorf("Fail to get nonce")
+	}
+
+	// Set headers
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
+
+	// Set client timeout
+	client = &http.Client{Timeout: time.Second * 60}
+
+	// Send request
+	resp, err = client.Do(req)
+	if err != nil {
+		t.Errorf("Fail to get nonce")
+	}
+
+	var res1 map[string]interface{}
+
+	err = json.NewDecoder(resp.Body).Decode(&res1)
 	if err != nil {
 		t.Errorf("FIX ME")
 	}
 
 	t.Log(res["result"])
 
-	nonce := res["result"].(float64)
+	nonce := res1["result"].(float64)
 	if err != nil {
 		t.Errorf("FIX ME")
 		t.FailNow()
@@ -685,17 +761,17 @@ func TestSwapKeysMultisig(t *testing.T) {
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      uint64(nonce),
-		GasFeeCap:  137904,
-		GasPremium: 137284,
-		GasLimit:   539085,
+		GasFeeCap:  149794,
+		GasPremium: 149470,
+		GasLimit:   2180810,
 	}
 	params := SwapAuthorizedPartyParams{
-		From: "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
-		To:   "t3v3htmno6gmhe42ssqq5tgoemlm3boaeglrks2fqztfjdz3kjnrkomv5ymjrjpm4srmojashlcnporcluiyaa",
+		From: from,
+		To:   to,
 	}
 	request := &SwapAuthorizedPartyRequest{
-		Multisig: "t020286",
-		From:     "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
+		Multisig: MULTISIG_ADDRESS,
+		From:     from,
 		Metadata: mtx,
 		Params:   params,
 	}
@@ -705,7 +781,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 		t.Errorf("FIX ME")
 	}
 
-	signedTx, err := r.SignTx(unsignedTxBase64, sk)
+	signedTx, err := r.SignTx(unsignedTxBase64, secretKey)
 	if err != nil {
 		t.Error(err)
 	}
@@ -784,5 +860,15 @@ func TestSwapKeysMultisig(t *testing.T) {
 
 	if res3["result"] == nil {
 		t.Errorf("FIX ME")
+		t.FailNow()
+	}
+
+	result = res3["result"].(map[string]interface{})
+	receipt := result["Receipt"].(map[string]interface{})
+	exitCode := receipt["ExitCode"].(float64)
+
+	if exitCode != 0 {
+		t.Errorf("FIX ME")
+		t.FailNow()
 	}
 }
