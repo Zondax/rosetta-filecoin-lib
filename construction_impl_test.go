@@ -710,7 +710,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 
 	var to, from string
 	var secretKey []byte
-	if signers[0] == addressID1 {
+	if signers[0] == addressID1 || signers[1] == addressID1 {
 		from = address
 		to = address2
 		secretKey = sk
