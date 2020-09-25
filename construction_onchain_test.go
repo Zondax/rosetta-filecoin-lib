@@ -62,7 +62,9 @@ func TestSendTransaction(t *testing.T) {
 	// Send request
 	resp, err := client.Do(req)
 	if err != nil {
+		t.Log(err)
 		t.Errorf("Fail to get nonce")
+		t.FailNow()
 	}
 
 	var res map[string]interface{}
