@@ -36,7 +36,7 @@ func TestSendTransaction(t *testing.T) {
 
 	lotusJWT, found := os.LookupEnv("LOTUS_JWT")
 	if !found {
-		t.Errorf("Lotus URL has not been defined")
+		t.Errorf("Lotus JWT has not been defined")
 		t.FailNow()
 	}
 
@@ -207,7 +207,7 @@ func TestSendFromMultisig(t *testing.T) {
 
 	lotusJWT, found := os.LookupEnv("LOTUS_JWT")
 	if !found {
-		t.Errorf("Lotus URL has not been defined")
+		t.Errorf("Lotus JWT has not been defined")
 		t.FailNow()
 	}
 
@@ -381,7 +381,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 
 	lotusJWT, found := os.LookupEnv("LOTUS_JWT")
 	if !found {
-		t.Errorf("Lotus URL has not been defined")
+		t.Errorf("Lotus JWT has not been defined")
 		t.FailNow()
 	}
 
