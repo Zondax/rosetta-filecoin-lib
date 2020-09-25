@@ -1,11 +1,13 @@
 package rosettaFilecoinLib
 
+import "github.com/filecoin-project/go-address"
+
 type RosettaConstructionTool interface {
 	// DeriveFromPublicKey defines the function to derive the address from an public key (secp256k1)
 	// @return
 	//   - derivedAddress [string]
 	//   - error when deriving address from the public key
-	DeriveFromPublicKey(publicKey []byte) (string, error)
+	DeriveFromPublicKey(publicKey []byte, network address.Network) (string, error)
 
 	// Sign defines the function to sign an arbitrary message with the secret key (secp256k1)
 	// @return (secp256k1)

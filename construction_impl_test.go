@@ -19,6 +19,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/lotus/chain/types"
 	"sync"
 	"testing"
@@ -43,15 +44,13 @@ func TestDeriveFromPublicKey(t *testing.T) {
 
 	r := &RosettaConstructionFilecoin{false}
 
-	address, err := r.DeriveFromPublicKey(pk)
-	if err != nil {
-		t.Errorf("FIX ME")
-	}
+	testnetAddress, err := r.DeriveFromPublicKey(pk, address.Testnet)
+	assert.NoError(t, err)
+	assert.Equal(t, "t1rovwtiuo5ncslpmpjftzu5akswbgsgighjazxoi", testnetAddress)
 
-	if address != "t1rovwtiuo5ncslpmpjftzu5akswbgsgighjazxoi" {
-		t.Fail()
-	}
-
+	mainnetAddress, err := r.DeriveFromPublicKey(pk, address.Mainnet)
+	assert.NoError(t, err)
+	assert.Equal(t, "f1rovwtiuo5ncslpmpjftzu5akswbgsgighjazxoi", mainnetAddress)
 }
 
 func TestSign(t *testing.T) {

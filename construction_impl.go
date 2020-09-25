@@ -72,13 +72,12 @@ func verifySecp256k1(sig []byte, a address.Address, msg []byte) error {
 	return fmt.Errorf("invalid signature")
 }
 
-func (r RosettaConstructionFilecoin) DeriveFromPublicKey(publicKey []byte) (string, error) {
+func (r RosettaConstructionFilecoin) DeriveFromPublicKey(publicKey []byte, network address.Network) (string, error) {
+	address.CurrentNetwork = network
 	addr, err := address.NewSecp256k1Address(publicKey)
 	if err != nil {
 		return "", err
 	}
-	// FIXME: go=address does not allow setting a network
-	// https://github.com/filecoin-project/go-address/issues/6
 
 	return addr.String(), nil
 }
