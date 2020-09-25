@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/lotus/chain/types"
+	"github.com/stretchr/testify/assert"
 	"sync"
 	"testing"
 )
