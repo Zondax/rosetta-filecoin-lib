@@ -7,8 +7,7 @@ jobs:
     working_directory: /rosetta-filecoin-lib
     steps:
       - checkout
-      - run: go build
-      - run: go test ./...
+      - run: make test
 
   checks:
     docker:

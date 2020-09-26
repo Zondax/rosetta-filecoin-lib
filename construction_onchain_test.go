@@ -48,7 +48,7 @@ func TestSendTransaction(t *testing.T) {
 
 	req, err := http.NewRequest("POST", lotusURL, bytes.NewBuffer(data))
 	if err != nil {
-		t.Errorf("Fail to get nonce")
+		t.Errorf("Fail to get nonce: " + err.Error())
 		t.FailNow()
 	}
 
@@ -62,8 +62,7 @@ func TestSendTransaction(t *testing.T) {
 	// Send request
 	resp, err := client.Do(req)
 	if err != nil {
-		t.Log(err)
-		t.Errorf("Fail to get nonce")
+		t.Errorf(err.Error())
 		t.FailNow()
 	}
 
@@ -73,14 +72,14 @@ func TestSendTransaction(t *testing.T) {
 
 	err = json.NewDecoder(resp.Body).Decode(&res)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	t.Log(res["result"])
 
 	nonce := res["result"].(float64)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 		t.FailNow()
 	}
 
@@ -102,7 +101,7 @@ func TestSendTransaction(t *testing.T) {
 
 	unsignedTxBase64, err := r.ConstructPayment(pr)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	signedTx, err := r.SignTx(unsignedTxBase64, sk)
@@ -118,7 +117,7 @@ func TestSendTransaction(t *testing.T) {
 
 	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	// Set headers
@@ -131,25 +130,25 @@ func TestSendTransaction(t *testing.T) {
 	// Send request
 	resp, err = client.Do(req)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	var res2 map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&res2)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	t.Log(res2)
 
 	if res2["result"] == nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 		t.FailNow()
 	}
 
 	h, err := json.Marshal(res2["result"])
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateWaitMsg","id": 1, "params": [` + string(h) + `, null]}`)
@@ -158,7 +157,7 @@ func TestSendTransaction(t *testing.T) {
 
 	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	// Set headers
@@ -170,20 +169,20 @@ func TestSendTransaction(t *testing.T) {
 	// Send request
 	resp, err = client.Do(req)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 		t.FailNow()
 	}
 
 	var res3 map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&res3)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	t.Log(res3)
 
 	if res3["result"] == nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 		t.FailNow()
 	}
 
@@ -192,7 +191,7 @@ func TestSendTransaction(t *testing.T) {
 	var exitCode = receipt["ExitCode"].(float64)
 
 	if exitCode != 0 {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 		t.FailNow()
 	}
 
@@ -221,7 +220,8 @@ func TestSendFromMultisig(t *testing.T) {
 
 	req, err := http.NewRequest("POST", lotusURL, bytes.NewBuffer(data))
 	if err != nil {
-		t.Errorf("Fail to get nonce")
+		t.Errorf("Fail to get nonce: " + err.Error())
+		t.FailNow()
 	}
 
 	// Set headers
@@ -234,7 +234,8 @@ func TestSendFromMultisig(t *testing.T) {
 	// Send request
 	resp, err := client.Do(req)
 	if err != nil {
-		t.Errorf("Fail to get nonce")
+		t.Errorf(err.Error())
+		t.FailNow()
 	}
 
 	var res map[string]interface{}
@@ -243,14 +244,14 @@ func TestSendFromMultisig(t *testing.T) {
 
 	err = json.NewDecoder(resp.Body).Decode(&res)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	t.Log(res["result"])
 
 	nonce := res["result"].(float64)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 		t.FailNow()
 	}
 
@@ -276,7 +277,7 @@ func TestSendFromMultisig(t *testing.T) {
 
 	unsignedTxBase64, err := r.ConstructMultisigPayment(request)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	signedTx, err := r.SignTx(unsignedTxBase64, sk)
@@ -292,7 +293,7 @@ func TestSendFromMultisig(t *testing.T) {
 
 	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	// Set headers
@@ -305,25 +306,25 @@ func TestSendFromMultisig(t *testing.T) {
 	// Send request
 	resp, err = client.Do(req)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	var res2 map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&res2)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	t.Log(res2)
 
 	if res2["result"] == nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 		t.FailNow()
 	}
 
 	h, err := json.Marshal(res2["result"])
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateWaitMsg","id": 1, "params": [` + string(h) + `, null]}`)
@@ -332,7 +333,7 @@ func TestSendFromMultisig(t *testing.T) {
 
 	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	// Set headers
@@ -344,20 +345,20 @@ func TestSendFromMultisig(t *testing.T) {
 	// Send request
 	resp, err = client.Do(req)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 		t.FailNow()
 	}
 
 	var res3 map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&res3)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	t.Log(res3)
 
 	if res3["result"] == nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 		t.FailNow()
 	}
 
@@ -366,7 +367,7 @@ func TestSendFromMultisig(t *testing.T) {
 	var exitCode = receipt["ExitCode"].(float64)
 
 	if exitCode != 0 {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 		t.FailNow()
 	}
 
@@ -400,11 +401,10 @@ func TestSwapKeysMultisig(t *testing.T) {
 	/* Get Multisig signers */
 	data := []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateReadState","id": 1, "params": ["` + MULTISIG_ADDRESS + `", null]}`)
 
-	t.Log(string(data))
-
 	req, err := http.NewRequest("POST", lotusURL, bytes.NewBuffer(data))
 	if err != nil {
-		t.Errorf("Fail to get nonce")
+		t.Errorf("Fail to get nonce: " + err.Error())
+		t.FailNow()
 	}
 
 	// Set headers
@@ -417,7 +417,8 @@ func TestSwapKeysMultisig(t *testing.T) {
 	// Send request
 	resp, err := client.Do(req)
 	if err != nil {
-		t.Errorf("Fail to get nonce")
+		t.Errorf(err.Error())
+		t.FailNow()
 	}
 
 	t.Log(resp)
@@ -425,7 +426,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 	var res map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&res)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	result := res["result"].(map[string]interface{})
@@ -449,7 +450,8 @@ func TestSwapKeysMultisig(t *testing.T) {
 
 	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
 	if err != nil {
-		t.Errorf("Fail to get nonce")
+		t.Errorf("Fail to get nonce: " + err.Error())
+		t.FailNow()
 	}
 
 	// Set headers
@@ -462,21 +464,21 @@ func TestSwapKeysMultisig(t *testing.T) {
 	// Send request
 	resp, err = client.Do(req)
 	if err != nil {
-		t.Errorf("Fail to get nonce")
+		t.Errorf(err.Error())
 	}
 
 	var res1 map[string]interface{}
 
 	err = json.NewDecoder(resp.Body).Decode(&res1)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	t.Log(res["result"])
 
 	nonce := res1["result"].(float64)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 		t.FailNow()
 	}
 
@@ -502,7 +504,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 
 	unsignedTxBase64, err := r.ConstructSwapAuthorizedParty(request)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	signedTx, err := r.SignTx(unsignedTxBase64, secretKey)
@@ -518,7 +520,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 
 	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	// Set headers
@@ -531,25 +533,25 @@ func TestSwapKeysMultisig(t *testing.T) {
 	// Send request
 	resp, err = client.Do(req)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	var res2 map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&res2)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	t.Log(res2)
 
 	if res2["result"] == nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 		t.FailNow()
 	}
 
 	h, err := json.Marshal(res2["result"])
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateWaitMsg","id": 1, "params": [` + string(h) + `, null]}`)
@@ -558,7 +560,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 
 	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	// Set headers
@@ -570,20 +572,20 @@ func TestSwapKeysMultisig(t *testing.T) {
 	// Send request
 	resp, err = client.Do(req)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 		t.FailNow()
 	}
 
 	var res3 map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&res3)
 	if err != nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 	}
 
 	t.Log(res3)
 
 	if res3["result"] == nil {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 		t.FailNow()
 	}
 
@@ -592,7 +594,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 	exitCode := receipt["ExitCode"].(float64)
 
 	if exitCode != 0 {
-		t.Errorf("FIX ME")
+		t.Errorf(err.Error())
 		t.FailNow()
 	}
 }

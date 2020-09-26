@@ -235,6 +235,8 @@ github.com/filecoin-project/go-data-transfer v0.6.4 h1:Q08ABa+cOTOLoAyHeA94fPLcw
 github.com/filecoin-project/go-data-transfer v0.6.4/go.mod h1:PmBKVXkhh67/tnEdJXQwDHl5mT+7Tbcwe1NPninqhnM=
 github.com/filecoin-project/go-data-transfer v0.6.5 h1:oP20la8Z0CLrw0uqvt6xVgw6rOevZeGJ9GNQeC0OCSU=
 github.com/filecoin-project/go-data-transfer v0.6.5/go.mod h1:I9Ylb/UiZyqnI41wUoCXq/le0nDLhlwpFQCtNPxEPOA=
+github.com/filecoin-project/go-data-transfer v0.6.6 h1:2TccLSxPYJENcYRdov2WvpTvQ1qUMrPkWe8sBrfj36g=
+github.com/filecoin-project/go-data-transfer v0.6.6/go.mod h1:C++k1U6+jMQODOaen5OPDo9XQbth9Yq3ie94vNjBJbk=
 github.com/filecoin-project/go-fil-commcid v0.0.0-20200208005934-2b8bd03caca5/go.mod h1:JbkIgFF/Z9BDlvrJO1FuKkaWsH673/UdFaiVS6uIHlA=
 github.com/filecoin-project/go-fil-commcid v0.0.0-20200716160307-8f644712406f h1:GxJzR3oRIMTPtpZ0b7QF8FKPK6/iPAc7trhlL5k/g+s=
 github.com/filecoin-project/go-fil-commcid v0.0.0-20200716160307-8f644712406f/go.mod h1:Eaox7Hvus1JgPrL5+M3+h7aSPHc0cVqpSxA+TxIEpZQ=
@@ -248,6 +250,8 @@ github.com/filecoin-project/go-fil-markets v0.6.1 h1:qCFLcVkUCbxwEfH/6EcqTuQvibX
 github.com/filecoin-project/go-fil-markets v0.6.1/go.mod h1:dBJl59dAyl8+cGVb/ONPlEQW4+YzhjI3d6bxLfHVpX0=
 github.com/filecoin-project/go-fil-markets v0.6.2 h1:9Z57KeaQSa1liCmT1pH6SIjrn9mGTDFJXmR2WQVuaiY=
 github.com/filecoin-project/go-fil-markets v0.6.2/go.mod h1:wtN4Hc/1hoVCpWhSWYxwUxH3PQtjSkWWuC1nQjiIWog=
+github.com/filecoin-project/go-fil-markets v0.6.3 h1:3kTxfquGvk3zQY+hJH1kEA28tRQ47phqSRqOI4+YcQM=
+github.com/filecoin-project/go-fil-markets v0.6.3/go.mod h1:Ug1yhGhzTYC6qrpKsR2QpU8QRCeBpwkTA9RICVKuOMM=
 github.com/filecoin-project/go-hamt-ipld v0.1.5 h1:uoXrKbCQZ49OHpsTCkrThPNelC4W3LPEk0OrS/ytIBM=
 github.com/filecoin-project/go-hamt-ipld v0.1.5/go.mod h1:6Is+ONR5Cd5R6XZoCse1CWaXZc0Hdb/JeX+EQCQzX24=
 github.com/filecoin-project/go-jsonrpc v0.1.2-0.20200817153016-2ea5cbaf5ec0/go.mod h1:XBBpuKIMaXIIzeqzO1iucq4GvbF8CxmXRFoezRh+Cx4=
@@ -292,6 +296,8 @@ github.com/filecoin-project/lotus v0.7.1 h1:sAig3/mEsl2Z06qQxIBKKnG6GYzrARRt1Bn6
 github.com/filecoin-project/lotus v0.7.1/go.mod h1:OxXonnXDY8U4YHw6kJQOBPcYmGknp+VIU5HHeb3U3iU=
 github.com/filecoin-project/lotus v0.7.2 h1:ouCa4ZL1DwLZV+HcT4D+om4wM3T/wYdspj7vKR9Cv8Y=
 github.com/filecoin-project/lotus v0.7.2/go.mod h1:lSaELDZAkZ5vgGn2+OTvSHVxjxi2en1agfh6ytl2Jbw=
+github.com/filecoin-project/lotus v0.8.0 h1:V6wVAYoFyuvJ10vZ5eGwxs/QatzjEL2yjliVRTWoC0g=
+github.com/filecoin-project/lotus v0.8.0/go.mod h1:31qmN62Dm8APRHXmW/hMbqKcrkoPVISERSX7RGQQbOs=
 github.com/filecoin-project/sector-storage v0.0.0-20200712023225-1d67dcfa3c15/go.mod h1:salgVdX7qeXFo/xaiEQE29J4pPkjn71T0kt0n+VDBzo=
 github.com/filecoin-project/sector-storage v0.0.0-20200730050024-3ee28c3b6d9a/go.mod h1:oOawOl9Yk+qeytLzzIryjI8iRbqo+qzS6EEeElP4PWA=
 github.com/filecoin-project/sector-storage v0.0.0-20200810171746-eac70842d8e0/go.mod h1:oOawOl9Yk+qeytLzzIryjI8iRbqo+qzS6EEeElP4PWA=
@@ -312,6 +318,8 @@ github.com/filecoin-project/specs-actors v0.9.8 h1:45fnx/BsseFL3CtvSoR6CszFY26TF
 github.com/filecoin-project/specs-actors v0.9.8/go.mod h1:xFObDoWPySBNTNBrGXVVrutmgSZH/mMo46Q1bec/0hw=
 github.com/filecoin-project/specs-actors v0.9.10 h1:gU0TrRhgkCsBEOP42sGDE7RQuR0Cov9hJhBqq+RJmjU=
 github.com/filecoin-project/specs-actors v0.9.10/go.mod h1:czlvLQGEX0fjLLfdNHD7xLymy6L3n7aQzRWzsYGf+ys=
+github.com/filecoin-project/specs-actors v0.9.11 h1:TnpG7HAeiUrfj0mJM7UaPW0P2137H62RGof7ftT5Mas=
+github.com/filecoin-project/specs-actors v0.9.11/go.mod h1:czlvLQGEX0fjLLfdNHD7xLymy6L3n7aQzRWzsYGf+ys=
 github.com/filecoin-project/specs-storage v0.1.1-0.20200622113353-88a9704877ea/go.mod h1:Pr5ntAaxsh+sLG/LYiL4tKzvA83Vk5vLODYhfNwOg7k=
 github.com/filecoin-project/specs-storage v0.1.1-0.20200730063404-f7db367e9401/go.mod h1:Pr5ntAaxsh+sLG/LYiL4tKzvA83Vk5vLODYhfNwOg7k=
 github.com/filecoin-project/specs-storage v0.1.1-0.20200907031224-ed2e5cd13796/go.mod h1:nJRRM7Aa9XVvygr3W9k6xGF46RWzr2zxF/iGoAIfA/g=
@@ -568,6 +576,8 @@ github.com/ipfs/go-graphsync v0.1.2 h1:25Ll9kIXCE+DY0dicvfS3KMw+U5sd01b/FJbA7KAb
 github.com/ipfs/go-graphsync v0.1.2/go.mod h1:sLXVXm1OxtE2XYPw62MuXCdAuNwkAdsbnfrmos5odbA=
 github.com/ipfs/go-graphsync v0.2.0 h1:x94MvHLNuRwBlZzVal7tR1RYK7T7H6bqQLPopxDbIF0=
 github.com/ipfs/go-graphsync v0.2.0/go.mod h1:gEBvJUNelzMkaRPJTpg/jaKN4AQW/7wDWu0K92D8o10=
+github.com/ipfs/go-graphsync v0.2.1 h1:MdehhqBSuTI2LARfKLkpYnt0mUrqHs/mtuDnESXHBfU=
+github.com/ipfs/go-graphsync v0.2.1/go.mod h1:gEBvJUNelzMkaRPJTpg/jaKN4AQW/7wDWu0K92D8o10=
 github.com/ipfs/go-hamt-ipld v0.0.15-0.20200131012125-dd88a59d3f2e/go.mod h1:9aQJu/i/TaRDW6jqB5U217dLIDopn50wxLdHXM2CTfE=
 github.com/ipfs/go-hamt-ipld v0.0.15-0.20200204200533-99b8553ef242/go.mod h1:kq3Pi+UP3oHhAdKexE+kHHYRKMoFNuGero0R7q3hWGg=
 github.com/ipfs/go-hamt-ipld v0.1.1 h1:0IQdvwnAAUKmDE+PMJa5y1QiwOPHpI9+eAbQEEEYthk=
@@ -669,6 +679,7 @@ github.com/ipfs/iptb v1.4.0/go.mod h1:1rzHpCYtNp87/+hTxG5TfCVn/yMY3dKnLn8tBiMfdm
 github.com/ipfs/iptb-plugins v0.2.1/go.mod h1:QXMbtIWZ+jRsW8a4h13qAKU7jcM7qaittO8wOsTP0Rs=
 github.com/ipld/go-car v0.1.1-0.20200526133713-1c7508d55aae h1:OV9dxl8iPMCOD8Vi/hvFwRh3JWPXqmkYSVxWr9JnEzM=
 github.com/ipld/go-car v0.1.1-0.20200526133713-1c7508d55aae/go.mod h1:2mvxpu4dKRnuH3mj5u6KW/tmRSCcXvy/KYiJ4nC6h4c=
+github.com/ipld/go-car v0.1.1-0.20200923150018-8cdef32e2da4 h1:6phjU3kXvCEWOZpu+Ob0w6DzgPFZmDLgLPxJhD8RxEY=
 github.com/ipld/go-car v0.1.1-0.20200923150018-8cdef32e2da4/go.mod h1:xrMEcuSq+D1vEwl+YAXsg/JfA98XGpXDwnkIL4Aimqw=
 github.com/ipld/go-ipld-prime v0.0.2-0.20200428162820-8b59dc292b8e/go.mod h1:uVIwe/u0H4VdKv3kaN1ck7uCb6yD9cFLS9/ELyXbsw8=
 github.com/ipld/go-ipld-prime v0.0.4-0.20200828224805-5ff8c8b0b6ef h1:/yPelt/0CuzZsmRkYzBBnJ499JnAOGaIaAXHujx96ic=
@@ -680,6 +691,7 @@ github.com/ipld/go-ipld-prime v0.5.1-0.20200828233916-988837377a7f/go.mod h1:0xE
 github.com/ipld/go-ipld-prime-proto v0.0.0-20200428191222-c1ffdadc01e1/go.mod h1:OAV6xBmuTLsPZ+epzKkPB1e25FHk/vCtyatkdHcArLs=
 github.com/ipld/go-ipld-prime-proto v0.0.0-20200828231332-ae0aea07222b h1:ZtlW6pubN17TDaStlxgrwEXXwwUfJaXu9RobwczXato=
 github.com/ipld/go-ipld-prime-proto v0.0.0-20200828231332-ae0aea07222b/go.mod h1:OAV6xBmuTLsPZ+epzKkPB1e25FHk/vCtyatkdHcArLs=
+github.com/ipld/go-ipld-prime-proto v0.0.0-20200922192210-9a2bfd4440a6 h1:6Mq+tZGSEMEoJJ1NbJRhddeelkXZcU8yfH/ZRYUo/Es=
 github.com/ipld/go-ipld-prime-proto v0.0.0-20200922192210-9a2bfd4440a6/go.mod h1:3pHYooM9Ea65jewRwrb2u5uHZCNkNTe9ABsVB+SrkH0=
 github.com/ipsn/go-secp256k1 v0.0.0-20180726113642-9d62b9f0bc52 h1:QG4CGBqCeuBo6aZlGAamSkxWdgWfZGeE49eUOWJPA4c=
 github.com/ipsn/go-secp256k1 v0.0.0-20180726113642-9d62b9f0bc52/go.mod h1:fdg+/X9Gg4AsAIzWpEHwnqd+QY3b7lajxyjE1m4hkq4=

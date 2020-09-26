@@ -18,8 +18,9 @@ package rosettaFilecoinLib
 import (
 	"bytes"
 	"fmt"
+	"sync"
 
-	"github.com/filecoin-project/go-address"
+	filAddr "github.com/filecoin-project/go-address"
 	c "github.com/filecoin-project/go-crypto"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/crypto"
@@ -37,6 +38,23 @@ type RosettaConstructionFilecoin struct {
 	Mainnet bool
 }
 
+// String returns an address encoded as a string
+
+var filAddrLibMutex sync.Mutex
+
+func formatAddress(network filAddr.Network, addr filAddr.Address) string {
+	// the address library is unfortunately not thread-safe so we must use a mutex here
+	// so we only temporarily change the value and use to mutex to avoid issues
+	filAddrLibMutex.Lock()
+	defer filAddrLibMutex.Unlock()
+
+	oldNetworkValue := filAddr.CurrentNetwork
+	defer func() { filAddr.CurrentNetwork = oldNetworkValue }()
+
+	filAddr.CurrentNetwork = network
+	return addr.String()
+}
+
 func signSecp256k1(msg []byte, pk []byte) ([]byte, error) {
 	b2sum := blake2b.Sum256(msg)
 	sig, err := c.Sign(pk, b2sum[:])
@@ -49,14 +67,14 @@ func signSecp256k1(msg []byte, pk []byte) ([]byte, error) {
 
 // REVIEW: Doesn't actually verify the signature...
 // https://github.com/filecoin-project/lotus/blob/master/lib/sigs/secp/init.go#L38-L55
-func verifySecp256k1(sig []byte, a address.Address, msg []byte) error {
+func verifySecp256k1(sig []byte, a filAddr.Address, msg []byte) error {
 	b2sum := blake2b.Sum256(msg)
 	pubk, err := c.EcRecover(b2sum[:], sig)
 	if err != nil {
 		return err
 	}
 
-	maybeaddr, err := address.NewSecp256k1Address(pubk)
+	maybeaddr, err := filAddr.NewSecp256k1Address(pubk)
 	if err != nil {
 		return err
 	}
@@ -72,14 +90,13 @@ func verifySecp256k1(sig []byte, a address.Address, msg []byte) error {
 	return fmt.Errorf("invalid signature")
 }
 
-func (r RosettaConstructionFilecoin) DeriveFromPublicKey(publicKey []byte, network address.Network) (string, error) {
-	address.CurrentNetwork = network
-	addr, err := address.NewSecp256k1Address(publicKey)
+func (r RosettaConstructionFilecoin) DeriveFromPublicKey(publicKey []byte, network filAddr.Network) (string, error) {
+	addr, err := filAddr.NewSecp256k1Address(publicKey)
 	if err != nil {
 		return "", err
 	}
 
-	return addr.String(), nil
+	return formatAddress(network, addr), nil
 }
 
 func (r RosettaConstructionFilecoin) Sign(message []byte, sk []byte) ([]byte, error) {
@@ -87,7 +104,7 @@ func (r RosettaConstructionFilecoin) Sign(message []byte, sk []byte) ([]byte, er
 }
 
 func (r RosettaConstructionFilecoin) Verify(message []byte, publicKey []byte, signature []byte) error {
-	addr, err := address.NewSecp256k1Address(publicKey)
+	addr, err := filAddr.NewSecp256k1Address(publicKey)
 	if err != nil {
 		return err
 	}
@@ -96,12 +113,12 @@ func (r RosettaConstructionFilecoin) Verify(message []byte, publicKey []byte, si
 }
 
 func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (string, error) {
-	to, err := address.NewFromString(request.To)
+	to, err := filAddr.NewFromString(request.To)
 	if err != nil {
 		return "", err
 	}
 
-	from, err := address.NewFromString(request.From)
+	from, err := filAddr.NewFromString(request.From)
 	if err != nil {
 		return "", err
 	}
@@ -132,12 +149,12 @@ func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (
 }
 
 func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigPaymentRequest) (string, error) {
-	to, err := address.NewFromString(request.Multisig)
+	to, err := filAddr.NewFromString(request.Multisig)
 	if err != nil {
 		return "", err
 	}
 
-	from, err := address.NewFromString(request.From)
+	from, err := filAddr.NewFromString(request.From)
 	if err != nil {
 		return "", err
 	}
@@ -147,7 +164,7 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 	gaspremium := abi.NewTokenAmount(request.Metadata.GasPremium)
 	gaslimit := int64(request.Metadata.GasLimit)
 
-	toParams, err := address.NewFromString(request.Params.To)
+	toParams, err := filAddr.NewFromString(request.Params.To)
 	if err != nil {
 		return "", err
 	}
@@ -190,12 +207,12 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 }
 
 func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapAuthorizedPartyRequest) (string, error) {
-	to, err := address.NewFromString(request.Multisig)
+	to, err := filAddr.NewFromString(request.Multisig)
 	if err != nil {
 		return "", err
 	}
 
-	from, err := address.NewFromString(request.From)
+	from, err := filAddr.NewFromString(request.From)
 	if err != nil {
 		return "", err
 	}
@@ -205,12 +222,12 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 	gaspremium := abi.NewTokenAmount(request.Metadata.GasPremium)
 	gaslimit := int64(request.Metadata.GasLimit)
 
-	toParams, err := address.NewFromString(request.Params.To)
+	toParams, err := filAddr.NewFromString(request.Params.To)
 	if err != nil {
 		return "", err
 	}
 
-	fromParams, err := address.NewFromString(request.Params.From)
+	fromParams, err := filAddr.NewFromString(request.Params.From)
 	if err != nil {
 		return "", err
 	}
@@ -269,13 +286,13 @@ func (r RosettaConstructionFilecoin) SignTx(unsignedTxBase64 string, privateKey 
 
 	rawIn := json.RawMessage(unsignedTransaction)
 
-	bytes, err := rawIn.MarshalJSON()
+	txBytes, err := rawIn.MarshalJSON()
 	if err != nil {
 		return "", err
 	}
 
 	var msg types.Message
-	err = json.Unmarshal(bytes, &msg)
+	err = json.Unmarshal(txBytes, &msg)
 	if err != nil {
 		return "", err
 	}
@@ -352,13 +369,13 @@ func (r RosettaConstructionFilecoin) ParseTx(messageBase64 string) (string, erro
 func (r RosettaConstructionFilecoin) Hash(signedMessage string) (string, error) {
 	rawIn := json.RawMessage(signedMessage)
 
-	bytes, err := rawIn.MarshalJSON()
+	txBytes, err := rawIn.MarshalJSON()
 	if err != nil {
 		return "", err
 	}
 
 	var msg types.SignedMessage
-	err = json.Unmarshal(bytes, &msg)
+	err = json.Unmarshal(txBytes, &msg)
 	if err != nil {
 		return "", err
 	}
