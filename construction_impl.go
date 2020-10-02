@@ -18,6 +18,7 @@ package rosettaFilecoinLib
 import (
 	"bytes"
 	"fmt"
+	"github.com/ipfs/go-cid"
 	"sync"
 
 	filAddr "github.com/filecoin-project/go-address"
@@ -30,7 +31,6 @@ import (
 	"github.com/minio/blake2b-simd"
 	cbg "github.com/whyrusleeping/cbor-gen"
 
-	"encoding/base64"
 	"encoding/json"
 )
 
@@ -65,8 +65,7 @@ func signSecp256k1(msg []byte, pk []byte) ([]byte, error) {
 	return sig, nil
 }
 
-// REVIEW: Doesn't actually verify the signature...
-// https://github.com/filecoin-project/lotus/blob/master/lib/sigs/secp/init.go#L38-L55
+// Based on https://github.com/filecoin-project/lotus/blob/master/lib/sigs/secp/init.go#L38-L55
 func verifySecp256k1(sig []byte, a filAddr.Address, msg []byte) error {
 	b2sum := blake2b.Sum256(msg)
 	pubk, err := c.EcRecover(b2sum[:], sig)
@@ -99,11 +98,11 @@ func (r RosettaConstructionFilecoin) DeriveFromPublicKey(publicKey []byte, netwo
 	return formatAddress(network, addr), nil
 }
 
-func (r RosettaConstructionFilecoin) Sign(message []byte, sk []byte) ([]byte, error) {
+func (r RosettaConstructionFilecoin) SignRaw(message []byte, sk []byte) ([]byte, error) {
 	return signSecp256k1(message, sk)
 }
 
-func (r RosettaConstructionFilecoin) Verify(message []byte, publicKey []byte, signature []byte) error {
+func (r RosettaConstructionFilecoin) VerifyRaw(message []byte, publicKey []byte, signature []byte) error {
 	addr, err := filAddr.NewSecp256k1Address(publicKey)
 	if err != nil {
 		return err
@@ -145,7 +144,7 @@ func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (
 		return "", err
 	}
 
-	return base64.StdEncoding.EncodeToString(tx), nil
+	return string(tx[:]), nil
 }
 
 func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigPaymentRequest) (string, error) {
@@ -203,7 +202,7 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 		return "", err
 	}
 
-	return base64.StdEncoding.EncodeToString(tx), nil
+	return string(tx[:]), nil
 }
 
 func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapAuthorizedPartyRequest) (string, error) {
@@ -275,31 +274,105 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 		return "", err
 	}
 
-	return base64.StdEncoding.EncodeToString(tx), nil
+	return string(tx[:]), nil
 }
 
-func (r RosettaConstructionFilecoin) SignTx(unsignedTxBase64 string, privateKey []byte) (string, error) {
-	unsignedTransaction, err := base64.StdEncoding.DecodeString(unsignedTxBase64)
+func (r RosettaConstructionFilecoin) unsignedMessageFromCBOR(messageCbor []byte) (*types.Message, error) {
+	br := cbg.GetPeeker(bytes.NewReader(messageCbor))
+	scratch := make([]byte, 8)
+	maj, extra, err := cbg.CborReadHeaderBuf(br, scratch)
+
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	rawIn := json.RawMessage(unsignedTransaction)
+	if maj != cbg.MajArray {
+		return nil, fmt.Errorf("cbor input should be of type array")
+	}
+
+	if extra != 10 {
+		return nil, fmt.Errorf("cbor input had wrong number of fields")
+	}
+
+	msg, err := types.DecodeMessage(messageCbor)
+	if err != nil {
+		return nil, err
+	}
+
+	return msg, nil
+}
+
+func (r RosettaConstructionFilecoin) unsignedMessageFromJSON(unsignedTxJson string) (*types.Message, error) {
+	rawIn := json.RawMessage(unsignedTxJson)
 
 	txBytes, err := rawIn.MarshalJSON()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	var msg types.Message
 	err = json.Unmarshal(txBytes, &msg)
+	if err != nil {
+		return nil, err
+	}
+
+	return &msg, nil
+}
+
+func (r RosettaConstructionFilecoin) EncodeTx(unsignedTxJson string) ([]byte, error) {
+	msg, err := r.unsignedMessageFromJSON(unsignedTxJson)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := msg.Serialize()
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (r RosettaConstructionFilecoin) SignTx(unsignedTx []byte, privateKey []byte) ([]byte, error) {
+	msg, err := r.unsignedMessageFromCBOR(unsignedTx)
+	if err != nil {
+		return nil, err
+	}
+
+	digest := msg.Cid().Bytes()
+
+	sig, err := r.SignRaw(digest, privateKey)
+	if err != nil {
+		return nil, err
+	}
+
+	signature := crypto.Signature{
+		Type: crypto.SigTypeSecp256k1,
+		Data: sig,
+	}
+
+	sm := &types.SignedMessage{
+		Message:   *msg,
+		Signature: signature,
+	}
+
+	m, err := json.Marshal(sm)
+	if err != nil {
+		return nil, err
+	}
+
+	return m, nil
+}
+
+func (r RosettaConstructionFilecoin) SignTxJSON(unsignedTxJson string, privateKey []byte) (string, error) {
+	msg, err := r.unsignedMessageFromJSON(unsignedTxJson)
 	if err != nil {
 		return "", err
 	}
 
 	digest := msg.Cid().Bytes()
 
-	sig, err := r.Sign(digest, privateKey)
+	sig, err := r.SignRaw(digest, privateKey)
 	if err != nil {
 		return "", err
 	}
@@ -310,7 +383,7 @@ func (r RosettaConstructionFilecoin) SignTx(unsignedTxBase64 string, privateKey 
 	}
 
 	sm := &types.SignedMessage{
-		Message:   msg,
+		Message:   *msg,
 		Signature: signature,
 	}
 
@@ -322,12 +395,7 @@ func (r RosettaConstructionFilecoin) SignTx(unsignedTxBase64 string, privateKey 
 	return string(m), nil
 }
 
-func (r RosettaConstructionFilecoin) ParseTx(messageBase64 string) (string, error) {
-	messageCbor, err := base64.StdEncoding.DecodeString(messageBase64)
-	if err != nil {
-		return "", err
-	}
-
+func (r RosettaConstructionFilecoin) ParseTx(messageCbor []byte) (string, error) {
 	br := cbg.GetPeeker(bytes.NewReader(messageCbor))
 	scratch := make([]byte, 8)
 	maj, extra, err := cbg.CborReadHeaderBuf(br, scratch)
@@ -359,11 +427,133 @@ func (r RosettaConstructionFilecoin) ParseTx(messageBase64 string) (string, erro
 		return "", fmt.Errorf("cbor input had wrong number of fields")
 	}
 
-	msgBytes, err := json.Marshal(msg)
+	msgJson, err := json.Marshal(msg)
 	if err != nil {
 		return "", err
 	}
-	return base64.StdEncoding.EncodeToString(msgBytes), nil
+	return string(msgJson[:]), nil
+}
+
+func (r RosettaConstructionFilecoin) ParseParamsMultisigTx(unsignedMultisigTx string, id cid.Cid) (string, error) {
+	rawIn := json.RawMessage(unsignedMultisigTx)
+
+	if id != builtin.MultisigActorCodeID {
+		return "", fmt.Errorf("This actor id is not supported")
+	}
+
+	txBytes, err := rawIn.MarshalJSON()
+	if err != nil {
+		return "", err
+	}
+
+	var msg types.Message
+	err = json.Unmarshal(txBytes, &msg)
+
+	switch msg.Method {
+	case builtin.MethodsMultisig.Propose:
+		{
+			r := bytes.NewReader(msg.Params)
+			var params multisig.ProposeParams
+			err := params.UnmarshalCBOR(r)
+			if err != nil {
+				return "", err
+			}
+			jsonResponse, err := json.Marshal(params)
+			if err != nil {
+				return "", err
+			}
+			return string(jsonResponse), nil
+		}
+	case builtin.MethodsMultisig.Approve:
+	case builtin.MethodsMultisig.Cancel:
+		{
+			r := bytes.NewReader(msg.Params)
+			var params multisig.TxnIDParams
+			err := params.UnmarshalCBOR(r)
+			if err != nil {
+				return "", err
+			}
+			jsonResponse, err := json.Marshal(params)
+			if err != nil {
+				return "", err
+			}
+			return string(jsonResponse), nil
+		}
+	case builtin.MethodsMultisig.AddSigner:
+		{
+			r := bytes.NewReader(msg.Params)
+			var params multisig.AddSignerParams
+			err := params.UnmarshalCBOR(r)
+			if err != nil {
+				return "", err
+			}
+			jsonResponse, err := json.Marshal(params)
+			if err != nil {
+				return "", err
+			}
+			return string(jsonResponse), nil
+		}
+	case builtin.MethodsMultisig.RemoveSigner:
+		{
+			r := bytes.NewReader(msg.Params)
+			var params multisig.RemoveSignerParams
+			err := params.UnmarshalCBOR(r)
+			if err != nil {
+				return "", err
+			}
+			jsonResponse, err := json.Marshal(params)
+			if err != nil {
+				return "", err
+			}
+			return string(jsonResponse), nil
+		}
+	case builtin.MethodsMultisig.SwapSigner:
+		{
+			r := bytes.NewReader(msg.Params)
+			var params multisig.SwapSignerParams
+			err := params.UnmarshalCBOR(r)
+			if err != nil {
+				return "", err
+			}
+			jsonResponse, err := json.Marshal(params)
+			if err != nil {
+				return "", err
+			}
+			return string(jsonResponse), nil
+		}
+	case builtin.MethodsMultisig.ChangeNumApprovalsThreshold:
+		{
+			r := bytes.NewReader(msg.Params)
+			var params multisig.ChangeNumApprovalsThresholdParams
+			err := params.UnmarshalCBOR(r)
+			if err != nil {
+				return "", err
+			}
+			jsonResponse, err := json.Marshal(params)
+			if err != nil {
+				return "", err
+			}
+			return string(jsonResponse), nil
+		}
+	case builtin.MethodsMultisig.LockBalance:
+		{
+			r := bytes.NewReader(msg.Params)
+			var params multisig.LockBalanceParams
+			err := params.UnmarshalCBOR(r)
+			if err != nil {
+				return "", err
+			}
+			jsonResponse, err := json.Marshal(params)
+			if err != nil {
+				return "", err
+			}
+			return string(jsonResponse), nil
+		}
+	default:
+		return "", fmt.Errorf("unknown method")
+	}
+
+	return "", nil
 }
 
 func (r RosettaConstructionFilecoin) Hash(signedMessage string) (string, error) {

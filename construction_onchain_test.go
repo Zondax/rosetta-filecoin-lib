@@ -104,7 +104,7 @@ func TestSendTransaction(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	signedTx, err := r.SignTx(unsignedTxBase64, sk)
+	signedTx, err := r.SignTxJSON(unsignedTxBase64, sk)
 	if err != nil {
 		t.Error(err)
 	}
@@ -280,7 +280,7 @@ func TestSendFromMultisig(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	signedTx, err := r.SignTx(unsignedTxBase64, sk)
+	signedTx, err := r.SignTxJSON(unsignedTxBase64, sk)
 	if err != nil {
 		t.Error(err)
 	}
@@ -507,7 +507,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	signedTx, err := r.SignTx(unsignedTxBase64, secretKey)
+	signedTx, err := r.SignTxJSON(unsignedTxBase64, secretKey)
 	if err != nil {
 		t.Error(err)
 	}
