@@ -311,6 +311,9 @@ func TestExpandMultisigJSON(t *testing.T) {
 	}
 
 	expandedParams, err := r.ParseParamsMultisigTx(tx, builtin.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 
 	t.Log(tx)
 	t.Log(expandedParams)

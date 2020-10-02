@@ -144,7 +144,7 @@ func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (
 		return "", err
 	}
 
-	return string(tx[:]), nil
+	return string(tx), nil
 }
 
 func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigPaymentRequest) (string, error) {
@@ -202,7 +202,7 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 		return "", err
 	}
 
-	return string(tx[:]), nil
+	return string(tx), nil
 }
 
 func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapAuthorizedPartyRequest) (string, error) {
@@ -274,7 +274,7 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 		return "", err
 	}
 
-	return string(tx[:]), nil
+	return string(tx), nil
 }
 
 func (r RosettaConstructionFilecoin) unsignedMessageFromCBOR(messageCbor []byte) (*types.Message, error) {
@@ -431,7 +431,7 @@ func (r RosettaConstructionFilecoin) ParseTx(messageCbor []byte) (string, error)
 	if err != nil {
 		return "", err
 	}
-	return string(msgJson[:]), nil
+	return string(msgJson), nil
 }
 
 func (r RosettaConstructionFilecoin) ParseParamsMultisigTx(unsignedMultisigTx string, id cid.Cid) (string, error) {
@@ -448,6 +448,9 @@ func (r RosettaConstructionFilecoin) ParseParamsMultisigTx(unsignedMultisigTx st
 
 	var msg types.Message
 	err = json.Unmarshal(txBytes, &msg)
+	if err != nil {
+		return "", err
+	}
 
 	switch msg.Method {
 	case builtin.MethodsMultisig.Propose:
