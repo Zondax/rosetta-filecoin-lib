@@ -1,6 +1,9 @@
 package rosettaFilecoinLib
 
-import "github.com/filecoin-project/go-address"
+import (
+	"github.com/filecoin-project/go-address"
+	"github.com/filecoin-project/go-state-types/abi"
+)
 
 type RosettaConstructionTool interface {
 	// DeriveFromPublicKey defines the function to derive the address from an public key (secp256k1)
@@ -10,48 +13,66 @@ type RosettaConstructionTool interface {
 	DeriveFromPublicKey(publicKey []byte, network address.Network) (string, error)
 
 	// Sign defines the function to sign an arbitrary message with the secret key (secp256k1)
+	// @message [[]byte] a digest
 	// @return (secp256k1)
 	//   - signature [string] the signature after the message is signed with the private key
 	//   - error when signing a message
-	Sign(message []byte, sk []byte) ([]byte, error)
+	SignRaw(message []byte, sk []byte) ([]byte, error)
 
 	// Verify defines the function to verify the signature of an arbitrary message with the public key (secp256k1)
+	// @message [[]byte] a digest
 	// @return
 	//   - error if invalid signature
-	Verify(message []byte, publicKey []byte, signature []byte) error
+	VerifyRaw(message []byte, publicKey []byte, signature []byte) error
 
 	// ConstructPayment creates transaction for a normal send
 	// @return
-	//   - unsignedTx [string] base64 encoded unsigned transaction
+	//   - unsigned transaction as json [string]
 	//   - error while constructing the normal send transaction
 	ConstructPayment(request *PaymentRequest) (string, error)
 
 	// ConstructMultisigPayment creates transaction for a multisig send
 	// @return
-	//   - unsignedTx [string] base64 encoded unsigned transaction
+	//   - unsigned transaction as json [string]
 	//   - error while constructing the multisig send transaction
 	ConstructMultisigPayment(request *MultisigPaymentRequest) (string, error)
 
 	// ConstructSwapAuthorizedParty creates transaction for a multisig SwapAuthorizedParty call
 	// @return
-	//   - unsignedTx [string] base64 encoded unsigned transaction
+	//   - unsigned transaction as json [string]
 	//   - error while constructing the multisig SwapAuthorizedParty call
 	ConstructSwapAuthorizedParty(request *MultisigPaymentRequest) (string, error)
 
-	// SignTx signs an unsignedTx using the secret key (secp256k1) and return a signedTx that can be submitted to the node
-	// @unsignedTransaction [string] base64 encoded unsigned transaction
+	// SignTx signs an unsignedTx (CBOR) using the secret key (secp256k1) and returns a signedTx
+	// @unsignedTransaction [string] unsigned transaction as CBOR
+	// @sk [[]byte] secp256k1 secret key
+	// @return
+	//   - signedTx [string] the signed transaction as CBOR
+	//   - error when signing a transaction
+	SignTx(unsignedTx []byte, sk []byte) ([]byte, error)
+
+	// SignTxJson signs an unsignedTx (JSON) using the secret key (secp256k1) and return a signedTx
+	// @unsignedTransaction [string] unsigned transaction as JSON
 	// @sk [[]byte] secp256k1 secret key
 	// @return
 	//   - signedTx [string] the signed transaction
 	//   - error when signing a transaction
-	SignTx(unsignedTransaction string, sk []byte) (string, error)
+	SignTxJson(unsignedTransaction string, sk []byte) (string, error)
 
-	// ParseTx defines the function to parse a transaction
-	// @tx [string] signed or unsigned transaction base64 encoded
+	// ParseTx parses CBOR encoded transaction
+	// @tx [[]byte] signed or unsigned transaction CBOR encoded
 	// @return
-	//   - message [string] the parsed transaction (message or unsigned message) represented as a base64 string
+	//   - message [string] the parsed transaction (message or unsigned message) represented as a JSON string
 	//   - error when parsing a transaction
-	ParseTx(tx string) (string, error)
+	ParseTx(messageCbor []byte) (string, error)
+
+	// ParseParamsMultisigTx parses a JSON encoded transaction and decodes actor paramss assuming the destination
+	// address correspond to a multisig actor
+	// @tx [string] signed or unsigned transaction JSON encoded
+	// @return
+	//   - message [string] the parsed params represented as a JSON string
+	//   - error when parsing a transaction
+	ParseParamsMultisigTx(message string, id abi.ActorID) (string, error)
 
 	// Hash defines the function to calculate a tx hash
 	// @signedTx [string] base64 encoded signed transaction
