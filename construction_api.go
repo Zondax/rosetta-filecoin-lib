@@ -51,13 +51,13 @@ type RosettaConstructionTool interface {
 	//   - error when signing a transaction
 	SignTx(unsignedTx []byte, sk []byte) ([]byte, error)
 
-	// SignTxJson signs an unsignedTx (JSON) using the secret key (secp256k1) and return a signedTx
+	// SignTxJSON signs an unsignedTx (JSON) using the secret key (secp256k1) and return a signedTx
 	// @unsignedTransaction [string] unsigned transaction as JSON
 	// @sk [[]byte] secp256k1 secret key
 	// @return
 	//   - signedTx [string] the signed transaction
 	//   - error when signing a transaction
-	SignTxJson(unsignedTransaction string, sk []byte) (string, error)
+	SignTxJSON(unsignedTransaction string, sk []byte) (string, error)
 
 	// ParseTx parses CBOR encoded transaction
 	// @tx [[]byte] signed or unsigned transaction CBOR encoded
