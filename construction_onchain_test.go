@@ -44,7 +44,7 @@ func TestSendTransaction(t *testing.T) {
 	sk, _ := hex.DecodeString("f15716d3b003b304b8055d9cc62e6b9c869d56cc930c3858d4d7c31f5f53f14a")
 
 	/* Get Nonce */
-	data := []byte(`{"jsonrpc": "2.0","method": "Filecoin.MpoolGetNonce","id": 1, "params": ["t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba"]}`)
+	data := []byte(`{"jsonrpc": "2.0","method": "Filecoin.MpoolGetNonce","id": 1, "params": ["f1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba"]}`)
 
 	req, err := http.NewRequest("POST", lotusURL, bytes.NewBuffer(data))
 	if err != nil {
@@ -93,8 +93,8 @@ func TestSendTransaction(t *testing.T) {
 		GasLimit:   2180810,
 	}
 	pr := &PaymentRequest{
-		From:     "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
-		To:       "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
+		From:     "f1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
+		To:       "f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
 		Quantity: 100000,
 		Metadata: mtx,
 	}
@@ -216,7 +216,7 @@ func TestSendFromMultisig(t *testing.T) {
 	sk, _ := hex.DecodeString("f15716d3b003b304b8055d9cc62e6b9c869d56cc930c3858d4d7c31f5f53f14a")
 
 	/* Get Nonce */
-	data := []byte(`{"jsonrpc": "2.0","method": "Filecoin.MpoolGetNonce","id": 1, "params": ["t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba"]}`)
+	data := []byte(`{"jsonrpc": "2.0","method": "Filecoin.MpoolGetNonce","id": 1, "params": ["f1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba"]}`)
 
 	req, err := http.NewRequest("POST", lotusURL, bytes.NewBuffer(data))
 	if err != nil {
@@ -265,12 +265,12 @@ func TestSendFromMultisig(t *testing.T) {
 		GasLimit:   2180810,
 	}
 	params := MultisigPaymentParams{
-		To:       "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
+		To:       "f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
 		Quantity: 1,
 	}
 	request := &MultisigPaymentRequest{
 		Multisig: MULTISIG_ADDRESS,
-		From:     "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
+		From:     "f1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
 		Metadata: mtx,
 		Params:   params,
 	}
@@ -393,10 +393,10 @@ func TestSwapKeysMultisig(t *testing.T) {
 	sk2, _ := hex.DecodeString("8ad463d0fb5ab06172dd3c2b005c1d634e3a6576f8c1d6eb1796ba8d94c00469")
 
 	/* Addresses */
-	address := "t137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy"
-	address2 := "t1itpqzzcx6yf52oc35dgsoxfqkoxpy6kdmygbaja"
+	address := "f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy"
+	address2 := "f1itpqzzcx6yf52oc35dgsoxfqkoxpy6kdmygbaja"
 
-	addressID1 := "t09524"
+	addressID1 := "f09524"
 
 	/* Get Multisig signers */
 	data := []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateReadState","id": 1, "params": ["` + MULTISIG_ADDRESS + `", null]}`)
