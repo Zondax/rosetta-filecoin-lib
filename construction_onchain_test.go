@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"encoding/json"
+	builtinV1 "github.com/filecoin-project/specs-actors/actors/builtin"
 	"net/http"
 	"os"
 	"testing"
@@ -275,7 +276,7 @@ func TestSendFromMultisig(t *testing.T) {
 		Params:   params,
 	}
 
-	unsignedTxBase64, err := r.ConstructMultisigPayment(request)
+	unsignedTxBase64, err := r.ConstructMultisigPayment(request, builtinV1.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -502,7 +503,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 		Params:   params,
 	}
 
-	unsignedTxBase64, err := r.ConstructSwapAuthorizedParty(request)
+	unsignedTxBase64, err := r.ConstructSwapAuthorizedParty(request, builtinV1.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
