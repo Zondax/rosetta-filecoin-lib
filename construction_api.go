@@ -2,7 +2,7 @@ package rosettaFilecoinLib
 
 import (
 	"github.com/filecoin-project/go-address"
-	"github.com/filecoin-project/go-state-types/abi"
+	"github.com/ipfs/go-cid"
 )
 
 type RosettaConstructionTool interface {
@@ -35,13 +35,13 @@ type RosettaConstructionTool interface {
 	// @return
 	//   - unsigned transaction as json [string]
 	//   - error while constructing the multisig send transaction
-	ConstructMultisigPayment(request *MultisigPaymentRequest) (string, error)
+	ConstructMultisigPayment(request *MultisigPaymentRequest, destinationActorId cid.Cid) (string, error)
 
 	// ConstructSwapAuthorizedParty creates transaction for a multisig SwapAuthorizedParty call
 	// @return
 	//   - unsigned transaction as json [string]
 	//   - error while constructing the multisig SwapAuthorizedParty call
-	ConstructSwapAuthorizedParty(request *MultisigPaymentRequest) (string, error)
+	ConstructSwapAuthorizedParty(request *MultisigPaymentRequest, destinationActorId cid.Cid) (string, error)
 
 	// SignTx signs an unsignedTx (CBOR) using the secret key (secp256k1) and returns a signedTx
 	// @unsignedTransaction [string] unsigned transaction as CBOR
@@ -72,7 +72,7 @@ type RosettaConstructionTool interface {
 	// @return
 	//   - message [string] the parsed params represented as a JSON string
 	//   - error when parsing a transaction
-	ParseParamsMultisigTx(message string, id abi.ActorID) (string, error)
+	ParseParamsMultisigTx(message string, destinationActorId cid.Cid) (string, error)
 
 	// Hash defines the function to calculate a tx hash
 	// @signedTx [string] base64 encoded signed transaction
