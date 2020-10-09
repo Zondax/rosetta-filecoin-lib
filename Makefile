@@ -14,3 +14,6 @@ lint:
 
 fmt:
 	gofmt -s -w .
+
+deps_update:
+	go get -u ./...
