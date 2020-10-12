@@ -122,9 +122,21 @@ func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (
 		return "", err
 	}
 
-	value := types.NewInt(request.Quantity)
-	gasfeecap := abi.NewTokenAmount(request.Metadata.GasFeeCap)
-	gaspremium := abi.NewTokenAmount(request.Metadata.GasPremium)
+	value, err := types.BigFromString(request.Quantity)
+	if err != nil {
+		return "", err
+	}
+
+	gasfeecap, err := types.BigFromString(request.Metadata.GasFeeCap)
+	if err != nil {
+		return "", err
+	}
+
+	gaspremium, err := types.BigFromString(request.Metadata.GasPremium)
+	if err != nil {
+		return "", err
+	}
+
 	gaslimit := request.Metadata.GasLimit
 
 	// TODO: How to define when v1 or v2 should be used here?
@@ -161,9 +173,16 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 		return "", err
 	}
 
-	value := types.NewInt(0)
-	gasfeecap := abi.NewTokenAmount(request.Metadata.GasFeeCap)
-	gaspremium := abi.NewTokenAmount(request.Metadata.GasPremium)
+	gasfeecap, err := types.BigFromString(request.Metadata.GasFeeCap)
+	if err != nil {
+		return "", err
+	}
+
+	gaspremium, err := types.BigFromString(request.Metadata.GasPremium)
+	if err != nil {
+		return "", err
+	}
+
 	gaslimit := request.Metadata.GasLimit
 
 	toParams, err := filAddr.NewFromString(request.Params.To)
@@ -171,7 +190,10 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 		return "", err
 	}
 
-	valueParams := types.NewInt(request.Params.Quantity)
+	valueParams, err := types.BigFromString(request.Params.Quantity)
+	if err != nil {
+		return "", err
+	}
 
 	var methodNum abi.MethodNum
 	var serializedParams []byte
@@ -213,6 +235,7 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 		return "", fmt.Errorf("this actor id is not supported")
 	}
 
+	value := types.NewInt(0)
 	msg := &types.Message{Version: types.MessageVersion,
 		To:         to,
 		From:       from,
@@ -244,9 +267,16 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 		return "", err
 	}
 
-	value := types.NewInt(0)
-	gasfeecap := abi.NewTokenAmount(request.Metadata.GasFeeCap)
-	gaspremium := abi.NewTokenAmount(request.Metadata.GasPremium)
+	gasfeecap, err := types.BigFromString(request.Metadata.GasFeeCap)
+	if err != nil {
+		return "", err
+	}
+
+	gaspremium, err := types.BigFromString(request.Metadata.GasPremium)
+	if err != nil {
+		return "", err
+	}
+
 	gaslimit := request.Metadata.GasLimit
 
 	toParams, err := filAddr.NewFromString(request.Params.To)
@@ -278,7 +308,7 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 
 		params := &multisigV1.ProposeParams{
 			To:     to,
-			Value:  value,
+			Value:  types.NewInt(0),
 			Method: builtinV1.MethodsMultisig.SwapSigner,
 			Params: bufSwapSigner.Bytes(),
 		}
@@ -305,7 +335,7 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 
 		params := &multisigV2.ProposeParams{
 			To:     to,
-			Value:  value,
+			Value:  types.NewInt(0),
 			Method: builtinV2.MethodsMultisig.SwapSigner,
 			Params: bufSwapSigner.Bytes(),
 		}
@@ -325,7 +355,7 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 		To:         to,
 		From:       from,
 		Nonce:      request.Metadata.Nonce,
-		Value:      value,
+		Value:      types.NewInt(0),
 		GasFeeCap:  gasfeecap,
 		GasPremium: gaspremium,
 		GasLimit:   gaslimit,

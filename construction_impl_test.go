@@ -151,14 +151,14 @@ func TestConstructPayment(t *testing.T) {
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      1,
-		GasFeeCap:  1,
-		GasPremium: 1,
+		GasFeeCap:  "1",
+		GasPremium: "1",
 		GasLimit:   25000,
 	}
 	pr := &PaymentRequest{
 		From:     "f1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
 		To:       "f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
-		Quantity: 100000,
+		Quantity: "100000",
 		Metadata: mtx,
 	}
 
@@ -175,13 +175,13 @@ func TestConstructMultisigPaymentV1(t *testing.T) {
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      1,
-		GasFeeCap:  1,
-		GasPremium: 1,
+		GasFeeCap:  "1",
+		GasPremium: "1",
 		GasLimit:   25000,
 	}
 	params := MultisigPaymentParams{
 		To:       "f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
-		Quantity: 1000,
+		Quantity: "1000",
 	}
 	request := &MultisigPaymentRequest{
 		Multisig: "t01002",
@@ -203,13 +203,13 @@ func TestConstructMultisigPaymentV2(t *testing.T) {
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      1,
-		GasFeeCap:  1,
-		GasPremium: 1,
+		GasFeeCap:  "1",
+		GasPremium: "1",
 		GasLimit:   25000,
 	}
 	params := MultisigPaymentParams{
 		To:       "f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
-		Quantity: 1000,
+		Quantity: "1000",
 	}
 	request := &MultisigPaymentRequest{
 		Multisig: "t01002",
@@ -231,8 +231,8 @@ func TestConstructSwapAuthorizedPartyV1(t *testing.T) {
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      1,
-		GasFeeCap:  1,
-		GasPremium: 1,
+		GasFeeCap:  "1",
+		GasPremium: "1",
 		GasLimit:   25000,
 	}
 	params := SwapAuthorizedPartyParams{
@@ -259,8 +259,8 @@ func TestConstructSwapAuthorizedPartyV2(t *testing.T) {
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      1,
-		GasFeeCap:  1,
-		GasPremium: 1,
+		GasFeeCap:  "1",
+		GasPremium: "1",
 		GasLimit:   25000,
 	}
 	params := SwapAuthorizedPartyParams{
@@ -347,8 +347,8 @@ func TestParseParamsMultisigTxV1(t *testing.T) {
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      1,
-		GasFeeCap:  1,
-		GasPremium: 1,
+		GasFeeCap:  "1",
+		GasPremium: "1",
 		GasLimit:   25000,
 	}
 
@@ -358,7 +358,7 @@ func TestParseParamsMultisigTxV1(t *testing.T) {
 		Metadata: mtx,
 		Params: MultisigPaymentParams{
 			To:       "f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
-			Quantity: 1000,
+			Quantity: "1000",
 		},
 	}
 
@@ -384,8 +384,8 @@ func TestParseParamsMultisigTxV2(t *testing.T) {
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      1,
-		GasFeeCap:  1,
-		GasPremium: 1,
+		GasFeeCap:  "1",
+		GasPremium: "1",
 		GasLimit:   25000,
 	}
 
@@ -395,7 +395,7 @@ func TestParseParamsMultisigTxV2(t *testing.T) {
 		Metadata: mtx,
 		Params: MultisigPaymentParams{
 			To:       "f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
-			Quantity: 1000,
+			Quantity: "1000",
 		},
 	}
 

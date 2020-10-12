@@ -85,8 +85,8 @@ type RosettaConstructionTool interface {
 // Modify this as needed to add in new fields
 type TxMetadata struct {
 	Nonce      uint64 `json:"nonce"`
-	GasFeeCap  int64  `json:"gasFeeCap"`
-	GasPremium int64  `json:"gasPremium"`
+	GasFeeCap  string `json:"gasFeeCap"`
+	GasPremium string `json:"gasPremium"`
 	GasLimit   int64  `json:"gasLimit,omitempty"`
 	ChainID    string `json:"chainId,omitempty"`
 	Method     uint64 `json:"method,omitempty"`
@@ -97,21 +97,21 @@ type TxMetadata struct {
 type PaymentRequest struct {
 	From     string     `json:"from"`
 	To       string     `json:"to"`
-	Quantity uint64     `json:"quantity"`
+	Quantity string     `json:"quantity"`
 	Metadata TxMetadata `json:"metadata"`
 }
 
 // MultisigPaymentParams defines params for MultisigPaymentRequest
 type MultisigPaymentParams struct {
 	To       string `json:"to"`
-	Quantity uint64 `json:"quantity"`
+	Quantity string `json:"quantity"`
 }
 
 // MultisigPaymentRequest defines the input to ConstructMultisigPayment
 type MultisigPaymentRequest struct {
 	Multisig string                `json:"multisig"`
 	From     string                `json:"from"`
-	Quantity uint64                `json:"quantity"`
+	Quantity string                `json:"quantity"`
 	Metadata TxMetadata            `json:"metadata"`
 	Params   MultisigPaymentParams `json:"params"`
 }
