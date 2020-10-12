@@ -89,14 +89,14 @@ func TestSendTransaction(t *testing.T) {
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      uint64(nonce),
-		GasFeeCap:  149794,
-		GasPremium: 149470,
+		GasFeeCap:  "149794",
+		GasPremium: "149470",
 		GasLimit:   2180810,
 	}
 	pr := &PaymentRequest{
 		From:     "f1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
 		To:       "f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
-		Quantity: 100000,
+		Quantity: "100000",
 		Metadata: mtx,
 	}
 
@@ -261,13 +261,13 @@ func TestSendFromMultisig(t *testing.T) {
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      uint64(nonce),
-		GasFeeCap:  149794,
-		GasPremium: 149470,
+		GasFeeCap:  "149794",
+		GasPremium: "149470",
 		GasLimit:   2180810,
 	}
 	params := MultisigPaymentParams{
 		To:       "f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
-		Quantity: 1,
+		Quantity: "1",
 	}
 	request := &MultisigPaymentRequest{
 		Multisig: MULTISIG_ADDRESS,
@@ -488,8 +488,8 @@ func TestSwapKeysMultisig(t *testing.T) {
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      uint64(nonce),
-		GasFeeCap:  149794,
-		GasPremium: 149470,
+		GasFeeCap:  "149794",
+		GasPremium: "149470",
 		GasLimit:   2180810,
 	}
 	params := SwapAuthorizedPartyParams{
