@@ -282,6 +282,62 @@ func TestConstructSwapAuthorizedPartyV2(t *testing.T) {
 	assert.Equal(t, tx, expected)
 }
 
+func TestConstructRemoveAuthorizedPartyV1(t *testing.T) {
+	expected := `{"Version":0,"To":"f01002","From":"f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy","Nonce":1,"Value":"0","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":2,"Params":"hEMA6gdAB1gYglUB5DzDXQviJM8D1X6ITf+2KnCHNXz0"}`
+	r := &RosettaConstructionFilecoin{false}
+	mtx := TxMetadata{
+		Nonce:      1,
+		GasFeeCap:  "1",
+		GasPremium: "1",
+		GasLimit:   25000,
+	}
+	params := RemoveAuthorizedPartyParams{
+		ToRemove: "f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q",
+		Decrease: false,
+	}
+	request := &RemoveAuthorizedPartyRequest{
+		Multisig: "f01002",
+		From:     "f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy",
+		Metadata: mtx,
+		Params:   params,
+	}
+
+	tx, err := r.ConstructRemoveAuthorizedParty(request, builtinV1.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	assert.Equal(t, tx, expected)
+}
+
+func TestConstructRemoveAuthorizedPartyV2(t *testing.T) {
+	expected := `{"Version":0,"To":"f01002","From":"f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy","Nonce":1,"Value":"0","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":2,"Params":"hEMA6gdAB1gYglUB5DzDXQviJM8D1X6ITf+2KnCHNXz0"}`
+	r := &RosettaConstructionFilecoin{false}
+	mtx := TxMetadata{
+		Nonce:      1,
+		GasFeeCap:  "1",
+		GasPremium: "1",
+		GasLimit:   25000,
+	}
+	params := RemoveAuthorizedPartyParams{
+		ToRemove: "f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q",
+		Decrease: false,
+	}
+	request := &RemoveAuthorizedPartyRequest{
+		Multisig: "f01002",
+		From:     "f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy",
+		Metadata: mtx,
+		Params:   params,
+	}
+
+	tx, err := r.ConstructRemoveAuthorizedParty(request, builtinV2.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	assert.Equal(t, tx, expected)
+}
+
 func TestSignTx(t *testing.T) {
 	unsignedTx := `{"Version":0,"To":"t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy","From":"t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba","Nonce":1,"Value":"100000","GasFeeCap":"1","GasPremium":"1","GasLimit":25000,"Method":0,"Params":""}`
 	sk := "f15716d3b003b304b8055d9cc62e6b9c869d56cc930c3858d4d7c31f5f53f14a"
