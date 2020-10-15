@@ -586,7 +586,9 @@ func TestSwapKeysMultisig(t *testing.T) {
 	t.Log(res3)
 
 	if res3["result"] == nil {
-		t.Errorf(err.Error())
+		if err != nil {
+			t.Errorf(err.Error())
+		}
 		t.FailNow()
 	}
 
@@ -595,7 +597,9 @@ func TestSwapKeysMultisig(t *testing.T) {
 	exitCode := receipt["ExitCode"].(float64)
 
 	if exitCode != 0 {
-		t.Errorf(err.Error())
+		if err != nil {
+			t.Errorf(err.Error())
+		}
 		t.FailNow()
 	}
 }
