@@ -43,6 +43,12 @@ type RosettaConstructionTool interface {
 	//   - error while constructing the multisig SwapAuthorizedParty call
 	ConstructSwapAuthorizedParty(request *MultisigPaymentRequest, destinationActorId cid.Cid) (string, error)
 
+	// ConstructRemoveAuthorizedParty creates transaction for a multisig RemoveAuthorizedParty call
+	// @return
+	//   - unsigned transaction as json [string]
+	//   - error while constructing the multisig RemoveAuthorizedParty call
+	ConstructRemoveAuthorizedParty(request *MultisigPaymentRequest, destinationActorId cid.Cid) (string, error)
+
 	// SignTx signs an unsignedTx (CBOR) using the secret key (secp256k1) and returns a signedTx
 	// @unsignedTransaction [string] unsigned transaction as CBOR
 	// @sk [[]byte] secp256k1 secret key
@@ -128,4 +134,18 @@ type SwapAuthorizedPartyRequest struct {
 	From     string                    `json:"from"`
 	Metadata TxMetadata                `json:"metadata"`
 	Params   SwapAuthorizedPartyParams `json:"params"`
+}
+
+// RemoveAuthorizedPartyParams defines the params
+type RemoveAuthorizedPartyParams struct {
+	ToRemove string `json:"toRemove"`
+	Decrease bool   `json:"decrease"`
+}
+
+// RemoveAuthorizedPartyRequest defines the input to ConstructSwapAuthorizedParty
+type RemoveAuthorizedPartyRequest struct {
+	Multisig string                      `json:"multisig"`
+	From     string                      `json:"from"`
+	Metadata TxMetadata                  `json:"metadata"`
+	Params   RemoveAuthorizedPartyParams `json:"params"`
 }
