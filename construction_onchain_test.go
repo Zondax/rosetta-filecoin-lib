@@ -96,7 +96,7 @@ func TestSendTransaction(t *testing.T) {
 	pr := &PaymentRequest{
 		From:     "f1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
 		To:       "f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
-		Quantity: "100000",
+		Quantity: "1",
 		Metadata: mtx,
 	}
 
@@ -116,7 +116,7 @@ func TestSendTransaction(t *testing.T) {
 
 	t.Log(string(data))
 
-	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
+	req, err = http.NewRequest("POST", lotusURL, bytes.NewBuffer(data))
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -156,14 +156,14 @@ func TestSendTransaction(t *testing.T) {
 
 	t.Log(string(data))
 
-	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
+	req, err = http.NewRequest("POST", lotusURL, bytes.NewBuffer(data))
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
 	// Set headers
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
+	req.Header.Set("Authorization", "Bearer "+lotusURL)
 
 	// Set client timeout
 	client = &http.Client{Timeout: time.Second * 600}
@@ -292,14 +292,14 @@ func TestSendFromMultisig(t *testing.T) {
 
 	t.Log(string(data))
 
-	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
+	req, err = http.NewRequest("POST", lotusURL, bytes.NewBuffer(data))
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
 	// Set headers
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
+	req.Header.Set("Authorization", "Bearer "+lotusJWT)
 
 	// Set client timeout
 	client = &http.Client{Timeout: time.Second * 60}
@@ -332,14 +332,14 @@ func TestSendFromMultisig(t *testing.T) {
 
 	t.Log(string(data))
 
-	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
+	req, err = http.NewRequest("POST", lotusURL, bytes.NewBuffer(data))
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
 	// Set headers
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
+	req.Header.Set("Authorization", "Bearer "+lotusJWT)
 
 	// Set client timeout
 	client = &http.Client{Timeout: time.Second * 600}
@@ -449,7 +449,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 	/* Get Nonce */
 	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.MpoolGetNonce","id": 1, "params": ["` + from + `"]}`)
 
-	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
+	req, err = http.NewRequest("POST", lotusURL, bytes.NewBuffer(data))
 	if err != nil {
 		t.Errorf("Fail to get nonce: " + err.Error())
 		t.FailNow()
@@ -457,7 +457,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 
 	// Set headers
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
+	req.Header.Set("Authorization", "Bearer "+lotusJWT)
 
 	// Set client timeout
 	client = &http.Client{Timeout: time.Second * 60}
@@ -519,14 +519,14 @@ func TestSwapKeysMultisig(t *testing.T) {
 
 	t.Log(string(data))
 
-	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
+	req, err = http.NewRequest("POST", lotusURL, bytes.NewBuffer(data))
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
 	// Set headers
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
+	req.Header.Set("Authorization", "Bearer "+lotusJWT)
 
 	// Set client timeout
 	client = &http.Client{Timeout: time.Second * 60}
@@ -559,14 +559,14 @@ func TestSwapKeysMultisig(t *testing.T) {
 
 	t.Log(string(data))
 
-	req, err = http.NewRequest("POST", os.Getenv("LOTUS_URL"), bytes.NewBuffer(data))
+	req, err = http.NewRequest("POST", lotusURL, bytes.NewBuffer(data))
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
 	// Set headers
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+os.Getenv("LOTUS_JWT"))
+	req.Header.Set("Authorization", "Bearer "+lotusJWT)
 
 	// Set client timeout
 	client = &http.Client{Timeout: time.Second * 600}
@@ -586,7 +586,9 @@ func TestSwapKeysMultisig(t *testing.T) {
 	t.Log(res3)
 
 	if res3["result"] == nil {
-		t.Errorf(err.Error())
+		if err != nil {
+			t.Errorf(err.Error())
+		}
 		t.FailNow()
 	}
 
@@ -595,7 +597,9 @@ func TestSwapKeysMultisig(t *testing.T) {
 	exitCode := receipt["ExitCode"].(float64)
 
 	if exitCode != 0 {
-		t.Errorf(err.Error())
+		if err != nil {
+			t.Errorf(err.Error())
+		}
 		t.FailNow()
 	}
 }
