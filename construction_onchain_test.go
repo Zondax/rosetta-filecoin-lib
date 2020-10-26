@@ -435,9 +435,9 @@ func TestSwapKeysMultisig(t *testing.T) {
 	signers := state["Signers"].([]interface{})
 
 	var (
-		toParams string // new signer address
+		toParams   string // new signer address
 		fromParams string //old signer address
-		secretKey []byte
+		secretKey  []byte
 	)
 
 	if signers[0] == addressID2 || signers[1] == addressID2 {
