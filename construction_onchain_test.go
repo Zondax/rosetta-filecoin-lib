@@ -19,7 +19,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"encoding/json"
-	builtinV1 "github.com/filecoin-project/specs-actors/actors/builtin"
+	builtinV2 "github.com/filecoin-project/specs-actors/v2/actors/builtin"
 	"net/http"
 	"os"
 	"testing"
@@ -163,7 +163,7 @@ func TestSendTransaction(t *testing.T) {
 
 	// Set headers
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+lotusURL)
+	req.Header.Set("Authorization", "Bearer "+lotusJWT)
 
 	// Set client timeout
 	client = &http.Client{Timeout: time.Second * 600}
@@ -276,7 +276,7 @@ func TestSendFromMultisig(t *testing.T) {
 		Params:   params,
 	}
 
-	unsignedTxBase64, err := r.ConstructMultisigPayment(request, builtinV1.MultisigActorCodeID)
+	unsignedTxBase64, err := r.ConstructMultisigPayment(request, builtinV2.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -390,14 +390,14 @@ func TestSwapKeysMultisig(t *testing.T) {
 	}
 
 	/* Secret Key */
-	sk, _ := hex.DecodeString("61b0cf875beaddf0429736e2c03b7a5a39e201d667f2d35c0b07013b6843c329")
-	sk2, _ := hex.DecodeString("8ad463d0fb5ab06172dd3c2b005c1d634e3a6576f8c1d6eb1796ba8d94c00469")
+	sk, _ := hex.DecodeString("f15716d3b003b304b8055d9cc62e6b9c869d56cc930c3858d4d7c31f5f53f14a")
 
 	/* Addresses */
-	address := "f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy"
-	address2 := "f1itpqzzcx6yf52oc35dgsoxfqkoxpy6kdmygbaja"
+	proposeSenderAdd := "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba"
+	signerAdd1 := "t1x5x7ekq5f2cjkk57ee3lismwmzu5rbhkhnsrooa"
+	signerAdd2 := "f1itpqzzcx6yf52oc35dgsoxfqkoxpy6kdmygbaja"
 
-	addressID1 := "f09524"
+	addressID2 := "t01002" // ID of signerAdd1
 
 	/* Get Multisig signers */
 	data := []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateReadState","id": 1, "params": ["` + MULTISIG_ADDRESS + `", null]}`)
@@ -434,20 +434,24 @@ func TestSwapKeysMultisig(t *testing.T) {
 	state := result["State"].(map[string]interface{})
 	signers := state["Signers"].([]interface{})
 
-	var to, from string
-	var secretKey []byte
-	if signers[0] == addressID1 || signers[1] == addressID1 {
-		from = address
-		to = address2
+	var (
+		toParams string // new signer address
+		fromParams string //old signer address
+		secretKey []byte
+	)
+
+	if signers[0] == addressID2 || signers[1] == addressID2 {
+		fromParams = signerAdd1
+		toParams = signerAdd2
 		secretKey = sk
 	} else {
-		from = address2
-		to = address
-		secretKey = sk2
+		fromParams = signerAdd2
+		toParams = signerAdd1
+		secretKey = sk
 	}
 
 	/* Get Nonce */
-	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.MpoolGetNonce","id": 1, "params": ["` + from + `"]}`)
+	data = []byte(`{"jsonrpc": "2.0","method": "Filecoin.MpoolGetNonce","id": 1, "params": ["` + proposeSenderAdd + `"]}`)
 
 	req, err = http.NewRequest("POST", lotusURL, bytes.NewBuffer(data))
 	if err != nil {
@@ -475,7 +479,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	t.Log(res["result"])
+	t.Log(res1["result"])
 
 	nonce := res1["result"].(float64)
 	if err != nil {
@@ -490,20 +494,20 @@ func TestSwapKeysMultisig(t *testing.T) {
 		Nonce:      uint64(nonce),
 		GasFeeCap:  "149794",
 		GasPremium: "149470",
-		GasLimit:   2180810,
+		GasLimit:   5180810,
 	}
 	params := SwapAuthorizedPartyParams{
-		From: from,
-		To:   to,
+		From: fromParams,
+		To:   toParams,
 	}
 	request := &SwapAuthorizedPartyRequest{
 		Multisig: MULTISIG_ADDRESS,
-		From:     from,
+		From:     proposeSenderAdd,
 		Metadata: mtx,
 		Params:   params,
 	}
 
-	unsignedTxBase64, err := r.ConstructSwapAuthorizedParty(request, builtinV1.MultisigActorCodeID)
+	unsignedTxBase64, err := r.ConstructSwapAuthorizedParty(request, builtinV2.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}

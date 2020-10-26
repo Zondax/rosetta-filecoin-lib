@@ -28,7 +28,7 @@ import (
 	"testing"
 )
 
-const MULTISIG_ADDRESS = "t020286"
+const MULTISIG_ADDRESS = "t01004"
 
 var seqMutex sync.Mutex
 
