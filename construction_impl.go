@@ -421,7 +421,7 @@ func (r RosettaConstructionFilecoin) ConstructRemoveAuthorizedParty(request *Rem
 		params := &multisigV1.ProposeParams{
 			To:     to,
 			Value:  types.NewInt(0),
-			Method: builtinV1.MethodsMultisig.SwapSigner,
+			Method: builtinV1.MethodsMultisig.RemoveSigner,
 			Params: bufRemoveSigner.Bytes(),
 		}
 
@@ -448,7 +448,7 @@ func (r RosettaConstructionFilecoin) ConstructRemoveAuthorizedParty(request *Rem
 		params := &multisigV2.ProposeParams{
 			To:     to,
 			Value:  types.NewInt(0),
-			Method: builtinV2.MethodsMultisig.SwapSigner,
+			Method: builtinV2.MethodsMultisig.RemoveSigner,
 			Params: bufRemoveSigner.Bytes(),
 		}
 

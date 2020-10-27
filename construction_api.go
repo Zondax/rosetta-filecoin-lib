@@ -142,7 +142,7 @@ type RemoveAuthorizedPartyParams struct {
 	Decrease bool   `json:"decrease"`
 }
 
-// RemoveAuthorizedPartyRequest defines the input to ConstructSwapAuthorizedParty
+// RemoveAuthorizedPartyRequest defines the input to ConstructRemoveAuthorizedParty
 type RemoveAuthorizedPartyRequest struct {
 	Multisig string                      `json:"multisig"`
 	From     string                      `json:"from"`

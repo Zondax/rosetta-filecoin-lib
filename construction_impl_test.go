@@ -283,7 +283,7 @@ func TestConstructSwapAuthorizedPartyV2(t *testing.T) {
 }
 
 func TestConstructRemoveAuthorizedPartyV1(t *testing.T) {
-	expected := `{"Version":0,"To":"f01002","From":"f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy","Nonce":1,"Value":"0","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":2,"Params":"hEMA6gdAB1gYglUB5DzDXQviJM8D1X6ITf+2KnCHNXz0"}`
+	expected := `{"Version":0,"To":"f01002","From":"f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy","Nonce":1,"Value":"0","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":2,"Params":"hEMA6gdABlgYglUB5DzDXQviJM8D1X6ITf+2KnCHNXz0"}`
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      1,
@@ -311,7 +311,7 @@ func TestConstructRemoveAuthorizedPartyV1(t *testing.T) {
 }
 
 func TestConstructRemoveAuthorizedPartyV2(t *testing.T) {
-	expected := `{"Version":0,"To":"f01002","From":"f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy","Nonce":1,"Value":"0","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":2,"Params":"hEMA6gdAB1gYglUB5DzDXQviJM8D1X6ITf+2KnCHNXz0"}`
+	expected := `{"Version":0,"To":"f01002","From":"f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy","Nonce":1,"Value":"0","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":2,"Params":"hEMA6gdABlgYglUB5DzDXQviJM8D1X6ITf+2KnCHNXz0"}`
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      1,
