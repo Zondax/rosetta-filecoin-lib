@@ -397,8 +397,9 @@ func TestParseTx(t *testing.T) {
 	assert.Equal(t, expected, msgJson)
 }
 
-func TestParseParamsMultisigTxV1(t *testing.T) {
-	expectedParams := `{"To":"f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy","Value":"1000","Method":0,"Params":null}`
+func TestParseParamsMultisigPaymentTx(t *testing.T) {
+	expectedParamsV1 := `{"To":"f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy","Value":"1000","Method":0,"Params":null}`
+	expectedParamsV2 := `{"To":"f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy","Value":"1000","Method":0,"Params":null}`
 
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
@@ -418,24 +419,32 @@ func TestParseParamsMultisigTxV1(t *testing.T) {
 		},
 	}
 
-	tx, err := r.ConstructMultisigPayment(request, builtinV1.MultisigActorCodeID)
+	txV1, err := r.ConstructMultisigPayment(request, builtinV1.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	expandedParams, err := r.ParseParamsMultisigTx(tx, builtinV1.MultisigActorCodeID)
+	txV2, err := r.ConstructMultisigPayment(request, builtinV2.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	t.Log(tx)
-	t.Log(expandedParams)
+	expandedParamsV1, err := r.ParseParamsMultisigTx(txV1, builtinV1.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	expandedParamsV2, err := r.ParseParamsMultisigTx(txV2, builtinV2.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 
-	assert.Equal(t, expectedParams, expandedParams)
+	assert.Equal(t, expectedParamsV1, expandedParamsV1)
+	assert.Equal(t, expectedParamsV2, expandedParamsV2)
 }
 
-func TestParseParamsMultisigTxV2(t *testing.T) {
-	expectedParams := `{"To":"f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy","Value":"1000","Method":0,"Params":null}`
+func TestParseParamsMultisigSwapAuthTx(t *testing.T) {
+	expectedParamsV1 := `{"From":"f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy","To":"f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q"}`
+	expectedParamsV2 := `{"From":"f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy","To":"f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q"}`
 
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
@@ -445,30 +454,84 @@ func TestParseParamsMultisigTxV2(t *testing.T) {
 		GasLimit:   25000,
 	}
 
-	request := &MultisigPaymentRequest{
+	params := SwapAuthorizedPartyParams{
+		From: "f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy",
+		To:   "f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q",
+	}
+	request := &SwapAuthorizedPartyRequest{
 		Multisig: "f01002",
-		From:     "f1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
+		From:     "f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy",
 		Metadata: mtx,
-		Params: MultisigPaymentParams{
-			To:       "f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
-			Quantity: "1000",
-		},
+		Params:   params,
 	}
 
-	tx, err := r.ConstructMultisigPayment(request, builtinV2.MultisigActorCodeID)
+	txV1, err := r.ConstructSwapAuthorizedParty(request, builtinV1.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	expandedParams, err := r.ParseParamsMultisigTx(tx, builtinV2.MultisigActorCodeID)
+	txV2, err := r.ConstructSwapAuthorizedParty(request, builtinV2.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	t.Log(tx)
-	t.Log(expandedParams)
+	expandedParamsV1, err := r.ParseParamsMultisigTx(txV1, builtinV1.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	expandedParamsV2, err := r.ParseParamsMultisigTx(txV2, builtinV2.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 
-	assert.Equal(t, expectedParams, expandedParams)
+	assert.Equal(t, expectedParamsV1, expandedParamsV1)
+	assert.Equal(t, expectedParamsV2, expandedParamsV2)
+}
+
+func TestParseParamsMultisigRemoveSignerTx(t *testing.T) {
+	expectedParamsV1 := `{"Signer":"f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q","Decrease":false}`
+	expectedParamsV2 := `{"Signer":"f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q","Decrease":false}`
+
+	r := &RosettaConstructionFilecoin{false}
+	mtx := TxMetadata{
+		Nonce:      1,
+		GasFeeCap:  "1",
+		GasPremium: "1",
+		GasLimit:   25000,
+	}
+
+	params := RemoveAuthorizedPartyParams{
+		ToRemove: "f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q",
+		Decrease: false,
+	}
+	request := &RemoveAuthorizedPartyRequest{
+		Multisig: "f01002",
+		From:     "f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy",
+		Metadata: mtx,
+		Params:   params,
+	}
+
+	txV1, err := r.ConstructRemoveAuthorizedParty(request, builtinV1.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	txV2, err := r.ConstructRemoveAuthorizedParty(request, builtinV2.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	expandedParamsV1, err := r.ParseParamsMultisigTx(txV1, builtinV1.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	expandedParamsV2, err := r.ParseParamsMultisigTx(txV2, builtinV2.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	assert.Equal(t, expectedParamsV1, expandedParamsV1)
+	assert.Equal(t, expectedParamsV2, expandedParamsV2)
 }
 
 func TestHash(t *testing.T) {
