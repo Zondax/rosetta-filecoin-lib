@@ -764,8 +764,6 @@ func (r RosettaConstructionFilecoin) parseParamsMultisigTxV1(unsignedMultisigTx 
 	default:
 		return "", fmt.Errorf("unknown method")
 	}
-
-	return "", nil
 }
 
 func (r RosettaConstructionFilecoin) parseParamsMultisigTxV2(unsignedMultisigTx string) (string, error) {
@@ -892,8 +890,6 @@ func (r RosettaConstructionFilecoin) parseParamsMultisigTxV2(unsignedMultisigTx 
 	default:
 		return "", fmt.Errorf("unknown method")
 	}
-
-	return "", nil
 }
 
 func (r RosettaConstructionFilecoin) ParseParamsMultisigTx(unsignedMultisigTx string, destinationActorId cid.Cid) (string, error) {
