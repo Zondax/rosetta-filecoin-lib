@@ -397,6 +397,28 @@ func TestParseTx(t *testing.T) {
 	assert.Equal(t, expected, msgJson)
 }
 
+func TestGasFieldOrderParse(t *testing.T) {
+	expected := `{"Version":0,"To":"f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy","From":"f1xcbgdhkgkwht3hrrnui3jdopeejsoas2rujnkdi","Nonce":1,"Value":"100000","GasLimit":25000,"GasFeeCap":"2","GasPremium":"1","Method":0,"Params":null,"CID":{"/":"bafy2bzaceae65bxgk6ur35lx4cs6e3hrk52my44p4l7trfsgwrttsriogh3ww"}}`
+	serializedTx := "8A005501FD1D0F4DFCD7E99AFCB99A8326B7DC459D32C6285501B882619D46558F3D9E316D11B48DCF211327025A0144000186A01961A84200024200010040"
+
+	r := &RosettaConstructionFilecoin{false}
+	blob, err := hex.DecodeString(serializedTx)
+
+	if err != nil {
+		t.Errorf("Invalid test case")
+	}
+
+	msgJson, err := r.ParseTx(blob)
+
+	t.Log(msgJson)
+
+	if err != nil {
+		t.Errorf("Parsing failed")
+	}
+
+	assert.Equal(t, expected, msgJson)
+}
+
 func TestParseParamsMultisigPaymentTx(t *testing.T) {
 	expectedParamsV1 := `{"To":"f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy","Value":"1000","Method":0,"Params":null}`
 	expectedParamsV2 := `{"To":"f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy","Value":"1000","Method":0,"Params":null}`
