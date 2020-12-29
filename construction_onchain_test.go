@@ -261,9 +261,9 @@ func TestSendFromMultisig(t *testing.T) {
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      uint64(nonce),
-		GasFeeCap:  "149794",
-		GasPremium: "149470",
-		GasLimit:   2180810,
+		GasFeeCap:  "101120",
+		GasPremium: "100066",
+		GasLimit:   4629707,
 	}
 	params := MultisigPaymentParams{
 		To:       "f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
