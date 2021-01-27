@@ -585,5 +585,3 @@ func TestHash(t *testing.T) {
 	t.Log(cid)
 	assert.Equal(t, cid, "bafy2bzacebaiinljwwctblf7czp4zxwhz4747z6tpricgn5cumd4xhebftcvu")
 }
-
-/*  On Chain Tests */
