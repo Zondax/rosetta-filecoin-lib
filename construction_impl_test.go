@@ -23,12 +23,16 @@ import (
 	"github.com/filecoin-project/lotus/chain/types"
 	builtinV1 "github.com/filecoin-project/specs-actors/actors/builtin"
 	builtinV2 "github.com/filecoin-project/specs-actors/v2/actors/builtin"
+	builtinV3 "github.com/filecoin-project/specs-actors/v3/actors/builtin"
 	"github.com/stretchr/testify/assert"
 	"sync"
 	"testing"
 )
 
 const MULTISIG_ADDRESS = "t01004"
+const EXPECTED = `{"Version":0,"To":"f01002","From":"f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy","Nonce":1,"Value":"0","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":2,"Params":"hEMA6gdABlgYglUB5DzDXQviJM8D1X6ITf+2KnCHNXz0","CID":{"/":"bafy2bzacebjapltkq2nazgzxinzgxd4y4wrr227qhbvto3e4fdzy5rcr2vzs6"}}`
+const EXPECTED_MULTISIG_PAYMENT = `{"Version":0,"To":"f01002","From":"f1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba","Nonce":1,"Value":"0","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":2,"Params":"hFUB/R0PTfzX6Zr8uZqDJrfcRZ0yxihDAAPoAEA=","CID":{"/":"bafy2bzaceaeyq6sksxeo7yoftkblpt6sd5umv34ha3qjdubk52u4rxleiq6eo"}}`
+const EXPECTED_SWAP_AUTHORIZED = `{"Version":0,"To":"f01002","From":"f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy","Nonce":1,"Value":"0","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":2,"Params":"hEMA6gdAB1gtglUB3+SRhNRq3I+J1EY4vrRfePytJZBVAeQ8w10L4iTPA9V+iE3/tipwhzV8","CID":{"/":"bafy2bzacebyohxxqn66r22dumjqcqyuqqdehz5jrnrwwcnycezyaakc45glp6"}}`
 
 var seqMutex sync.Mutex
 
@@ -171,7 +175,7 @@ func TestConstructPayment(t *testing.T) {
 }
 
 func TestConstructMultisigPaymentV1(t *testing.T) {
-	expected := `{"Version":0,"To":"f01002","From":"f1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba","Nonce":1,"Value":"0","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":2,"Params":"hFUB/R0PTfzX6Zr8uZqDJrfcRZ0yxihDAAPoAEA=","CID":{"/":"bafy2bzaceaeyq6sksxeo7yoftkblpt6sd5umv34ha3qjdubk52u4rxleiq6eo"}}`
+	expected := EXPECTED_MULTISIG_PAYMENT
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      1,
@@ -199,7 +203,7 @@ func TestConstructMultisigPaymentV1(t *testing.T) {
 }
 
 func TestConstructMultisigPaymentV2(t *testing.T) {
-	expected := `{"Version":0,"To":"f01002","From":"f1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba","Nonce":1,"Value":"0","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":2,"Params":"hFUB/R0PTfzX6Zr8uZqDJrfcRZ0yxihDAAPoAEA=","CID":{"/":"bafy2bzaceaeyq6sksxeo7yoftkblpt6sd5umv34ha3qjdubk52u4rxleiq6eo"}}`
+	expected := EXPECTED_MULTISIG_PAYMENT
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      1,
@@ -226,8 +230,38 @@ func TestConstructMultisigPaymentV2(t *testing.T) {
 	assert.Equal(t, expected, tx)
 }
 
+func TestConstructMultisigPaymentV3(t *testing.T) {
+	expected := EXPECTED_MULTISIG_PAYMENT
+	r := &RosettaConstructionFilecoin{false}
+
+	mtx := TxMetadata{
+		Nonce:      1,
+		GasFeeCap:  "1",
+		GasPremium: "1",
+		GasLimit:   25000,
+	}
+	params := MultisigPaymentParams{
+		To:       "f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
+		Quantity: "1000",
+	}
+	request := &MultisigPaymentRequest{
+		Multisig: "t01002",
+		From:     "f1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
+		Metadata: mtx,
+		Params:   params,
+	}
+
+	tx, err := r.ConstructMultisigPayment(request, builtinV3.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	assert.Equal(t, expected, tx)
+
+}
+
 func TestConstructSwapAuthorizedPartyV1(t *testing.T) {
-	expected := `{"Version":0,"To":"f01002","From":"f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy","Nonce":1,"Value":"0","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":2,"Params":"hEMA6gdAB1gtglUB3+SRhNRq3I+J1EY4vrRfePytJZBVAeQ8w10L4iTPA9V+iE3/tipwhzV8","CID":{"/":"bafy2bzacebyohxxqn66r22dumjqcqyuqqdehz5jrnrwwcnycezyaakc45glp6"}}`
+	expected := EXPECTED_SWAP_AUTHORIZED
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      1,
@@ -255,7 +289,7 @@ func TestConstructSwapAuthorizedPartyV1(t *testing.T) {
 }
 
 func TestConstructSwapAuthorizedPartyV2(t *testing.T) {
-	expected := `{"Version":0,"To":"f01002","From":"f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy","Nonce":1,"Value":"0","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":2,"Params":"hEMA6gdAB1gtglUB3+SRhNRq3I+J1EY4vrRfePytJZBVAeQ8w10L4iTPA9V+iE3/tipwhzV8","CID":{"/":"bafy2bzacebyohxxqn66r22dumjqcqyuqqdehz5jrnrwwcnycezyaakc45glp6"}}`
+	expected := EXPECTED_SWAP_AUTHORIZED
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      1,
@@ -282,8 +316,36 @@ func TestConstructSwapAuthorizedPartyV2(t *testing.T) {
 	assert.Equal(t, expected, tx)
 }
 
+func TestConstructSwapAuthorizedPartyV3(t *testing.T) {
+	expected := EXPECTED_SWAP_AUTHORIZED
+	r := &RosettaConstructionFilecoin{false}
+	mtx := TxMetadata{
+		Nonce:      1,
+		GasFeeCap:  "1",
+		GasPremium: "1",
+		GasLimit:   25000,
+	}
+	params := SwapAuthorizedPartyParams{
+		From: "f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy",
+		To:   "f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q",
+	}
+	request := &SwapAuthorizedPartyRequest{
+		Multisig: "f01002",
+		From:     "f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy",
+		Metadata: mtx,
+		Params:   params,
+	}
+
+	tx, err := r.ConstructSwapAuthorizedParty(request, builtinV3.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	assert.Equal(t, expected, tx)
+}
+
 func TestConstructRemoveAuthorizedPartyV1(t *testing.T) {
-	expected := `{"Version":0,"To":"f01002","From":"f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy","Nonce":1,"Value":"0","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":2,"Params":"hEMA6gdABlgYglUB5DzDXQviJM8D1X6ITf+2KnCHNXz0","CID":{"/":"bafy2bzacebjapltkq2nazgzxinzgxd4y4wrr227qhbvto3e4fdzy5rcr2vzs6"}}`
+	expected := EXPECTED
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      1,
@@ -311,7 +373,7 @@ func TestConstructRemoveAuthorizedPartyV1(t *testing.T) {
 }
 
 func TestConstructRemoveAuthorizedPartyV2(t *testing.T) {
-	expected := `{"Version":0,"To":"f01002","From":"f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy","Nonce":1,"Value":"0","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":2,"Params":"hEMA6gdABlgYglUB5DzDXQviJM8D1X6ITf+2KnCHNXz0","CID":{"/":"bafy2bzacebjapltkq2nazgzxinzgxd4y4wrr227qhbvto3e4fdzy5rcr2vzs6"}}`
+	expected := EXPECTED
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
 		Nonce:      1,
@@ -331,6 +393,34 @@ func TestConstructRemoveAuthorizedPartyV2(t *testing.T) {
 	}
 
 	tx, err := r.ConstructRemoveAuthorizedParty(request, builtinV2.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	assert.Equal(t, expected, tx)
+}
+
+func TestConstructRemoveAuthorizedPartyV3(t *testing.T) {
+	expected := EXPECTED
+	r := &RosettaConstructionFilecoin{false}
+	mtx := TxMetadata{
+		Nonce:      1,
+		GasFeeCap:  "1",
+		GasPremium: "1",
+		GasLimit:   25000,
+	}
+	params := RemoveAuthorizedPartyParams{
+		ToRemove: "f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q",
+		Decrease: false,
+	}
+	request := &RemoveAuthorizedPartyRequest{
+		Multisig: "f01002",
+		From:     "f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy",
+		Metadata: mtx,
+		Params:   params,
+	}
+
+	tx, err := r.ConstructRemoveAuthorizedParty(request, builtinV3.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -466,7 +556,8 @@ func TestParseParamsMultisigPaymentTx(t *testing.T) {
 
 func TestParseParamsMultisigSwapAuthTx(t *testing.T) {
 	expectedParamsV1 := `{"From":"f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy","To":"f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q"}`
-	expectedParamsV2 := `{"From":"f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy","To":"f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q"}`
+	expectedParamsV2 := expectedParamsV1
+	expectedParamsV3 := expectedParamsV1
 
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
@@ -497,6 +588,11 @@ func TestParseParamsMultisigSwapAuthTx(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
+	txV3, err := r.ConstructSwapAuthorizedParty(request, builtinV3.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
 	expandedParamsV1, err := r.ParseParamsMultisigTx(txV1, builtinV1.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
@@ -505,14 +601,20 @@ func TestParseParamsMultisigSwapAuthTx(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
+	expandedParamsV3, err := r.ParseParamsMultisigTx(txV3, builtinV3.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 
 	assert.Equal(t, expectedParamsV1, expandedParamsV1)
 	assert.Equal(t, expectedParamsV2, expandedParamsV2)
+	assert.Equal(t, expectedParamsV3, expandedParamsV3)
 }
 
 func TestParseParamsMultisigRemoveSignerTx(t *testing.T) {
 	expectedParamsV1 := `{"Signer":"f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q","Decrease":false}`
-	expectedParamsV2 := `{"Signer":"f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q","Decrease":false}`
+	expectedParamsV2 := expectedParamsV1
+	expectedParamsV3 := expectedParamsV1
 
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
@@ -543,6 +645,11 @@ func TestParseParamsMultisigRemoveSignerTx(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
+	txV3, err := r.ConstructRemoveAuthorizedParty(request, builtinV3.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
 	expandedParamsV1, err := r.ParseParamsMultisigTx(txV1, builtinV1.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
@@ -551,9 +658,14 @@ func TestParseParamsMultisigRemoveSignerTx(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
+	expandedParamsV3, err := r.ParseParamsMultisigTx(txV3, builtinV3.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 
 	assert.Equal(t, expectedParamsV1, expandedParamsV1)
 	assert.Equal(t, expectedParamsV2, expandedParamsV2)
+	assert.Equal(t, expectedParamsV3, expandedParamsV3)
 }
 
 func TestHash(t *testing.T) {
