@@ -986,19 +986,29 @@ func (r RosettaConstructionFilecoin) parseParamsMultisigTxV3(unsignedMultisigTx 
 		return "", err
 	}
 
-	reader := bytes.NewReader(msg.Params)
-	var msigParams multisigV3.ProposeParams
-	err = msigParams.UnmarshalCBOR(reader)
-	if err != nil {
-		return "", err
+	var msigMethod = msg.Method
+	var msigParams = msg.Params
+
+	if msg.Method == builtinV3.MethodsMultisig.Propose {
+		// Parse propose to get the inner method call
+		reader := bytes.NewReader(msg.Params)
+		var proposeParams multisigV3.ProposeParams
+		err = proposeParams.UnmarshalCBOR(reader)
+		if err != nil {
+			return "", err
+		}
+		msigMethod = proposeParams.Method
+		msigParams = proposeParams.Params
 	}
 
-	switch msigParams.Method {
+	reader := bytes.NewReader(msigParams)
+
+	switch msigMethod {
 	case builtinV3.MethodSend:
 		{
-			r := bytes.NewReader(msg.Params)
+			reader := bytes.NewReader(msg.Params)
 			var params multisigV3.ProposeParams
-			err := params.UnmarshalCBOR(r)
+			err := params.UnmarshalCBOR(reader)
 			if err != nil {
 				return "", err
 			}
@@ -1011,9 +1021,8 @@ func (r RosettaConstructionFilecoin) parseParamsMultisigTxV3(unsignedMultisigTx 
 	case builtinV3.MethodsMultisig.Approve,
 		builtinV3.MethodsMultisig.Cancel:
 		{
-			r := bytes.NewReader(msigParams.Params)
 			var params multisigV3.TxnIDParams
-			err := params.UnmarshalCBOR(r)
+			err := params.UnmarshalCBOR(reader)
 			if err != nil {
 				return "", err
 			}
@@ -1025,9 +1034,8 @@ func (r RosettaConstructionFilecoin) parseParamsMultisigTxV3(unsignedMultisigTx 
 		}
 	case builtinV3.MethodsMultisig.AddSigner:
 		{
-			r := bytes.NewReader(msigParams.Params)
 			var params multisigV3.AddSignerParams
-			err := params.UnmarshalCBOR(r)
+			err := params.UnmarshalCBOR(reader)
 			if err != nil {
 				return "", err
 			}
@@ -1039,9 +1047,8 @@ func (r RosettaConstructionFilecoin) parseParamsMultisigTxV3(unsignedMultisigTx 
 		}
 	case builtinV3.MethodsMultisig.RemoveSigner:
 		{
-			r := bytes.NewReader(msigParams.Params)
 			var params multisigV3.RemoveSignerParams
-			err := params.UnmarshalCBOR(r)
+			err := params.UnmarshalCBOR(reader)
 			if err != nil {
 				return "", err
 			}
@@ -1053,9 +1060,8 @@ func (r RosettaConstructionFilecoin) parseParamsMultisigTxV3(unsignedMultisigTx 
 		}
 	case builtinV3.MethodsMultisig.SwapSigner:
 		{
-			r := bytes.NewReader(msigParams.Params)
 			var params multisigV3.SwapSignerParams
-			err := params.UnmarshalCBOR(r)
+			err := params.UnmarshalCBOR(reader)
 			if err != nil {
 				return "", err
 			}
@@ -1067,9 +1073,8 @@ func (r RosettaConstructionFilecoin) parseParamsMultisigTxV3(unsignedMultisigTx 
 		}
 	case builtinV3.MethodsMultisig.ChangeNumApprovalsThreshold:
 		{
-			r := bytes.NewReader(msigParams.Params)
 			var params multisigV3.ChangeNumApprovalsThresholdParams
-			err := params.UnmarshalCBOR(r)
+			err := params.UnmarshalCBOR(reader)
 			if err != nil {
 				return "", err
 			}
@@ -1081,9 +1086,8 @@ func (r RosettaConstructionFilecoin) parseParamsMultisigTxV3(unsignedMultisigTx 
 		}
 	case builtinV3.MethodsMultisig.LockBalance:
 		{
-			r := bytes.NewReader(msigParams.Params)
 			var params multisigV3.LockBalanceParams
-			err := params.UnmarshalCBOR(r)
+			err := params.UnmarshalCBOR(reader)
 			if err != nil {
 				return "", err
 			}
