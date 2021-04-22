@@ -596,8 +596,7 @@ func TestGasFieldOrderParse(t *testing.T) {
 }
 
 func TestParseParamsMultisigPaymentTx(t *testing.T) {
-	expectedParamsV1 := `{"To":"f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy","Value":"1000","Method":0,"Params":null}`
-	expectedParamsV2 := `{"To":"f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy","Value":"1000","Method":0,"Params":null}`
+	expectedParams := `{"To":"f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy","Value":"1000","Method":0,"Params":null}`
 
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
@@ -627,6 +626,16 @@ func TestParseParamsMultisigPaymentTx(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
+	txV3, err := r.ConstructMultisigPayment(request, builtinV3.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	txV4, err := r.ConstructMultisigPayment(request, builtinV4.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
 	expandedParamsV1, err := r.ParseParamsMultisigTx(txV1, builtinV1.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
@@ -635,15 +644,27 @@ func TestParseParamsMultisigPaymentTx(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
+	expandedParamsV3, err := r.ParseParamsMultisigTx(txV3, builtinV3.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	expandedParamsV4, err := r.ParseParamsMultisigTx(txV4, builtinV4.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 
-	assert.Equal(t, expectedParamsV1, expandedParamsV1)
-	assert.Equal(t, expectedParamsV2, expandedParamsV2)
+	assert.Equal(t, expectedParams, expandedParamsV1)
+	assert.Equal(t, expectedParams, expandedParamsV2)
+	assert.Equal(t, expectedParams, expandedParamsV3)
+	assert.Equal(t, expectedParams, expandedParamsV4)
+
 }
 
 func TestParseParamsMultisigSwapAuthTx(t *testing.T) {
 	expectedParamsV1 := `{"From":"f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy","To":"f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q"}`
 	expectedParamsV2 := expectedParamsV1
 	expectedParamsV3 := expectedParamsV1
+	expectedParamsV4 := expectedParamsV1
 
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
@@ -679,6 +700,11 @@ func TestParseParamsMultisigSwapAuthTx(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
+	txV4, err := r.ConstructSwapAuthorizedParty(request, builtinV4.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
 	expandedParamsV1, err := r.ParseParamsMultisigTx(txV1, builtinV1.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
@@ -691,16 +717,22 @@ func TestParseParamsMultisigSwapAuthTx(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
+	expandedParamsV4, err := r.ParseParamsMultisigTx(txV4, builtinV4.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 
 	assert.Equal(t, expectedParamsV1, expandedParamsV1)
 	assert.Equal(t, expectedParamsV2, expandedParamsV2)
 	assert.Equal(t, expectedParamsV3, expandedParamsV3)
+	assert.Equal(t, expectedParamsV4, expandedParamsV4)
 }
 
 func TestParseParamsMultisigRemoveSignerTx(t *testing.T) {
 	expectedParamsV1 := `{"Signer":"f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q","Decrease":false}`
 	expectedParamsV2 := expectedParamsV1
 	expectedParamsV3 := expectedParamsV1
+	expectedParamsV4 := expectedParamsV1
 
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
@@ -736,6 +768,11 @@ func TestParseParamsMultisigRemoveSignerTx(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
+	txV4, err := r.ConstructRemoveAuthorizedParty(request, builtinV4.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
 	expandedParamsV1, err := r.ParseParamsMultisigTx(txV1, builtinV1.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
@@ -748,10 +785,15 @@ func TestParseParamsMultisigRemoveSignerTx(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
+	expandedParamsV4, err := r.ParseParamsMultisigTx(txV4, builtinV4.MultisigActorCodeID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 
 	assert.Equal(t, expectedParamsV1, expandedParamsV1)
 	assert.Equal(t, expectedParamsV2, expandedParamsV2)
 	assert.Equal(t, expectedParamsV3, expandedParamsV3)
+	assert.Equal(t, expectedParamsV4, expandedParamsV4)
 }
 
 func TestHash(t *testing.T) {
