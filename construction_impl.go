@@ -19,6 +19,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"sync"
+
 	filAddr "github.com/filecoin-project/go-address"
 	gocrypto "github.com/filecoin-project/go-crypto"
 	"github.com/filecoin-project/go-state-types/abi"
@@ -30,10 +32,11 @@ import (
 	multisigV2 "github.com/filecoin-project/specs-actors/v2/actors/builtin/multisig"
 	builtinV3 "github.com/filecoin-project/specs-actors/v3/actors/builtin"
 	multisigV3 "github.com/filecoin-project/specs-actors/v3/actors/builtin/multisig"
+	builtinV4 "github.com/filecoin-project/specs-actors/v4/actors/builtin"
+	multisigV4 "github.com/filecoin-project/specs-actors/v4/actors/builtin/multisig"
 	"github.com/ipfs/go-cid"
 	"github.com/minio/blake2b-simd"
 	cbg "github.com/whyrusleeping/cbor-gen"
-	"sync"
 )
 
 type RosettaConstructionFilecoin struct {
@@ -392,6 +395,33 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 		}
 		serializedParams = buf.Bytes()
 
+	case builtinV4.MultisigActorCodeID:
+		methodNum = builtinV4.MethodsMultisig.Propose
+
+		swapSignerParams := &multisigV4.SwapSignerParams{
+			From: fromParams,
+			To:   toParams,
+		}
+		bufSwapSigner := new(bytes.Buffer)
+		err = swapSignerParams.MarshalCBOR(bufSwapSigner)
+		if err != nil {
+			return "", err
+		}
+
+		params := &multisigV4.ProposeParams{
+			To:     to,
+			Value:  types.NewInt(0),
+			Method: builtinV4.MethodsMultisig.SwapSigner,
+			Params: bufSwapSigner.Bytes(),
+		}
+
+		buf := new(bytes.Buffer)
+		err = params.MarshalCBOR(buf)
+		if err != nil {
+			return "", err
+		}
+		serializedParams = buf.Bytes()
+
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
 	}
@@ -521,6 +551,33 @@ func (r RosettaConstructionFilecoin) ConstructRemoveAuthorizedParty(request *Rem
 			To:     to,
 			Value:  types.NewInt(0),
 			Method: builtinV3.MethodsMultisig.RemoveSigner,
+			Params: bufRemoveSigner.Bytes(),
+		}
+
+		buf := new(bytes.Buffer)
+		err = params.MarshalCBOR(buf)
+		if err != nil {
+			return "", err
+		}
+		serializedParams = buf.Bytes()
+
+	case builtinV4.MultisigActorCodeID:
+		methodNum = builtinV4.MethodsMultisig.Propose
+
+		swapSignerParams := &multisigV4.RemoveSignerParams{
+			Signer:   toRemoveParams,
+			Decrease: decreaseParams,
+		}
+		bufRemoveSigner := new(bytes.Buffer)
+		err = swapSignerParams.MarshalCBOR(bufRemoveSigner)
+		if err != nil {
+			return "", err
+		}
+
+		params := &multisigV4.ProposeParams{
+			To:     to,
+			Value:  types.NewInt(0),
+			Method: builtinV4.MethodsMultisig.RemoveSigner,
 			Params: bufRemoveSigner.Bytes(),
 		}
 
@@ -1102,6 +1159,136 @@ func (r RosettaConstructionFilecoin) parseParamsMultisigTxV3(unsignedMultisigTx 
 	}
 }
 
+func (r RosettaConstructionFilecoin) parseParamsMultisigTxV4(unsignedMultisigTx string) (string, error) {
+	rawIn := json.RawMessage(unsignedMultisigTx)
+
+	txBytes, err := rawIn.MarshalJSON()
+	if err != nil {
+		return "", err
+	}
+
+	var msg types.Message
+	err = json.Unmarshal(txBytes, &msg)
+	if err != nil {
+		return "", err
+	}
+
+	var msigMethod = msg.Method
+	var msigParams = msg.Params
+
+	if msg.Method == builtinV4.MethodsMultisig.Propose {
+		// Parse propose to get the inner method call
+		reader := bytes.NewReader(msg.Params)
+		var proposeParams multisigV3.ProposeParams
+		err = proposeParams.UnmarshalCBOR(reader)
+		if err != nil {
+			return "", err
+		}
+		msigMethod = proposeParams.Method
+		msigParams = proposeParams.Params
+	}
+
+	reader := bytes.NewReader(msigParams)
+
+	switch msigMethod {
+	case builtinV4.MethodSend:
+		{
+			reader := bytes.NewReader(msg.Params)
+			var params multisigV4.ProposeParams
+			err := params.UnmarshalCBOR(reader)
+			if err != nil {
+				return "", err
+			}
+			jsonResponse, err := json.Marshal(params)
+			if err != nil {
+				return "", err
+			}
+			return string(jsonResponse), nil
+		}
+	case builtinV4.MethodsMultisig.Approve,
+		builtinV4.MethodsMultisig.Cancel:
+		{
+			var params multisigV4.TxnIDParams
+			err := params.UnmarshalCBOR(reader)
+			if err != nil {
+				return "", err
+			}
+			jsonResponse, err := json.Marshal(params)
+			if err != nil {
+				return "", err
+			}
+			return string(jsonResponse), nil
+		}
+	case builtinV4.MethodsMultisig.AddSigner:
+		{
+			var params multisigV3.AddSignerParams
+			err := params.UnmarshalCBOR(reader)
+			if err != nil {
+				return "", err
+			}
+			jsonResponse, err := json.Marshal(params)
+			if err != nil {
+				return "", err
+			}
+			return string(jsonResponse), nil
+		}
+	case builtinV4.MethodsMultisig.RemoveSigner:
+		{
+			var params multisigV4.RemoveSignerParams
+			err := params.UnmarshalCBOR(reader)
+			if err != nil {
+				return "", err
+			}
+			jsonResponse, err := json.Marshal(params)
+			if err != nil {
+				return "", err
+			}
+			return string(jsonResponse), nil
+		}
+	case builtinV4.MethodsMultisig.SwapSigner:
+		{
+			var params multisigV4.SwapSignerParams
+			err := params.UnmarshalCBOR(reader)
+			if err != nil {
+				return "", err
+			}
+			jsonResponse, err := json.Marshal(params)
+			if err != nil {
+				return "", err
+			}
+			return string(jsonResponse), nil
+		}
+	case builtinV4.MethodsMultisig.ChangeNumApprovalsThreshold:
+		{
+			var params multisigV4.ChangeNumApprovalsThresholdParams
+			err := params.UnmarshalCBOR(reader)
+			if err != nil {
+				return "", err
+			}
+			jsonResponse, err := json.Marshal(params)
+			if err != nil {
+				return "", err
+			}
+			return string(jsonResponse), nil
+		}
+	case builtinV4.MethodsMultisig.LockBalance:
+		{
+			var params multisigV4.LockBalanceParams
+			err := params.UnmarshalCBOR(reader)
+			if err != nil {
+				return "", err
+			}
+			jsonResponse, err := json.Marshal(params)
+			if err != nil {
+				return "", err
+			}
+			return string(jsonResponse), nil
+		}
+	default:
+		return "", fmt.Errorf("unknown method")
+	}
+}
+
 func (r RosettaConstructionFilecoin) ParseParamsMultisigTx(unsignedMultisigTx string, destinationActorId cid.Cid) (string, error) {
 	switch destinationActorId {
 	case builtinV1.MultisigActorCodeID:
@@ -1112,6 +1299,9 @@ func (r RosettaConstructionFilecoin) ParseParamsMultisigTx(unsignedMultisigTx st
 
 	case builtinV3.MultisigActorCodeID:
 		return r.parseParamsMultisigTxV3(unsignedMultisigTx)
+
+	case builtinV4.MultisigActorCodeID:
+		return r.parseParamsMultisigTxV4(unsignedMultisigTx)
 
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
