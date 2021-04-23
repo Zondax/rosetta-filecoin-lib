@@ -1179,7 +1179,7 @@ func (r RosettaConstructionFilecoin) parseParamsMultisigTxV4(unsignedMultisigTx 
 	if msg.Method == builtinV4.MethodsMultisig.Propose {
 		// Parse propose to get the inner method call
 		reader := bytes.NewReader(msg.Params)
-		var proposeParams multisigV3.ProposeParams
+		var proposeParams multisigV4.ProposeParams
 		err = proposeParams.UnmarshalCBOR(reader)
 		if err != nil {
 			return "", err
@@ -1221,7 +1221,7 @@ func (r RosettaConstructionFilecoin) parseParamsMultisigTxV4(unsignedMultisigTx 
 		}
 	case builtinV4.MethodsMultisig.AddSigner:
 		{
-			var params multisigV3.AddSignerParams
+			var params multisigV4.AddSignerParams
 			err := params.UnmarshalCBOR(reader)
 			if err != nil {
 				return "", err
