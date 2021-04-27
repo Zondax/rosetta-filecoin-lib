@@ -252,6 +252,22 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 		}
 		serializedParams = buf.Bytes()
 
+	case builtinV4.MultisigActorCodeID:
+		methodNum = builtinV4.MethodsMultisig.Propose
+		params := &multisigV4.ProposeParams{
+			To:     toParams,
+			Value:  valueParams,
+			Method: builtinV4.MethodSend,
+			Params: make([]byte, 0),
+		}
+
+		buf := new(bytes.Buffer)
+		err = params.MarshalCBOR(buf)
+		if err != nil {
+			return "", err
+		}
+		serializedParams = buf.Bytes()
+
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
 	}
