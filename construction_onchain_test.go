@@ -24,7 +24,7 @@ import (
 	"testing"
 	"time"
 
-	builtinV4 "github.com/filecoin-project/specs-actors/v4/actors/builtin"
+	builtinV5 "github.com/filecoin-project/specs-actors/v5/actors/builtin"
 )
 
 // send from regular address
@@ -277,7 +277,7 @@ func TestSendFromMultisig(t *testing.T) {
 		Params:   params,
 	}
 
-	unsignedTxBase64, err := r.ConstructMultisigPayment(request, builtinV4.MultisigActorCodeID)
+	unsignedTxBase64, err := r.ConstructMultisigPayment(request, builtinV5.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -508,7 +508,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 		Params:   params,
 	}
 
-	unsignedTxBase64, err := r.ConstructSwapAuthorizedParty(request, builtinV4.MultisigActorCodeID)
+	unsignedTxBase64, err := r.ConstructSwapAuthorizedParty(request, builtinV5.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
