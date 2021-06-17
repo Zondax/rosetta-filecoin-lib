@@ -432,6 +432,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 	}
 
 	result := res["result"].(map[string]interface{})
+	t.Log(result)
 	state := result["State"].(map[string]interface{})
 	signers := state["Signers"].([]interface{})
 
