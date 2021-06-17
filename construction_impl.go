@@ -269,7 +269,7 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 			return "", err
 		}
 		serializedParams = buf.Bytes()
-	
+
 	case builtinV5.MultisigActorCodeID:
 		methodNum = builtinV5.MethodsMultisig.Propose
 		params := &multisigV5.ProposeParams{
