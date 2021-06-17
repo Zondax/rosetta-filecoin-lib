@@ -27,6 +27,8 @@ import (
 	builtinV5 "github.com/filecoin-project/specs-actors/v5/actors/builtin"
 )
 
+const MULTISIG_ADDRESS_ON_CHAIN = "t01005"
+
 // send from regular address
 func TestSendTransaction(t *testing.T) {
 	defer seq()()
@@ -271,7 +273,7 @@ func TestSendFromMultisig(t *testing.T) {
 		Quantity: "1",
 	}
 	request := &MultisigPaymentRequest{
-		Multisig: MULTISIG_ADDRESS,
+		Multisig: MULTISIG_ADDRESS_ON_CHAIN,
 		From:     "f1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
 		Metadata: mtx,
 		Params:   params,
@@ -401,7 +403,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 	addressID2 := "t01002" // ID of signerAdd1
 
 	/* Get Multisig signers */
-	data := []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateReadState","id": 1, "params": ["` + MULTISIG_ADDRESS + `", null]}`)
+	data := []byte(`{"jsonrpc": "2.0","method": "Filecoin.StateReadState","id": 1, "params": ["` + MULTISIG_ADDRESS_ON_CHAIN + `", null]}`)
 
 	req, err := http.NewRequest("POST", lotusURL, bytes.NewBuffer(data))
 	if err != nil {
@@ -503,7 +505,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 		To:   toParams,
 	}
 	request := &SwapAuthorizedPartyRequest{
-		Multisig: MULTISIG_ADDRESS,
+		Multisig: MULTISIG_ADDRESS_ON_CHAIN,
 		From:     proposeSenderAdd,
 		Metadata: mtx,
 		Params:   params,
