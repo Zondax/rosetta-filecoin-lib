@@ -275,7 +275,7 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 		params := &multisigV5.ProposeParams{
 			To:     toParams,
 			Value:  valueParams,
-			Method: builtinV4.MethodSend,
+			Method: builtinV5.MethodSend,
 			Params: make([]byte, 0),
 		}
 
