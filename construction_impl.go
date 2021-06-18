@@ -49,6 +49,11 @@ type RosettaConstructionFilecoin struct {
 
 var filAddrLibMutex sync.Mutex
 
+type response struct {
+	params     interface{}
+	methodName string
+}
+
 func formatAddress(network filAddr.Network, addr filAddr.Address) string {
 	// the address library is unfortunately not thread-safe so we must use a mutex here
 	// so we only temporarily change the value and use to mutex to avoid issues
@@ -1027,21 +1032,42 @@ func (r RosettaConstructionFilecoin) parseParamsMultisigTxV2(unsignedMultisigTx 
 			if err != nil {
 				return "", err
 			}
-			jsonResponse, err := json.Marshal(params)
+			jsonResponse, err := json.Marshal(response{
+				params:     params,
+				methodName: "Send",
+			})
 			if err != nil {
 				return "", err
 			}
 			return string(jsonResponse), nil
 		}
-	case builtinV2.MethodsMultisig.Approve,
-		builtinV2.MethodsMultisig.Cancel:
+	case builtinV2.MethodsMultisig.Approve:
 		{
 			var params multisigV2.TxnIDParams
 			err := params.UnmarshalCBOR(reader)
 			if err != nil {
 				return "", err
 			}
-			jsonResponse, err := json.Marshal(params)
+			jsonResponse, err := json.Marshal(response{
+				params:     params,
+				methodName: "Approve",
+			})
+			if err != nil {
+				return "", err
+			}
+			return string(jsonResponse), nil
+		}
+	case builtinV2.MethodsMultisig.Cancel:
+		{
+			var params multisigV2.TxnIDParams
+			err := params.UnmarshalCBOR(reader)
+			if err != nil {
+				return "", err
+			}
+			jsonResponse, err := json.Marshal(response{
+				params:     params,
+				methodName: "Cancel",
+			})
 			if err != nil {
 				return "", err
 			}
@@ -1505,6 +1531,67 @@ func (r RosettaConstructionFilecoin) parseParamsMultisigTxV5(unsignedMultisigTx 
 	default:
 		return "", fmt.Errorf("unknown method")
 	}
+}
+
+func getMsigMethodString(method abi.MethodNum) (string, error) {
+	switch method {
+	case builtinV5.MethodSend:
+		return "Send", nil
+	case builtinV5.MethodsMultisig.Approve:
+		return "Approve", nil
+	case builtinV5.MethodsMultisig.Cancel:
+		return "Cancel", nil
+	case builtinV5.MethodsMultisig.SwapSigner:
+		return "SwapSigner", nil
+	case builtinV5.MethodsMultisig.RemoveSigner:
+		return "RemoveSigner", nil
+	case builtinV5.MethodsMultisig.AddSigner:
+		return "AddSigner", nil
+	case builtinV5.MethodsMultisig.ChangeNumApprovalsThreshold:
+		return "ChangeNumApprovalsThreshold", nil
+	case builtinV5.MethodsMultisig.LockBalance:
+		return "LockBalance", nil
+	default:
+		return "", fmt.Errorf("method not recognized")
+	}
+}
+
+func (r RosettaConstructionFilecoin) ParseProposeTxParams(unsignedMultisigTx string, destinationActorId cid.Cid) (string, string, error) {
+	rawIn := json.RawMessage(unsignedMultisigTx)
+
+	txBytes, err := rawIn.MarshalJSON()
+	if err != nil {
+		return "", "", err
+	}
+
+	var msg types.Message
+	err = json.Unmarshal(txBytes, &msg)
+	if err != nil {
+		return "", "", err
+	}
+
+	if msg.Method != builtinV5.MethodsMultisig.Propose {
+		return "", "", fmt.Errorf("method does not correspond to 'Propose'")
+	}
+
+	reader := bytes.NewReader(msg.Params)
+	var proposeParams multisigV5.ProposeParams
+	err = proposeParams.UnmarshalCBOR(reader)
+	if err != nil {
+		return "", "", err
+	}
+
+	innerMethod, err := getMsigMethodString(proposeParams.Method)
+	if err != nil {
+		return "", "", err
+	}
+
+	innerParams, err := r.ParseParamsMultisigTx(unsignedMultisigTx, destinationActorId)
+	if err != nil {
+		return "", "", err
+	}
+
+	return innerMethod, innerParams, nil
 }
 
 func (r RosettaConstructionFilecoin) ParseParamsMultisigTx(unsignedMultisigTx string, destinationActorId cid.Cid) (string, error) {
