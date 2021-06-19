@@ -1551,6 +1551,10 @@ func getMsigMethodString(method abi.MethodNum) (string, error) {
 		return "ChangeNumApprovalsThreshold", nil
 	case builtinV5.MethodsMultisig.LockBalance:
 		return "LockBalance", nil
+	case builtinV5.MethodsMultisig.Constructor:
+		return "Constructor", nil
+	case builtinV5.MethodsMultisig.Propose:
+		return "Propose", nil
 	default:
 		return "", fmt.Errorf("method not recognized")
 	}
@@ -1571,7 +1575,7 @@ func (r RosettaConstructionFilecoin) ParseProposeTxParams(unsignedMultisigTx str
 	}
 
 	if msg.Method != builtinV5.MethodsMultisig.Propose {
-		return "", "", fmt.Errorf("method does not correspond to 'Propose'")
+		return "", "", fmt.Errorf("method does not correspond to a 'Propose' transaction")
 	}
 
 	reader := bytes.NewReader(msg.Params)
