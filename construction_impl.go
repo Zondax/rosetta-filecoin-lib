@@ -27,13 +27,9 @@ import (
 	"github.com/filecoin-project/go-state-types/crypto"
 	"github.com/filecoin-project/lotus/chain/types"
 	builtinV1 "github.com/filecoin-project/specs-actors/actors/builtin"
-	multisigV1 "github.com/filecoin-project/specs-actors/actors/builtin/multisig"
 	builtinV2 "github.com/filecoin-project/specs-actors/v2/actors/builtin"
-	multisigV2 "github.com/filecoin-project/specs-actors/v2/actors/builtin/multisig"
 	builtinV3 "github.com/filecoin-project/specs-actors/v3/actors/builtin"
-	multisigV3 "github.com/filecoin-project/specs-actors/v3/actors/builtin/multisig"
 	builtinV4 "github.com/filecoin-project/specs-actors/v4/actors/builtin"
-	multisigV4 "github.com/filecoin-project/specs-actors/v4/actors/builtin/multisig"
 	builtinV5 "github.com/filecoin-project/specs-actors/v5/actors/builtin"
 	multisigV5 "github.com/filecoin-project/specs-actors/v5/actors/builtin/multisig"
 	"github.com/ipfs/go-cid"
@@ -170,534 +166,69 @@ func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (
 }
 
 func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigPaymentRequest, destinationActorId cid.Cid) (string, error) {
-	to, err := filAddr.NewFromString(request.Multisig)
-	if err != nil {
-		return "", err
-	}
-
-	from, err := filAddr.NewFromString(request.From)
-	if err != nil {
-		return "", err
-	}
-
-	gasfeecap, err := types.BigFromString(request.Metadata.GasFeeCap)
-	if err != nil {
-		return "", err
-	}
-
-	gaspremium, err := types.BigFromString(request.Metadata.GasPremium)
-	if err != nil {
-		return "", err
-	}
-
-	gaslimit := request.Metadata.GasLimit
-
-	toParams, err := filAddr.NewFromString(request.Params.To)
-	if err != nil {
-		return "", err
-	}
-
-	valueParams, err := types.BigFromString(request.Params.Quantity)
-	if err != nil {
-		return "", err
-	}
-
-	var methodNum abi.MethodNum
-	var serializedParams []byte
-
 	switch destinationActorId {
 	case builtinV1.MultisigActorCodeID:
-		methodNum = builtinV1.MethodsMultisig.Propose
-		params := &multisigV1.ProposeParams{
-			To:     toParams,
-			Value:  valueParams,
-			Method: builtinV1.MethodSend,
-			Params: make([]byte, 0),
-		}
-
-		buf := new(bytes.Buffer)
-		err = params.MarshalCBOR(buf)
-		if err != nil {
-			return "", err
-		}
-		serializedParams = buf.Bytes()
+		return r.ConstructMultisigPaymentV1(request, destinationActorId)
 
 	case builtinV2.MultisigActorCodeID:
-		methodNum = builtinV2.MethodsMultisig.Propose
-		params := &multisigV2.ProposeParams{
-			To:     toParams,
-			Value:  valueParams,
-			Method: builtinV2.MethodSend,
-			Params: make([]byte, 0),
-		}
-
-		buf := new(bytes.Buffer)
-		err = params.MarshalCBOR(buf)
-		if err != nil {
-			return "", err
-		}
-		serializedParams = buf.Bytes()
+		return r.ConstructMultisigPaymentV2(request, destinationActorId)
 
 	case builtinV3.MultisigActorCodeID:
-		methodNum = builtinV3.MethodsMultisig.Propose
-		params := &multisigV3.ProposeParams{
-			To:     toParams,
-			Value:  valueParams,
-			Method: builtinV3.MethodSend,
-			Params: make([]byte, 0),
-		}
-
-		buf := new(bytes.Buffer)
-		err = params.MarshalCBOR(buf)
-		if err != nil {
-			return "", err
-		}
-		serializedParams = buf.Bytes()
+		return r.ConstructMultisigPaymentV3(request, destinationActorId)
 
 	case builtinV4.MultisigActorCodeID:
-		methodNum = builtinV4.MethodsMultisig.Propose
-		params := &multisigV4.ProposeParams{
-			To:     toParams,
-			Value:  valueParams,
-			Method: builtinV4.MethodSend,
-			Params: make([]byte, 0),
-		}
-
-		buf := new(bytes.Buffer)
-		err = params.MarshalCBOR(buf)
-		if err != nil {
-			return "", err
-		}
-		serializedParams = buf.Bytes()
+		return r.ConstructMultisigPaymentV4(request, destinationActorId)
 
 	case builtinV5.MultisigActorCodeID:
-		methodNum = builtinV5.MethodsMultisig.Propose
-		params := &multisigV5.ProposeParams{
-			To:     toParams,
-			Value:  valueParams,
-			Method: builtinV5.MethodSend,
-			Params: make([]byte, 0),
-		}
-
-		buf := new(bytes.Buffer)
-		err = params.MarshalCBOR(buf)
-		if err != nil {
-			return "", err
-		}
-		serializedParams = buf.Bytes()
+		return r.ConstructMultisigPaymentV5(request, destinationActorId)
 
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
 	}
-
-	value := types.NewInt(0)
-	msg := &types.Message{Version: types.MessageVersion,
-		To:         to,
-		From:       from,
-		Nonce:      request.Metadata.Nonce,
-		Value:      value,
-		GasFeeCap:  gasfeecap,
-		GasPremium: gaspremium,
-		GasLimit:   gaslimit,
-		Method:     methodNum,
-		Params:     serializedParams,
-	}
-
-	tx, err := json.Marshal(msg)
-	if err != nil {
-		return "", err
-	}
-
-	return string(tx), nil
 }
 
 func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
-	to, err := filAddr.NewFromString(request.Multisig)
-	if err != nil {
-		return "", err
-	}
-
-	from, err := filAddr.NewFromString(request.From)
-	if err != nil {
-		return "", err
-	}
-
-	gasfeecap, err := types.BigFromString(request.Metadata.GasFeeCap)
-	if err != nil {
-		return "", err
-	}
-
-	gaspremium, err := types.BigFromString(request.Metadata.GasPremium)
-	if err != nil {
-		return "", err
-	}
-
-	gaslimit := request.Metadata.GasLimit
-
-	toParams, err := filAddr.NewFromString(request.Params.To)
-	if err != nil {
-		return "", err
-	}
-
-	fromParams, err := filAddr.NewFromString(request.Params.From)
-	if err != nil {
-		return "", err
-	}
-
-	var methodNum abi.MethodNum
-	var serializedParams []byte
-
 	switch destinationActorId {
 	case builtinV1.MultisigActorCodeID:
-		methodNum = builtinV1.MethodsMultisig.Propose
-
-		swapSignerParams := &multisigV1.SwapSignerParams{
-			From: fromParams,
-			To:   toParams,
-		}
-		bufSwapSigner := new(bytes.Buffer)
-		err = swapSignerParams.MarshalCBOR(bufSwapSigner)
-		if err != nil {
-			return "", err
-		}
-
-		params := &multisigV1.ProposeParams{
-			To:     to,
-			Value:  types.NewInt(0),
-			Method: builtinV1.MethodsMultisig.SwapSigner,
-			Params: bufSwapSigner.Bytes(),
-		}
-
-		buf := new(bytes.Buffer)
-		err = params.MarshalCBOR(buf)
-		if err != nil {
-			return "", err
-		}
-		serializedParams = buf.Bytes()
+		return r.ConstructSwapAuthorizedPartyV1(request, destinationActorId)
 
 	case builtinV2.MultisigActorCodeID:
-		methodNum = builtinV2.MethodsMultisig.Propose
-
-		swapSignerParams := &multisigV2.SwapSignerParams{
-			From: fromParams,
-			To:   toParams,
-		}
-		bufSwapSigner := new(bytes.Buffer)
-		err = swapSignerParams.MarshalCBOR(bufSwapSigner)
-		if err != nil {
-			return "", err
-		}
-
-		params := &multisigV2.ProposeParams{
-			To:     to,
-			Value:  types.NewInt(0),
-			Method: builtinV2.MethodsMultisig.SwapSigner,
-			Params: bufSwapSigner.Bytes(),
-		}
-
-		buf := new(bytes.Buffer)
-		err = params.MarshalCBOR(buf)
-		if err != nil {
-			return "", err
-		}
-		serializedParams = buf.Bytes()
+		return r.ConstructSwapAuthorizedPartyV2(request, destinationActorId)
 
 	case builtinV3.MultisigActorCodeID:
-		methodNum = builtinV3.MethodsMultisig.Propose
-
-		swapSignerParams := &multisigV3.SwapSignerParams{
-			From: fromParams,
-			To:   toParams,
-		}
-		bufSwapSigner := new(bytes.Buffer)
-		err = swapSignerParams.MarshalCBOR(bufSwapSigner)
-		if err != nil {
-			return "", err
-		}
-
-		params := &multisigV3.ProposeParams{
-			To:     to,
-			Value:  types.NewInt(0),
-			Method: builtinV3.MethodsMultisig.SwapSigner,
-			Params: bufSwapSigner.Bytes(),
-		}
-
-		buf := new(bytes.Buffer)
-		err = params.MarshalCBOR(buf)
-		if err != nil {
-			return "", err
-		}
-		serializedParams = buf.Bytes()
+		return r.ConstructSwapAuthorizedPartyV3(request, destinationActorId)
 
 	case builtinV4.MultisigActorCodeID:
-		methodNum = builtinV4.MethodsMultisig.Propose
-
-		swapSignerParams := &multisigV4.SwapSignerParams{
-			From: fromParams,
-			To:   toParams,
-		}
-		bufSwapSigner := new(bytes.Buffer)
-		err = swapSignerParams.MarshalCBOR(bufSwapSigner)
-		if err != nil {
-			return "", err
-		}
-
-		params := &multisigV4.ProposeParams{
-			To:     to,
-			Value:  types.NewInt(0),
-			Method: builtinV4.MethodsMultisig.SwapSigner,
-			Params: bufSwapSigner.Bytes(),
-		}
-
-		buf := new(bytes.Buffer)
-		err = params.MarshalCBOR(buf)
-		if err != nil {
-			return "", err
-		}
-		serializedParams = buf.Bytes()
+		return r.ConstructSwapAuthorizedPartyV4(request, destinationActorId)
 
 	case builtinV5.MultisigActorCodeID:
-		methodNum = builtinV5.MethodsMultisig.Propose
-
-		swapSignerParams := &multisigV5.SwapSignerParams{
-			From: fromParams,
-			To:   toParams,
-		}
-		bufSwapSigner := new(bytes.Buffer)
-		err = swapSignerParams.MarshalCBOR(bufSwapSigner)
-		if err != nil {
-			return "", err
-		}
-
-		params := &multisigV5.ProposeParams{
-			To:     to,
-			Value:  types.NewInt(0),
-			Method: builtinV5.MethodsMultisig.SwapSigner,
-			Params: bufSwapSigner.Bytes(),
-		}
-
-		buf := new(bytes.Buffer)
-		err = params.MarshalCBOR(buf)
-		if err != nil {
-			return "", err
-		}
-		serializedParams = buf.Bytes()
+		return r.ConstructSwapAuthorizedPartyV5(request, destinationActorId)
 
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
 	}
-
-	msg := &types.Message{Version: types.MessageVersion,
-		To:         to,
-		From:       from,
-		Nonce:      request.Metadata.Nonce,
-		Value:      types.NewInt(0),
-		GasFeeCap:  gasfeecap,
-		GasPremium: gaspremium,
-		GasLimit:   gaslimit,
-		Method:     methodNum,
-		Params:     serializedParams,
-	}
-
-	tx, err := json.Marshal(msg)
-	if err != nil {
-		return "", err
-	}
-
-	return string(tx), nil
 }
 
 func (r RosettaConstructionFilecoin) ConstructRemoveAuthorizedParty(request *RemoveAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
-	to, err := filAddr.NewFromString(request.Multisig)
-	if err != nil {
-		return "", err
-	}
-
-	from, err := filAddr.NewFromString(request.From)
-	if err != nil {
-		return "", err
-	}
-
-	gasfeecap, err := types.BigFromString(request.Metadata.GasFeeCap)
-	if err != nil {
-		return "", err
-	}
-
-	gaspremium, err := types.BigFromString(request.Metadata.GasPremium)
-	if err != nil {
-		return "", err
-	}
-
-	gaslimit := request.Metadata.GasLimit
-
-	decreaseParams := request.Params.Decrease
-
-	toRemoveParams, err := filAddr.NewFromString(request.Params.ToRemove)
-	if err != nil {
-		return "", err
-	}
-
-	var methodNum abi.MethodNum
-	var serializedParams []byte
-
 	switch destinationActorId {
 	case builtinV1.MultisigActorCodeID:
-		methodNum = builtinV1.MethodsMultisig.Propose
-
-		removeSignerParams := &multisigV1.RemoveSignerParams{
-			Signer:   toRemoveParams,
-			Decrease: decreaseParams,
-		}
-		bufRemoveSigner := new(bytes.Buffer)
-		err = removeSignerParams.MarshalCBOR(bufRemoveSigner)
-		if err != nil {
-			return "", err
-		}
-
-		params := &multisigV1.ProposeParams{
-			To:     to,
-			Value:  types.NewInt(0),
-			Method: builtinV1.MethodsMultisig.RemoveSigner,
-			Params: bufRemoveSigner.Bytes(),
-		}
-
-		buf := new(bytes.Buffer)
-		err = params.MarshalCBOR(buf)
-		if err != nil {
-			return "", err
-		}
-		serializedParams = buf.Bytes()
+		return r.ConstructRemoveAuthorizedPartyV1(request, destinationActorId)
 
 	case builtinV2.MultisigActorCodeID:
-		methodNum = builtinV2.MethodsMultisig.Propose
-
-		swapSignerParams := &multisigV2.RemoveSignerParams{
-			Signer:   toRemoveParams,
-			Decrease: decreaseParams,
-		}
-		bufRemoveSigner := new(bytes.Buffer)
-		err = swapSignerParams.MarshalCBOR(bufRemoveSigner)
-		if err != nil {
-			return "", err
-		}
-
-		params := &multisigV2.ProposeParams{
-			To:     to,
-			Value:  types.NewInt(0),
-			Method: builtinV2.MethodsMultisig.RemoveSigner,
-			Params: bufRemoveSigner.Bytes(),
-		}
-
-		buf := new(bytes.Buffer)
-		err = params.MarshalCBOR(buf)
-		if err != nil {
-			return "", err
-		}
-		serializedParams = buf.Bytes()
+		return r.ConstructRemoveAuthorizedPartyV2(request, destinationActorId)
 
 	case builtinV3.MultisigActorCodeID:
-		methodNum = builtinV3.MethodsMultisig.Propose
-
-		swapSignerParams := &multisigV3.RemoveSignerParams{
-			Signer:   toRemoveParams,
-			Decrease: decreaseParams,
-		}
-		bufRemoveSigner := new(bytes.Buffer)
-		err = swapSignerParams.MarshalCBOR(bufRemoveSigner)
-		if err != nil {
-			return "", err
-		}
-
-		params := &multisigV3.ProposeParams{
-			To:     to,
-			Value:  types.NewInt(0),
-			Method: builtinV3.MethodsMultisig.RemoveSigner,
-			Params: bufRemoveSigner.Bytes(),
-		}
-
-		buf := new(bytes.Buffer)
-		err = params.MarshalCBOR(buf)
-		if err != nil {
-			return "", err
-		}
-		serializedParams = buf.Bytes()
+		return r.ConstructRemoveAuthorizedPartyV3(request, destinationActorId)
 
 	case builtinV4.MultisigActorCodeID:
-		methodNum = builtinV4.MethodsMultisig.Propose
-
-		swapSignerParams := &multisigV4.RemoveSignerParams{
-			Signer:   toRemoveParams,
-			Decrease: decreaseParams,
-		}
-		bufRemoveSigner := new(bytes.Buffer)
-		err = swapSignerParams.MarshalCBOR(bufRemoveSigner)
-		if err != nil {
-			return "", err
-		}
-
-		params := &multisigV4.ProposeParams{
-			To:     to,
-			Value:  types.NewInt(0),
-			Method: builtinV4.MethodsMultisig.RemoveSigner,
-			Params: bufRemoveSigner.Bytes(),
-		}
-
-		buf := new(bytes.Buffer)
-		err = params.MarshalCBOR(buf)
-		if err != nil {
-			return "", err
-		}
-		serializedParams = buf.Bytes()
+		return r.ConstructRemoveAuthorizedPartyV4(request, destinationActorId)
 
 	case builtinV5.MultisigActorCodeID:
-		methodNum = builtinV5.MethodsMultisig.Propose
-
-		swapSignerParams := &multisigV5.RemoveSignerParams{
-			Signer:   toRemoveParams,
-			Decrease: decreaseParams,
-		}
-		bufRemoveSigner := new(bytes.Buffer)
-		err = swapSignerParams.MarshalCBOR(bufRemoveSigner)
-		if err != nil {
-			return "", err
-		}
-
-		params := &multisigV5.ProposeParams{
-			To:     to,
-			Value:  types.NewInt(0),
-			Method: builtinV5.MethodsMultisig.RemoveSigner,
-			Params: bufRemoveSigner.Bytes(),
-		}
-
-		buf := new(bytes.Buffer)
-		err = params.MarshalCBOR(buf)
-		if err != nil {
-			return "", err
-		}
-		serializedParams = buf.Bytes()
+		return r.ConstructRemoveAuthorizedPartyV5(request, destinationActorId)
 
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
 	}
-
-	msg := &types.Message{Version: types.MessageVersion,
-		To:         to,
-		From:       from,
-		Nonce:      request.Metadata.Nonce,
-		Value:      types.NewInt(0),
-		GasFeeCap:  gasfeecap,
-		GasPremium: gaspremium,
-		GasLimit:   gaslimit,
-		Method:     methodNum,
-		Params:     serializedParams,
-	}
-
-	tx, err := json.Marshal(msg)
-	if err != nil {
-		return "", err
-	}
-
-	return string(tx), nil
 }
 
 func (r RosettaConstructionFilecoin) unsignedMessageFromCBOR(messageCbor []byte) (*types.Message, error) {
@@ -857,654 +388,69 @@ func (r RosettaConstructionFilecoin) ParseTx(messageCbor []byte) (string, error)
 	return string(msgJson), nil
 }
 
-func (r RosettaConstructionFilecoin) parseParamsMultisigTxV1(unsignedMultisigTx string) (string, error) {
-	rawIn := json.RawMessage(unsignedMultisigTx)
-
-	txBytes, err := rawIn.MarshalJSON()
-	if err != nil {
-		return "", err
-	}
-
-	var msg types.Message
-	err = json.Unmarshal(txBytes, &msg)
-	if err != nil {
-		return "", err
-	}
-
-	var msigMethod = msg.Method
-	var msigParams = msg.Params
-
-	if msg.Method == builtinV1.MethodsMultisig.Propose {
-		// Parse propose to get the inner method call
-		reader := bytes.NewReader(msg.Params)
-		var proposeParams multisigV1.ProposeParams
-		err = proposeParams.UnmarshalCBOR(reader)
-		if err != nil {
-			return "", err
-		}
-		msigMethod = proposeParams.Method
-		msigParams = proposeParams.Params
-	}
-
-	reader := bytes.NewReader(msigParams)
-
-	switch msigMethod {
-	case builtinV1.MethodSend:
-		{
-			reader := bytes.NewReader(msg.Params)
-			var params multisigV1.ProposeParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV1.MethodsMultisig.Approve,
-		builtinV1.MethodsMultisig.Cancel:
-		{
-			var params multisigV1.TxnIDParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV1.MethodsMultisig.AddSigner:
-		{
-			var params multisigV1.AddSignerParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV1.MethodsMultisig.RemoveSigner:
-		{
-			var params multisigV1.RemoveSignerParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV1.MethodsMultisig.SwapSigner:
-		{
-			var params multisigV1.SwapSignerParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV1.MethodsMultisig.ChangeNumApprovalsThreshold:
-		{
-			var params multisigV1.ChangeNumApprovalsThresholdParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV1.MethodsMultisig.LockBalance:
-		{
-			var params multisigV1.LockBalanceParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	default:
-		return "", fmt.Errorf("unknown method")
-	}
-}
-
-func (r RosettaConstructionFilecoin) parseParamsMultisigTxV2(unsignedMultisigTx string) (string, error) {
-	rawIn := json.RawMessage(unsignedMultisigTx)
-
-	txBytes, err := rawIn.MarshalJSON()
-	if err != nil {
-		return "", err
-	}
-
-	var msg types.Message
-	err = json.Unmarshal(txBytes, &msg)
-	if err != nil {
-		return "", err
-	}
-
-	var msigMethod = msg.Method
-	var msigParams = msg.Params
-
-	if msg.Method == builtinV2.MethodsMultisig.Propose {
-		// Parse propose to get the inner method call
-		reader := bytes.NewReader(msg.Params)
-		var proposeParams multisigV2.ProposeParams
-		err = proposeParams.UnmarshalCBOR(reader)
-		if err != nil {
-			return "", err
-		}
-		msigMethod = proposeParams.Method
-		msigParams = proposeParams.Params
-	}
-
-	reader := bytes.NewReader(msigParams)
-
-	switch msigMethod {
-	case builtinV2.MethodSend:
-		{
-			reader := bytes.NewReader(msg.Params)
-			var params multisigV2.ProposeParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV2.MethodsMultisig.Approve,
-		builtinV2.MethodsMultisig.Cancel:
-		{
-			var params multisigV2.TxnIDParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV2.MethodsMultisig.AddSigner:
-		{
-			var params multisigV2.AddSignerParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV2.MethodsMultisig.RemoveSigner:
-		{
-			var params multisigV2.RemoveSignerParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV2.MethodsMultisig.SwapSigner:
-		{
-			var params multisigV2.SwapSignerParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV2.MethodsMultisig.ChangeNumApprovalsThreshold:
-		{
-			var params multisigV2.ChangeNumApprovalsThresholdParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV2.MethodsMultisig.LockBalance:
-		{
-			var params multisigV2.LockBalanceParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	default:
-		return "", fmt.Errorf("unknown method")
-	}
-}
-
-func (r RosettaConstructionFilecoin) parseParamsMultisigTxV3(unsignedMultisigTx string) (string, error) {
-	rawIn := json.RawMessage(unsignedMultisigTx)
-
-	txBytes, err := rawIn.MarshalJSON()
-	if err != nil {
-		return "", err
-	}
-
-	var msg types.Message
-	err = json.Unmarshal(txBytes, &msg)
-	if err != nil {
-		return "", err
-	}
-
-	var msigMethod = msg.Method
-	var msigParams = msg.Params
-
-	if msg.Method == builtinV3.MethodsMultisig.Propose {
-		// Parse propose to get the inner method call
-		reader := bytes.NewReader(msg.Params)
-		var proposeParams multisigV3.ProposeParams
-		err = proposeParams.UnmarshalCBOR(reader)
-		if err != nil {
-			return "", err
-		}
-		msigMethod = proposeParams.Method
-		msigParams = proposeParams.Params
-	}
-
-	reader := bytes.NewReader(msigParams)
-
-	switch msigMethod {
-	case builtinV3.MethodSend:
-		{
-			reader := bytes.NewReader(msg.Params)
-			var params multisigV3.ProposeParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV3.MethodsMultisig.Approve,
-		builtinV3.MethodsMultisig.Cancel:
-		{
-			var params multisigV3.TxnIDParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV3.MethodsMultisig.AddSigner:
-		{
-			var params multisigV3.AddSignerParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV3.MethodsMultisig.RemoveSigner:
-		{
-			var params multisigV3.RemoveSignerParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV3.MethodsMultisig.SwapSigner:
-		{
-			var params multisigV3.SwapSignerParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV3.MethodsMultisig.ChangeNumApprovalsThreshold:
-		{
-			var params multisigV3.ChangeNumApprovalsThresholdParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV3.MethodsMultisig.LockBalance:
-		{
-			var params multisigV3.LockBalanceParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	default:
-		return "", fmt.Errorf("unknown method")
-	}
-}
-
-func (r RosettaConstructionFilecoin) parseParamsMultisigTxV4(unsignedMultisigTx string) (string, error) {
-	rawIn := json.RawMessage(unsignedMultisigTx)
-
-	txBytes, err := rawIn.MarshalJSON()
-	if err != nil {
-		return "", err
-	}
-
-	var msg types.Message
-	err = json.Unmarshal(txBytes, &msg)
-	if err != nil {
-		return "", err
-	}
-
-	var msigMethod = msg.Method
-	var msigParams = msg.Params
-
-	if msg.Method == builtinV4.MethodsMultisig.Propose {
-		// Parse propose to get the inner method call
-		reader := bytes.NewReader(msg.Params)
-		var proposeParams multisigV4.ProposeParams
-		err = proposeParams.UnmarshalCBOR(reader)
-		if err != nil {
-			return "", err
-		}
-		msigMethod = proposeParams.Method
-		msigParams = proposeParams.Params
-	}
-
-	reader := bytes.NewReader(msigParams)
-
-	switch msigMethod {
-	case builtinV4.MethodSend:
-		{
-			reader := bytes.NewReader(msg.Params)
-			var params multisigV4.ProposeParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV4.MethodsMultisig.Approve,
-		builtinV4.MethodsMultisig.Cancel:
-		{
-			var params multisigV4.TxnIDParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV4.MethodsMultisig.AddSigner:
-		{
-			var params multisigV4.AddSignerParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV4.MethodsMultisig.RemoveSigner:
-		{
-			var params multisigV4.RemoveSignerParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV4.MethodsMultisig.SwapSigner:
-		{
-			var params multisigV4.SwapSignerParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV4.MethodsMultisig.ChangeNumApprovalsThreshold:
-		{
-			var params multisigV4.ChangeNumApprovalsThresholdParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV4.MethodsMultisig.LockBalance:
-		{
-			var params multisigV4.LockBalanceParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	default:
-		return "", fmt.Errorf("unknown method")
-	}
-}
-
-func (r RosettaConstructionFilecoin) parseParamsMultisigTxV5(unsignedMultisigTx string) (string, error) {
-	rawIn := json.RawMessage(unsignedMultisigTx)
-
-	txBytes, err := rawIn.MarshalJSON()
-	if err != nil {
-		return "", err
-	}
-
-	var msg types.Message
-	err = json.Unmarshal(txBytes, &msg)
-	if err != nil {
-		return "", err
-	}
-
-	var msigMethod = msg.Method
-	var msigParams = msg.Params
-
-	if msg.Method == builtinV5.MethodsMultisig.Propose {
-		// Parse propose to get the inner method call
-		reader := bytes.NewReader(msg.Params)
-		var proposeParams multisigV5.ProposeParams
-		err = proposeParams.UnmarshalCBOR(reader)
-		if err != nil {
-			return "", err
-		}
-		msigMethod = proposeParams.Method
-		msigParams = proposeParams.Params
-	}
-
-	reader := bytes.NewReader(msigParams)
-
-	switch msigMethod {
+func getMsigMethodString(method abi.MethodNum) (string, error) {
+	switch method {
 	case builtinV5.MethodSend:
-		{
-			reader := bytes.NewReader(msg.Params)
-			var params multisigV5.ProposeParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV5.MethodsMultisig.Approve,
-		builtinV5.MethodsMultisig.Cancel:
-		{
-			var params multisigV5.TxnIDParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV5.MethodsMultisig.AddSigner:
-		{
-			var params multisigV5.AddSignerParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
-	case builtinV5.MethodsMultisig.RemoveSigner:
-		{
-			var params multisigV5.RemoveSignerParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
+		return "Send", nil
+	case builtinV5.MethodsMultisig.Approve:
+		return "Approve", nil
+	case builtinV5.MethodsMultisig.Cancel:
+		return "Cancel", nil
 	case builtinV5.MethodsMultisig.SwapSigner:
-		{
-			var params multisigV5.SwapSignerParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
+		return "SwapSigner", nil
+	case builtinV5.MethodsMultisig.RemoveSigner:
+		return "RemoveSigner", nil
+	case builtinV5.MethodsMultisig.AddSigner:
+		return "AddSigner", nil
 	case builtinV5.MethodsMultisig.ChangeNumApprovalsThreshold:
-		{
-			var params multisigV5.ChangeNumApprovalsThresholdParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
+		return "ChangeNumApprovalsThreshold", nil
 	case builtinV5.MethodsMultisig.LockBalance:
-		{
-			var params multisigV5.LockBalanceParams
-			err := params.UnmarshalCBOR(reader)
-			if err != nil {
-				return "", err
-			}
-			jsonResponse, err := json.Marshal(params)
-			if err != nil {
-				return "", err
-			}
-			return string(jsonResponse), nil
-		}
+		return "LockBalance", nil
+	case builtinV5.MethodsMultisig.Constructor:
+		return "Constructor", nil
+	case builtinV5.MethodsMultisig.Propose:
+		return "Propose", nil
 	default:
-		return "", fmt.Errorf("unknown method")
+		return "", fmt.Errorf("method not recognized")
 	}
+}
+
+func (r RosettaConstructionFilecoin) ParseProposeTxParams(unsignedMultisigTx string, destinationActorId cid.Cid) (string, string, error) {
+	rawIn := json.RawMessage(unsignedMultisigTx)
+
+	txBytes, err := rawIn.MarshalJSON()
+	if err != nil {
+		return "", "", err
+	}
+
+	var msg types.Message
+	err = json.Unmarshal(txBytes, &msg)
+	if err != nil {
+		return "", "", err
+	}
+
+	if msg.Method != builtinV5.MethodsMultisig.Propose {
+		return "", "", fmt.Errorf("method does not correspond to a 'Propose' transaction")
+	}
+
+	reader := bytes.NewReader(msg.Params)
+	var proposeParams multisigV5.ProposeParams
+	err = proposeParams.UnmarshalCBOR(reader)
+	if err != nil {
+		return "", "", err
+	}
+
+	innerMethod, err := getMsigMethodString(proposeParams.Method)
+	if err != nil {
+		return "", "", err
+	}
+
+	innerParams, err := r.ParseParamsMultisigTx(unsignedMultisigTx, destinationActorId)
+	if err != nil {
+		return "", "", err
+	}
+
+	return innerMethod, innerParams, nil
 }
 
 func (r RosettaConstructionFilecoin) ParseParamsMultisigTx(unsignedMultisigTx string, destinationActorId cid.Cid) (string, error) {
