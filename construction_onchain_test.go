@@ -120,6 +120,7 @@ func TestSendTransaction(t *testing.T) {
 	req, err = http.NewRequest("POST", lotusURL, bytes.NewBuffer(data))
 	if err != nil {
 		t.Errorf(err.Error())
+		t.FailNow()
 	}
 
 	// Set headers
@@ -144,7 +145,6 @@ func TestSendTransaction(t *testing.T) {
 	t.Log(res2)
 
 	if res2["result"] == nil {
-		t.Errorf(err.Error())
 		t.FailNow()
 	}
 
@@ -184,16 +184,15 @@ func TestSendTransaction(t *testing.T) {
 	t.Log(res3)
 
 	if res3["result"] == nil {
-		t.Errorf(err.Error())
 		t.FailNow()
 	}
 
 	var result = res3["result"].(map[string]interface{})
 	var receipt = result["Receipt"].(map[string]interface{})
-	var exitCode = receipt["ExitCode"].(float64)
+	exitCode := int64(receipt["ExitCode"].(float64))
 
 	if exitCode != 0 {
-		t.Errorf(err.Error())
+		t.Errorf("Exit code: %d", exitCode)
 		t.FailNow()
 	}
 
@@ -320,7 +319,6 @@ func TestSendFromMultisig(t *testing.T) {
 	t.Log(res2)
 
 	if res2["result"] == nil {
-		t.Errorf(err.Error())
 		t.FailNow()
 	}
 
@@ -360,16 +358,15 @@ func TestSendFromMultisig(t *testing.T) {
 	t.Log(res3)
 
 	if res3["result"] == nil {
-		t.Errorf(err.Error())
 		t.FailNow()
 	}
 
 	var result = res3["result"].(map[string]interface{})
 	var receipt = result["Receipt"].(map[string]interface{})
-	var exitCode = receipt["ExitCode"].(float64)
+	exitCode := int64(receipt["ExitCode"].(float64))
 
 	if exitCode != 0 {
-		t.Errorf(err.Error())
+		t.Errorf("Exit code: %d", exitCode)
 		t.FailNow()
 	}
 
@@ -528,6 +525,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 	req, err = http.NewRequest("POST", lotusURL, bytes.NewBuffer(data))
 	if err != nil {
 		t.Errorf(err.Error())
+		t.FailNow()
 	}
 
 	// Set headers
@@ -547,12 +545,12 @@ func TestSwapKeysMultisig(t *testing.T) {
 	err = json.NewDecoder(resp.Body).Decode(&res2)
 	if err != nil {
 		t.Errorf(err.Error())
+		t.FailNow()
 	}
 
 	t.Log(res2)
 
 	if res2["result"] == nil {
-		t.Errorf(err.Error())
 		t.FailNow()
 	}
 
@@ -568,6 +566,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 	req, err = http.NewRequest("POST", lotusURL, bytes.NewBuffer(data))
 	if err != nil {
 		t.Errorf(err.Error())
+		t.FailNow()
 	}
 
 	// Set headers
@@ -600,12 +599,10 @@ func TestSwapKeysMultisig(t *testing.T) {
 
 	result = res3["result"].(map[string]interface{})
 	receipt := result["Receipt"].(map[string]interface{})
-	exitCode := receipt["ExitCode"].(float64)
+	exitCode := int64(receipt["ExitCode"].(float64))
 
 	if exitCode != 0 {
-		if err != nil {
-			t.Errorf(err.Error())
-		}
+		t.Errorf("Exit code: %d", exitCode)
 		t.FailNow()
 	}
 }
