@@ -400,25 +400,25 @@ func (r RosettaConstructionFilecoin) ParseTx(messageCbor []byte) (string, error)
 
 func getMsigMethodString(method abi.MethodNum) (string, error) {
 	switch method {
-	case builtinV5.MethodSend:
+	case builtinV6.MethodSend:
 		return "Send", nil
-	case builtinV5.MethodsMultisig.Approve:
+	case builtinV6.MethodsMultisig.Approve:
 		return "Approve", nil
-	case builtinV5.MethodsMultisig.Cancel:
+	case builtinV6.MethodsMultisig.Cancel:
 		return "Cancel", nil
-	case builtinV5.MethodsMultisig.SwapSigner:
+	case builtinV6.MethodsMultisig.SwapSigner:
 		return "SwapSigner", nil
-	case builtinV5.MethodsMultisig.RemoveSigner:
+	case builtinV6.MethodsMultisig.RemoveSigner:
 		return "RemoveSigner", nil
-	case builtinV5.MethodsMultisig.AddSigner:
+	case builtinV6.MethodsMultisig.AddSigner:
 		return "AddSigner", nil
-	case builtinV5.MethodsMultisig.ChangeNumApprovalsThreshold:
+	case builtinV6.MethodsMultisig.ChangeNumApprovalsThreshold:
 		return "ChangeNumApprovalsThreshold", nil
-	case builtinV5.MethodsMultisig.LockBalance:
+	case builtinV6.MethodsMultisig.LockBalance:
 		return "LockBalance", nil
-	case builtinV5.MethodsMultisig.Constructor:
+	case builtinV6.MethodsMultisig.Constructor:
 		return "Constructor", nil
-	case builtinV5.MethodsMultisig.Propose:
+	case builtinV6.MethodsMultisig.Propose:
 		return "Propose", nil
 	default:
 		return "", fmt.Errorf("method not recognized")
@@ -439,7 +439,7 @@ func (r RosettaConstructionFilecoin) ParseProposeTxParams(unsignedMultisigTx str
 		return "", "", err
 	}
 
-	if msg.Method != builtinV5.MethodsMultisig.Propose {
+	if msg.Method != builtinV6.MethodsMultisig.Propose {
 		return "", "", fmt.Errorf("method does not correspond to a 'Propose' transaction")
 	}
 
