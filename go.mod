@@ -11,7 +11,7 @@ require (
 	github.com/filecoin-project/go-cbor-util v0.0.0-20201016124514-d0bbec7bfcc4 // indirect
 	github.com/filecoin-project/go-crypto v0.0.0-20191218222705-effae4ea9f03
 	github.com/filecoin-project/go-state-types v0.1.1-0.20210506134452-99b279731c48
-	github.com/filecoin-project/lotus v1.10.0
+	github.com/filecoin-project/lotus v1.12.0-rc1
 	github.com/filecoin-project/specs-actors v0.9.13
 	github.com/filecoin-project/specs-actors/v2 v2.3.5-0.20210114162132-5b58b773f4fb
 	github.com/filecoin-project/specs-actors/v3 v3.1.0
