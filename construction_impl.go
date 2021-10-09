@@ -32,6 +32,7 @@ import (
 	builtinV4 "github.com/filecoin-project/specs-actors/v4/actors/builtin"
 	builtinV5 "github.com/filecoin-project/specs-actors/v5/actors/builtin"
 	multisigV5 "github.com/filecoin-project/specs-actors/v5/actors/builtin/multisig"
+	builtinV6 "github.com/filecoin-project/specs-actors/v6/actors/builtin"
 	"github.com/ipfs/go-cid"
 	"github.com/minio/blake2b-simd"
 	cbg "github.com/whyrusleeping/cbor-gen"
@@ -182,6 +183,9 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 	case builtinV5.MultisigActorCodeID:
 		return r.ConstructMultisigPaymentV5(request, destinationActorId)
 
+	case builtinV6.MultisigActorCodeID:
+		return r.ConstructMultisigPaymentV6(request, destinationActorId)
+
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
 	}
@@ -204,6 +208,9 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 	case builtinV5.MultisigActorCodeID:
 		return r.ConstructSwapAuthorizedPartyV5(request, destinationActorId)
 
+	case builtinV6.MultisigActorCodeID:
+		return r.ConstructSwapAuthorizedPartyV6(request, destinationActorId)
+
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
 	}
@@ -225,6 +232,9 @@ func (r RosettaConstructionFilecoin) ConstructRemoveAuthorizedParty(request *Rem
 
 	case builtinV5.MultisigActorCodeID:
 		return r.ConstructRemoveAuthorizedPartyV5(request, destinationActorId)
+
+	case builtinV6.MultisigActorCodeID:
+		return r.ConstructRemoveAuthorizedPartyV6(request, destinationActorId)
 
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
@@ -469,6 +479,9 @@ func (r RosettaConstructionFilecoin) ParseParamsMultisigTx(unsignedMultisigTx st
 
 	case builtinV5.MultisigActorCodeID:
 		return r.parseParamsMultisigTxV5(unsignedMultisigTx)
+
+	case builtinV6.MultisigActorCodeID:
+		return r.parseParamsMultisigTxV6(unsignedMultisigTx)
 
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
