@@ -858,6 +858,7 @@ func TestParseParamsMultisigSwapAuthTx(t *testing.T) {
 	expectedParamsV3 := expectedParamsV1
 	expectedParamsV4 := expectedParamsV1
 	expectedParamsV5 := expectedParamsV1
+	expectedParamsV6 := expectedParamsV1
 
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
@@ -938,7 +939,7 @@ func TestParseParamsMultisigSwapAuthTx(t *testing.T) {
 	assert.Equal(t, expectedParamsV3, expandedParamsV3)
 	assert.Equal(t, expectedParamsV4, expandedParamsV4)
 	assert.Equal(t, expectedParamsV5, expandedParamsV5)
-	assert.Equal(t, expectedParamsV5, expandedParamsV6)
+	assert.Equal(t, expectedParamsV6, expandedParamsV6)
 
 }
 
@@ -948,6 +949,7 @@ func TestParseParamsMultisigRemoveSignerTx(t *testing.T) {
 	expectedParamsV3 := expectedParamsV1
 	expectedParamsV4 := expectedParamsV1
 	expectedParamsV5 := expectedParamsV1
+	expectedParamsV6 := expectedParamsV1
 
 	r := &RosettaConstructionFilecoin{false}
 	mtx := TxMetadata{
@@ -1028,7 +1030,7 @@ func TestParseParamsMultisigRemoveSignerTx(t *testing.T) {
 	assert.Equal(t, expectedParamsV3, expandedParamsV3)
 	assert.Equal(t, expectedParamsV4, expandedParamsV4)
 	assert.Equal(t, expectedParamsV5, expandedParamsV5)
-	assert.Equal(t, expectedParamsV5, expandedParamsV6)
+	assert.Equal(t, expectedParamsV6, expandedParamsV6)
 
 }
 
