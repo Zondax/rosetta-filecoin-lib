@@ -32,6 +32,7 @@ import (
 	builtinV4 "github.com/filecoin-project/specs-actors/v4/actors/builtin"
 	builtinV5 "github.com/filecoin-project/specs-actors/v5/actors/builtin"
 	multisigV5 "github.com/filecoin-project/specs-actors/v5/actors/builtin/multisig"
+	builtinV6 "github.com/filecoin-project/specs-actors/v6/actors/builtin"
 	"github.com/ipfs/go-cid"
 	"github.com/minio/blake2b-simd"
 	cbg "github.com/whyrusleeping/cbor-gen"
@@ -182,6 +183,9 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 	case builtinV5.MultisigActorCodeID:
 		return r.ConstructMultisigPaymentV5(request, destinationActorId)
 
+	case builtinV6.MultisigActorCodeID:
+		return r.ConstructMultisigPaymentV6(request, destinationActorId)
+
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
 	}
@@ -204,6 +208,9 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 	case builtinV5.MultisigActorCodeID:
 		return r.ConstructSwapAuthorizedPartyV5(request, destinationActorId)
 
+	case builtinV6.MultisigActorCodeID:
+		return r.ConstructSwapAuthorizedPartyV6(request, destinationActorId)
+
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
 	}
@@ -225,6 +232,9 @@ func (r RosettaConstructionFilecoin) ConstructRemoveAuthorizedParty(request *Rem
 
 	case builtinV5.MultisigActorCodeID:
 		return r.ConstructRemoveAuthorizedPartyV5(request, destinationActorId)
+
+	case builtinV6.MultisigActorCodeID:
+		return r.ConstructRemoveAuthorizedPartyV6(request, destinationActorId)
 
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
@@ -390,25 +400,25 @@ func (r RosettaConstructionFilecoin) ParseTx(messageCbor []byte) (string, error)
 
 func getMsigMethodString(method abi.MethodNum) (string, error) {
 	switch method {
-	case builtinV5.MethodSend:
+	case builtinV6.MethodSend:
 		return "Send", nil
-	case builtinV5.MethodsMultisig.Approve:
+	case builtinV6.MethodsMultisig.Approve:
 		return "Approve", nil
-	case builtinV5.MethodsMultisig.Cancel:
+	case builtinV6.MethodsMultisig.Cancel:
 		return "Cancel", nil
-	case builtinV5.MethodsMultisig.SwapSigner:
+	case builtinV6.MethodsMultisig.SwapSigner:
 		return "SwapSigner", nil
-	case builtinV5.MethodsMultisig.RemoveSigner:
+	case builtinV6.MethodsMultisig.RemoveSigner:
 		return "RemoveSigner", nil
-	case builtinV5.MethodsMultisig.AddSigner:
+	case builtinV6.MethodsMultisig.AddSigner:
 		return "AddSigner", nil
-	case builtinV5.MethodsMultisig.ChangeNumApprovalsThreshold:
+	case builtinV6.MethodsMultisig.ChangeNumApprovalsThreshold:
 		return "ChangeNumApprovalsThreshold", nil
-	case builtinV5.MethodsMultisig.LockBalance:
+	case builtinV6.MethodsMultisig.LockBalance:
 		return "LockBalance", nil
-	case builtinV5.MethodsMultisig.Constructor:
+	case builtinV6.MethodsMultisig.Constructor:
 		return "Constructor", nil
-	case builtinV5.MethodsMultisig.Propose:
+	case builtinV6.MethodsMultisig.Propose:
 		return "Propose", nil
 	default:
 		return "", fmt.Errorf("method not recognized")
@@ -429,7 +439,7 @@ func (r RosettaConstructionFilecoin) ParseProposeTxParams(unsignedMultisigTx str
 		return "", "", err
 	}
 
-	if msg.Method != builtinV5.MethodsMultisig.Propose {
+	if msg.Method != builtinV6.MethodsMultisig.Propose {
 		return "", "", fmt.Errorf("method does not correspond to a 'Propose' transaction")
 	}
 
@@ -469,6 +479,9 @@ func (r RosettaConstructionFilecoin) ParseParamsMultisigTx(unsignedMultisigTx st
 
 	case builtinV5.MultisigActorCodeID:
 		return r.parseParamsMultisigTxV5(unsignedMultisigTx)
+
+	case builtinV6.MultisigActorCodeID:
+		return r.parseParamsMultisigTxV6(unsignedMultisigTx)
 
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
