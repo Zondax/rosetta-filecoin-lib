@@ -438,30 +438,33 @@ func getMinerMethodString(method abi.MethodNum) (string, error) {
 	}
 }
 
+func (r RosettaConstructionFilecoin) ParseProposeTxParams(unsignedMultisigTx string) (*multisigV5.ProposeParams, error) {
 	rawIn := json.RawMessage(unsignedMultisigTx)
 
 	txBytes, err := rawIn.MarshalJSON()
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
 
 	var msg types.Message
 	err = json.Unmarshal(txBytes, &msg)
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
 
 	if msg.Method != builtinV6.MethodsMultisig.Propose {
-		return "", "", fmt.Errorf("method does not correspond to a 'Propose' transaction")
+		return nil, fmt.Errorf("method does not correspond to a 'Propose' transaction")
 	}
 
 	reader := bytes.NewReader(msg.Params)
 	var proposeParams multisigV5.ProposeParams
 	err = proposeParams.UnmarshalCBOR(reader)
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
 
+	return &proposeParams, nil
+}
 
 func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV5.ProposeParams, targetActorId cid.Cid) (string, error) {
 	switch targetActorId {
