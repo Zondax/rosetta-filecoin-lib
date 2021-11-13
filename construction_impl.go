@@ -421,7 +421,7 @@ func getMsigMethodString(method abi.MethodNum) (string, error) {
 	case builtinV6.MethodsMultisig.Propose:
 		return "Propose", nil
 	default:
-		return "", fmt.Errorf("method not recognized")
+		return "", fmt.Errorf("multisig method %v not recognized", method)
 	}
 }
 
