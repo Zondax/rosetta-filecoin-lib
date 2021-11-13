@@ -462,17 +462,51 @@ func getMinerMethodString(method abi.MethodNum) (string, error) {
 		return "", "", err
 	}
 
-	innerMethod, err := getMsigMethodString(proposeParams.Method)
-	if err != nil {
-		return "", "", err
-	}
 
-	innerParams, err := r.ParseParamsMultisigTx(unsignedMultisigTx, destinationActorId)
-	if err != nil {
-		return "", "", err
-	}
+func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV5.ProposeParams, targetActorId cid.Cid) (string, error) {
+	switch targetActorId {
+	case builtinV6.AccountActorCodeID,
+		builtinV5.AccountActorCodeID,
+		builtinV4.AccountActorCodeID,
+		builtinV3.AccountActorCodeID,
+		builtinV2.AccountActorCodeID,
+		builtinV1.AccountActorCodeID:
+		innerMethod, err := getMsigMethodString(proposeParams.Method)
+		if err != nil {
+			return "", err
+		}
 
-	return innerMethod, innerParams, nil
+		return innerMethod, nil
+
+	case builtinV6.MultisigActorCodeID,
+		builtinV5.MultisigActorCodeID,
+		builtinV4.MultisigActorCodeID,
+		builtinV3.MultisigActorCodeID,
+		builtinV2.MultisigActorCodeID,
+		builtinV1.MultisigActorCodeID:
+		innerMethod, err := getMsigMethodString(proposeParams.Method)
+		if err != nil {
+			return "", err
+		}
+
+		return innerMethod, nil
+
+	case builtinV6.StorageMinerActorCodeID,
+		builtinV5.StorageMinerActorCodeID,
+		builtinV4.StorageMinerActorCodeID,
+		builtinV3.StorageMinerActorCodeID,
+		builtinV2.StorageMinerActorCodeID,
+		builtinV1.StorageMinerActorCodeID:
+		innerMethod, err := getMinerMethodString(proposeParams.Method)
+		if err != nil {
+			return "", err
+		}
+
+		return innerMethod, nil
+
+	default:
+		return "", fmt.Errorf("target actor %v currently not supported inside Propose params", targetActorId)
+	}
 }
 
 func (r RosettaConstructionFilecoin) ParseParamsMultisigTx(unsignedMultisigTx string, destinationActorId cid.Cid) (string, error) {
