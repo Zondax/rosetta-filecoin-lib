@@ -427,12 +427,14 @@ func getMsigMethodString(method abi.MethodNum) (string, error) {
 
 func getMinerMethodString(method abi.MethodNum) (string, error) {
 	switch method {
-	case builtinV6.MethodSend:
-		return "Send", nil
 	case builtinV6.MethodsMiner.WithdrawBalance:
 		return "WithdrawBalance", nil
 	case builtinV6.MethodsMiner.ChangeOwnerAddress:
 		return "ChangeOwnerAddress", nil
+	case builtinV6.MethodsMiner.ChangeWorkerAddress:
+		return "ChangeWorkerAddress", nil
+	case builtinV6.MethodsMiner.ConfirmUpdateWorkerKey:
+		return "ConfirmUpdateWorkerKey", nil
 	default:
 		return "", fmt.Errorf("miner method %v not recognized", method)
 	}
