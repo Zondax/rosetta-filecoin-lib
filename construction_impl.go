@@ -425,7 +425,19 @@ func getMsigMethodString(method abi.MethodNum) (string, error) {
 	}
 }
 
-func (r RosettaConstructionFilecoin) ParseProposeTxParams(unsignedMultisigTx string, destinationActorId cid.Cid) (string, string, error) {
+func getMinerMethodString(method abi.MethodNum) (string, error) {
+	switch method {
+	case builtinV6.MethodSend:
+		return "Send", nil
+	case builtinV6.MethodsMiner.WithdrawBalance:
+		return "WithdrawBalance", nil
+	case builtinV6.MethodsMiner.ChangeOwnerAddress:
+		return "ChangeOwnerAddress", nil
+	default:
+		return "", fmt.Errorf("miner method %v not recognized", method)
+	}
+}
+
 	rawIn := json.RawMessage(unsignedMultisigTx)
 
 	txBytes, err := rawIn.MarshalJSON()
