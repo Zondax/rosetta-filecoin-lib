@@ -425,35 +425,45 @@ func getMsigMethodString(method abi.MethodNum) (string, error) {
 	}
 }
 
-func getMinerMethodString(method abi.MethodNum) (string, error) {
-	switch method {
-	case builtinV6.MethodsMiner.WithdrawBalance:
-		return "WithdrawBalance", nil
-	case builtinV6.MethodsMiner.ChangeOwnerAddress:
-		return "ChangeOwnerAddress", nil
-	case builtinV6.MethodsMiner.ChangeWorkerAddress:
-		return "ChangeWorkerAddress", nil
-	case builtinV6.MethodsMiner.ConfirmUpdateWorkerKey:
-		return "ConfirmUpdateWorkerKey", nil
-	default:
-		return "", fmt.Errorf("miner method %v not recognized", method)
+func (r RosettaConstructionFilecoin) ParseProposeTxParams(unsignedMultisigTx string, destinationActorId cid.Cid) (string, string, error) {
+	rawIn := json.RawMessage(unsignedMultisigTx)
+
+	txBytes, err := rawIn.MarshalJSON()
+	if err != nil {
+		return "", "", err
 	}
+
+	var msg types.Message
+	err = json.Unmarshal(txBytes, &msg)
+	if err != nil {
+		return "", "", err
+	}
+
+	if msg.Method != builtinV6.MethodsMultisig.Propose {
+		return "", "", fmt.Errorf("method does not correspond to a 'Propose' transaction")
+	}
+
+	reader := bytes.NewReader(msg.Params)
+	var proposeParams multisigV5.ProposeParams
+	err = proposeParams.UnmarshalCBOR(reader)
+	if err != nil {
+		return "", "", err
+	}
+
+	innerMethod, err := getMsigMethodString(proposeParams.Method)
+	if err != nil {
+		return "", "", err
+	}
+
+	innerParams, err := r.ParseParamsMultisigTx(unsignedMultisigTx, destinationActorId)
+	if err != nil {
+		return "", "", err
+	}
+
+	return innerMethod, innerParams, nil
 }
 
-func getVerifRegMethodString(method abi.MethodNum) (string, error) {
-	switch method {
-	case builtinV6.MethodsVerifiedRegistry.AddVerifiedClient:
-		return "AddVerifiedClient", nil
-	case builtinV6.MethodsVerifiedRegistry.AddVerifier:
-		return "AddVerifier", nil
-	case builtinV6.MethodsVerifiedRegistry.RemoveVerifier:
-		return "RemoveVerifier", nil
-	default:
-		return "", fmt.Errorf("verified registry method %v not recognized", method)
-	}
-}
-
-func (r RosettaConstructionFilecoin) ParseProposeTxParams(unsignedMultisigTx string) (*multisigV5.ProposeParams, error) {
+func (r RosettaConstructionFilecoin) GetInnerProposeTxParams(unsignedMultisigTx string) (*multisigV5.ProposeParams, error) {
 	rawIn := json.RawMessage(unsignedMultisigTx)
 
 	txBytes, err := rawIn.MarshalJSON()
@@ -537,6 +547,34 @@ func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV5
 
 	default:
 		return "", fmt.Errorf("target actor %v currently not supported inside Propose params", targetActorId)
+	}
+}
+
+func getMinerMethodString(method abi.MethodNum) (string, error) {
+	switch method {
+	case builtinV6.MethodsMiner.WithdrawBalance:
+		return "WithdrawBalance", nil
+	case builtinV6.MethodsMiner.ChangeOwnerAddress:
+		return "ChangeOwnerAddress", nil
+	case builtinV6.MethodsMiner.ChangeWorkerAddress:
+		return "ChangeWorkerAddress", nil
+	case builtinV6.MethodsMiner.ConfirmUpdateWorkerKey:
+		return "ConfirmUpdateWorkerKey", nil
+	default:
+		return "", fmt.Errorf("miner method %v not recognized", method)
+	}
+}
+
+func getVerifRegMethodString(method abi.MethodNum) (string, error) {
+	switch method {
+	case builtinV6.MethodsVerifiedRegistry.AddVerifiedClient:
+		return "AddVerifiedClient", nil
+	case builtinV6.MethodsVerifiedRegistry.AddVerifier:
+		return "AddVerifier", nil
+	case builtinV6.MethodsVerifiedRegistry.RemoveVerifier:
+		return "RemoveVerifier", nil
+	default:
+		return "", fmt.Errorf("verified registry method %v not recognized", method)
 	}
 }
 
