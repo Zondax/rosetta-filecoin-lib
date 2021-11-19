@@ -552,6 +552,8 @@ func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV5
 
 func getMinerMethodString(method abi.MethodNum) (string, error) {
 	switch method {
+	case builtinV6.MethodSend:
+		return "Send", nil
 	case builtinV6.MethodsMiner.WithdrawBalance:
 		return "WithdrawBalance", nil
 	case builtinV6.MethodsMiner.ChangeOwnerAddress:
