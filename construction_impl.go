@@ -398,33 +398,6 @@ func (r RosettaConstructionFilecoin) ParseTx(messageCbor []byte) (string, error)
 	return string(msgJson), nil
 }
 
-func getMsigMethodString(method abi.MethodNum) (string, error) {
-	switch method {
-	case builtinV6.MethodSend:
-		return "Send", nil
-	case builtinV6.MethodsMultisig.Approve:
-		return "Approve", nil
-	case builtinV6.MethodsMultisig.Cancel:
-		return "Cancel", nil
-	case builtinV6.MethodsMultisig.SwapSigner:
-		return "SwapSigner", nil
-	case builtinV6.MethodsMultisig.RemoveSigner:
-		return "RemoveSigner", nil
-	case builtinV6.MethodsMultisig.AddSigner:
-		return "AddSigner", nil
-	case builtinV6.MethodsMultisig.ChangeNumApprovalsThreshold:
-		return "ChangeNumApprovalsThreshold", nil
-	case builtinV6.MethodsMultisig.LockBalance:
-		return "LockBalance", nil
-	case builtinV6.MethodsMultisig.Constructor:
-		return "Constructor", nil
-	case builtinV6.MethodsMultisig.Propose:
-		return "Propose", nil
-	default:
-		return "", fmt.Errorf("multisig method %v not recognized", method)
-	}
-}
-
 func (r RosettaConstructionFilecoin) ParseProposeTxParams(unsignedMultisigTx string, destinationActorId cid.Cid) (string, string, error) {
 	rawIn := json.RawMessage(unsignedMultisigTx)
 
@@ -550,8 +523,37 @@ func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV5
 	}
 }
 
+func getMsigMethodString(method abi.MethodNum) (string, error) {
+	switch method {
+	case builtinV6.MethodSend:
+		return "Send", nil
+	case builtinV6.MethodsMultisig.Approve:
+		return "Approve", nil
+	case builtinV6.MethodsMultisig.Cancel:
+		return "Cancel", nil
+	case builtinV6.MethodsMultisig.SwapSigner:
+		return "SwapSigner", nil
+	case builtinV6.MethodsMultisig.RemoveSigner:
+		return "RemoveSigner", nil
+	case builtinV6.MethodsMultisig.AddSigner:
+		return "AddSigner", nil
+	case builtinV6.MethodsMultisig.ChangeNumApprovalsThreshold:
+		return "ChangeNumApprovalsThreshold", nil
+	case builtinV6.MethodsMultisig.LockBalance:
+		return "LockBalance", nil
+	case builtinV6.MethodsMultisig.Constructor:
+		return "Constructor", nil
+	case builtinV6.MethodsMultisig.Propose:
+		return "Propose", nil
+	default:
+		return "", fmt.Errorf("multisig method %v not recognized", method)
+	}
+}
+
 func getMinerMethodString(method abi.MethodNum) (string, error) {
 	switch method {
+	case builtinV6.MethodSend:
+		return "Send", nil
 	case builtinV6.MethodsMiner.WithdrawBalance:
 		return "WithdrawBalance", nil
 	case builtinV6.MethodsMiner.ChangeOwnerAddress:
