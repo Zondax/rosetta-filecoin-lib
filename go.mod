@@ -14,6 +14,7 @@ require (
 	github.com/filecoin-project/specs-actors/v4 v4.0.1
 	github.com/filecoin-project/specs-actors/v5 v5.0.4
 	github.com/filecoin-project/specs-actors/v6 v6.0.1
+	github.com/filecoin-project/specs-actors/v7 v7.0.0-rc1
 	github.com/ipfs/go-cid v0.1.0
 	github.com/magefile/mage v1.11.0 // indirect
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
