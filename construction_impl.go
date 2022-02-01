@@ -33,6 +33,7 @@ import (
 	builtinV5 "github.com/filecoin-project/specs-actors/v5/actors/builtin"
 	multisigV5 "github.com/filecoin-project/specs-actors/v5/actors/builtin/multisig"
 	builtinV6 "github.com/filecoin-project/specs-actors/v6/actors/builtin"
+	builtinV7 "github.com/filecoin-project/specs-actors/v7/actors/builtin"
 	"github.com/ipfs/go-cid"
 	"github.com/minio/blake2b-simd"
 	cbg "github.com/whyrusleeping/cbor-gen"
@@ -186,6 +187,9 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 	case builtinV6.MultisigActorCodeID:
 		return r.ConstructMultisigPaymentV6(request, destinationActorId)
 
+	case builtinV7.MultisigActorCodeID:
+		return r.ConstructMultisigPaymentV7(request, destinationActorId)
+
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
 	}
@@ -211,6 +215,9 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 	case builtinV6.MultisigActorCodeID:
 		return r.ConstructSwapAuthorizedPartyV6(request, destinationActorId)
 
+	case builtinV7.MultisigActorCodeID:
+		return r.ConstructSwapAuthorizedPartyV7(request, destinationActorId)
+
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
 	}
@@ -235,6 +242,9 @@ func (r RosettaConstructionFilecoin) ConstructRemoveAuthorizedParty(request *Rem
 
 	case builtinV6.MultisigActorCodeID:
 		return r.ConstructRemoveAuthorizedPartyV6(request, destinationActorId)
+
+	case builtinV7.MultisigActorCodeID:
+		return r.ConstructRemoveAuthorizedPartyV7(request, destinationActorId)
 
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
@@ -412,7 +422,7 @@ func (r RosettaConstructionFilecoin) ParseProposeTxParams(unsignedMultisigTx str
 		return "", "", err
 	}
 
-	if msg.Method != builtinV6.MethodsMultisig.Propose {
+	if msg.Method != builtinV7.MethodsMultisig.Propose {
 		return "", "", fmt.Errorf("method does not correspond to a 'Propose' transaction")
 	}
 
@@ -450,7 +460,7 @@ func (r RosettaConstructionFilecoin) GetInnerProposeTxParams(unsignedMultisigTx 
 		return nil, err
 	}
 
-	if msg.Method != builtinV6.MethodsMultisig.Propose {
+	if msg.Method != builtinV7.MethodsMultisig.Propose {
 		return nil, fmt.Errorf("method does not correspond to a 'Propose' transaction")
 	}
 
@@ -466,7 +476,8 @@ func (r RosettaConstructionFilecoin) GetInnerProposeTxParams(unsignedMultisigTx 
 
 func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV5.ProposeParams, targetActorId cid.Cid) (string, error) {
 	switch targetActorId {
-	case builtinV6.AccountActorCodeID,
+	case builtinV7.AccountActorCodeID,
+		builtinV6.AccountActorCodeID,
 		builtinV5.AccountActorCodeID,
 		builtinV4.AccountActorCodeID,
 		builtinV3.AccountActorCodeID,
@@ -479,7 +490,8 @@ func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV5
 
 		return innerMethod, nil
 
-	case builtinV6.MultisigActorCodeID,
+	case builtinV7.MultisigActorCodeID,
+		builtinV6.MultisigActorCodeID,
 		builtinV5.MultisigActorCodeID,
 		builtinV4.MultisigActorCodeID,
 		builtinV3.MultisigActorCodeID,
@@ -492,7 +504,8 @@ func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV5
 
 		return innerMethod, nil
 
-	case builtinV6.StorageMinerActorCodeID,
+	case builtinV7.StorageMinerActorCodeID,
+		builtinV6.StorageMinerActorCodeID,
 		builtinV5.StorageMinerActorCodeID,
 		builtinV4.StorageMinerActorCodeID,
 		builtinV3.StorageMinerActorCodeID,
@@ -505,7 +518,8 @@ func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV5
 
 		return innerMethod, nil
 
-	case builtinV6.VerifiedRegistryActorCodeID,
+	case builtinV7.VerifiedRegistryActorCodeID,
+		builtinV6.VerifiedRegistryActorCodeID,
 		builtinV5.VerifiedRegistryActorCodeID,
 		builtinV4.VerifiedRegistryActorCodeID,
 		builtinV3.VerifiedRegistryActorCodeID,
@@ -525,25 +539,25 @@ func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV5
 
 func getMsigMethodString(method abi.MethodNum) (string, error) {
 	switch method {
-	case builtinV6.MethodSend:
+	case builtinV7.MethodSend:
 		return "Send", nil
-	case builtinV6.MethodsMultisig.Approve:
+	case builtinV7.MethodsMultisig.Approve:
 		return "Approve", nil
-	case builtinV6.MethodsMultisig.Cancel:
+	case builtinV7.MethodsMultisig.Cancel:
 		return "Cancel", nil
-	case builtinV6.MethodsMultisig.SwapSigner:
+	case builtinV7.MethodsMultisig.SwapSigner:
 		return "SwapSigner", nil
-	case builtinV6.MethodsMultisig.RemoveSigner:
+	case builtinV7.MethodsMultisig.RemoveSigner:
 		return "RemoveSigner", nil
-	case builtinV6.MethodsMultisig.AddSigner:
+	case builtinV7.MethodsMultisig.AddSigner:
 		return "AddSigner", nil
-	case builtinV6.MethodsMultisig.ChangeNumApprovalsThreshold:
+	case builtinV7.MethodsMultisig.ChangeNumApprovalsThreshold:
 		return "ChangeNumApprovalsThreshold", nil
-	case builtinV6.MethodsMultisig.LockBalance:
+	case builtinV7.MethodsMultisig.LockBalance:
 		return "LockBalance", nil
-	case builtinV6.MethodsMultisig.Constructor:
+	case builtinV7.MethodsMultisig.Constructor:
 		return "Constructor", nil
-	case builtinV6.MethodsMultisig.Propose:
+	case builtinV7.MethodsMultisig.Propose:
 		return "Propose", nil
 	default:
 		return "", fmt.Errorf("multisig method %v not recognized", method)
@@ -552,15 +566,15 @@ func getMsigMethodString(method abi.MethodNum) (string, error) {
 
 func getMinerMethodString(method abi.MethodNum) (string, error) {
 	switch method {
-	case builtinV6.MethodSend:
+	case builtinV7.MethodSend:
 		return "Send", nil
-	case builtinV6.MethodsMiner.WithdrawBalance:
+	case builtinV7.MethodsMiner.WithdrawBalance:
 		return "WithdrawBalance", nil
-	case builtinV6.MethodsMiner.ChangeOwnerAddress:
+	case builtinV7.MethodsMiner.ChangeOwnerAddress:
 		return "ChangeOwnerAddress", nil
-	case builtinV6.MethodsMiner.ChangeWorkerAddress:
+	case builtinV7.MethodsMiner.ChangeWorkerAddress:
 		return "ChangeWorkerAddress", nil
-	case builtinV6.MethodsMiner.ConfirmUpdateWorkerKey:
+	case builtinV7.MethodsMiner.ConfirmUpdateWorkerKey:
 		return "ConfirmUpdateWorkerKey", nil
 	default:
 		return "", fmt.Errorf("miner method %v not recognized", method)
@@ -569,11 +583,11 @@ func getMinerMethodString(method abi.MethodNum) (string, error) {
 
 func getVerifRegMethodString(method abi.MethodNum) (string, error) {
 	switch method {
-	case builtinV6.MethodsVerifiedRegistry.AddVerifiedClient:
+	case builtinV7.MethodsVerifiedRegistry.AddVerifiedClient:
 		return "AddVerifiedClient", nil
-	case builtinV6.MethodsVerifiedRegistry.AddVerifier:
+	case builtinV7.MethodsVerifiedRegistry.AddVerifier:
 		return "AddVerifier", nil
-	case builtinV6.MethodsVerifiedRegistry.RemoveVerifier:
+	case builtinV7.MethodsVerifiedRegistry.RemoveVerifier:
 		return "RemoveVerifier", nil
 	default:
 		return "", fmt.Errorf("verified registry method %v not recognized", method)
@@ -599,6 +613,9 @@ func (r RosettaConstructionFilecoin) ParseParamsMultisigTx(unsignedMultisigTx st
 
 	case builtinV6.MultisigActorCodeID:
 		return r.parseParamsMultisigTxV6(unsignedMultisigTx)
+
+	case builtinV7.MultisigActorCodeID:
+		return r.parseParamsMultisigTxV7(unsignedMultisigTx)
 
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
