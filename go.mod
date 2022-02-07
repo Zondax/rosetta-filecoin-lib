@@ -1,6 +1,6 @@
 module github.com/zondax/rosetta-filecoin-lib
 
-go 1.16
+go 1.17
 
 require (
 	github.com/daaku/go.zipexe v1.0.1 // indirect
