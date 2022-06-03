@@ -19,6 +19,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	builtinV8 "github.com/filecoin-project/specs-actors/v8/actors/builtin"
+	"github.com/zondax/rosetta-filecoin-proxy/rosetta/actors"
 	"sync"
 
 	filAddr "github.com/filecoin-project/go-address"
@@ -31,9 +33,9 @@ import (
 	builtinV3 "github.com/filecoin-project/specs-actors/v3/actors/builtin"
 	builtinV4 "github.com/filecoin-project/specs-actors/v4/actors/builtin"
 	builtinV5 "github.com/filecoin-project/specs-actors/v5/actors/builtin"
-	multisigV5 "github.com/filecoin-project/specs-actors/v5/actors/builtin/multisig"
 	builtinV6 "github.com/filecoin-project/specs-actors/v6/actors/builtin"
 	builtinV7 "github.com/filecoin-project/specs-actors/v7/actors/builtin"
+	multisigV8 "github.com/filecoin-project/specs-actors/v8/actors/builtin/multisig"
 	"github.com/ipfs/go-cid"
 	"github.com/minio/blake2b-simd"
 	cbg "github.com/whyrusleeping/cbor-gen"
@@ -144,8 +146,7 @@ func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (
 
 	gaslimit := request.Metadata.GasLimit
 
-	// TODO: How to define when v1 or v2 should be used here?
-	methodNum := builtinV1.MethodSend
+	methodNum := builtinV8.MethodSend
 
 	msg := &types.Message{Version: types.MessageVersion,
 		To:         to,
@@ -190,6 +191,9 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 	case builtinV7.MultisigActorCodeID:
 		return r.ConstructMultisigPaymentV7(request, destinationActorId)
 
+	case actors.MultisigActorCodeID:
+		return r.ConstructMultisigPaymentV8(request, destinationActorId)
+
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
 	}
@@ -218,6 +222,9 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 	case builtinV7.MultisigActorCodeID:
 		return r.ConstructSwapAuthorizedPartyV7(request, destinationActorId)
 
+	case actors.MultisigActorCodeID:
+		return r.ConstructSwapAuthorizedPartyV8(request, destinationActorId)
+
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
 	}
@@ -245,6 +252,9 @@ func (r RosettaConstructionFilecoin) ConstructRemoveAuthorizedParty(request *Rem
 
 	case builtinV7.MultisigActorCodeID:
 		return r.ConstructRemoveAuthorizedPartyV7(request, destinationActorId)
+
+	case actors.MultisigActorCodeID:
+		return r.ConstructRemoveAuthorizedPartyV8(request, destinationActorId)
 
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
@@ -422,12 +432,12 @@ func (r RosettaConstructionFilecoin) ParseProposeTxParams(unsignedMultisigTx str
 		return "", "", err
 	}
 
-	if msg.Method != builtinV7.MethodsMultisig.Propose {
+	if msg.Method != builtinV8.MethodsMultisig.Propose {
 		return "", "", fmt.Errorf("method does not correspond to a 'Propose' transaction")
 	}
 
 	reader := bytes.NewReader(msg.Params)
-	var proposeParams multisigV5.ProposeParams
+	var proposeParams multisigV8.ProposeParams
 	err = proposeParams.UnmarshalCBOR(reader)
 	if err != nil {
 		return "", "", err
@@ -446,7 +456,7 @@ func (r RosettaConstructionFilecoin) ParseProposeTxParams(unsignedMultisigTx str
 	return innerMethod, innerParams, nil
 }
 
-func (r RosettaConstructionFilecoin) GetInnerProposeTxParams(unsignedMultisigTx string) (*multisigV5.ProposeParams, error) {
+func (r RosettaConstructionFilecoin) GetInnerProposeTxParams(unsignedMultisigTx string) (*multisigV8.ProposeParams, error) {
 	rawIn := json.RawMessage(unsignedMultisigTx)
 
 	txBytes, err := rawIn.MarshalJSON()
@@ -465,7 +475,7 @@ func (r RosettaConstructionFilecoin) GetInnerProposeTxParams(unsignedMultisigTx 
 	}
 
 	reader := bytes.NewReader(msg.Params)
-	var proposeParams multisigV5.ProposeParams
+	var proposeParams multisigV8.ProposeParams
 	err = proposeParams.UnmarshalCBOR(reader)
 	if err != nil {
 		return nil, err
@@ -474,9 +484,10 @@ func (r RosettaConstructionFilecoin) GetInnerProposeTxParams(unsignedMultisigTx 
 	return &proposeParams, nil
 }
 
-func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV5.ProposeParams, targetActorId cid.Cid) (string, error) {
+func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV8.ProposeParams, targetActorId cid.Cid) (string, error) {
 	switch targetActorId {
-	case builtinV7.AccountActorCodeID,
+	case actors.AccountActorCodeID,
+		builtinV7.AccountActorCodeID,
 		builtinV6.AccountActorCodeID,
 		builtinV5.AccountActorCodeID,
 		builtinV4.AccountActorCodeID,
@@ -490,7 +501,8 @@ func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV5
 
 		return innerMethod, nil
 
-	case builtinV7.MultisigActorCodeID,
+	case actors.MultisigActorCodeID,
+		builtinV7.MultisigActorCodeID,
 		builtinV6.MultisigActorCodeID,
 		builtinV5.MultisigActorCodeID,
 		builtinV4.MultisigActorCodeID,
@@ -504,7 +516,8 @@ func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV5
 
 		return innerMethod, nil
 
-	case builtinV7.StorageMinerActorCodeID,
+	case actors.StorageMinerActorCodeID,
+		builtinV7.StorageMinerActorCodeID,
 		builtinV6.StorageMinerActorCodeID,
 		builtinV5.StorageMinerActorCodeID,
 		builtinV4.StorageMinerActorCodeID,
@@ -518,7 +531,8 @@ func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV5
 
 		return innerMethod, nil
 
-	case builtinV7.VerifiedRegistryActorCodeID,
+	case actors.VerifiedRegistryActorCodeID,
+		builtinV7.VerifiedRegistryActorCodeID,
 		builtinV6.VerifiedRegistryActorCodeID,
 		builtinV5.VerifiedRegistryActorCodeID,
 		builtinV4.VerifiedRegistryActorCodeID,
@@ -539,25 +553,25 @@ func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV5
 
 func getMsigMethodString(method abi.MethodNum) (string, error) {
 	switch method {
-	case builtinV7.MethodSend:
+	case builtinV8.MethodSend:
 		return "Send", nil
-	case builtinV7.MethodsMultisig.Approve:
+	case builtinV8.MethodsMultisig.Approve:
 		return "Approve", nil
-	case builtinV7.MethodsMultisig.Cancel:
+	case builtinV8.MethodsMultisig.Cancel:
 		return "Cancel", nil
-	case builtinV7.MethodsMultisig.SwapSigner:
+	case builtinV8.MethodsMultisig.SwapSigner:
 		return "SwapSigner", nil
-	case builtinV7.MethodsMultisig.RemoveSigner:
+	case builtinV8.MethodsMultisig.RemoveSigner:
 		return "RemoveSigner", nil
-	case builtinV7.MethodsMultisig.AddSigner:
+	case builtinV8.MethodsMultisig.AddSigner:
 		return "AddSigner", nil
-	case builtinV7.MethodsMultisig.ChangeNumApprovalsThreshold:
+	case builtinV8.MethodsMultisig.ChangeNumApprovalsThreshold:
 		return "ChangeNumApprovalsThreshold", nil
-	case builtinV7.MethodsMultisig.LockBalance:
+	case builtinV8.MethodsMultisig.LockBalance:
 		return "LockBalance", nil
-	case builtinV7.MethodsMultisig.Constructor:
+	case builtinV8.MethodsMultisig.Constructor:
 		return "Constructor", nil
-	case builtinV7.MethodsMultisig.Propose:
+	case builtinV8.MethodsMultisig.Propose:
 		return "Propose", nil
 	default:
 		return "", fmt.Errorf("multisig method %v not recognized", method)
@@ -566,15 +580,15 @@ func getMsigMethodString(method abi.MethodNum) (string, error) {
 
 func getMinerMethodString(method abi.MethodNum) (string, error) {
 	switch method {
-	case builtinV7.MethodSend:
+	case builtinV8.MethodSend:
 		return "Send", nil
-	case builtinV7.MethodsMiner.WithdrawBalance:
+	case builtinV8.MethodsMiner.WithdrawBalance:
 		return "WithdrawBalance", nil
-	case builtinV7.MethodsMiner.ChangeOwnerAddress:
+	case builtinV8.MethodsMiner.ChangeOwnerAddress:
 		return "ChangeOwnerAddress", nil
-	case builtinV7.MethodsMiner.ChangeWorkerAddress:
+	case builtinV8.MethodsMiner.ChangeWorkerAddress:
 		return "ChangeWorkerAddress", nil
-	case builtinV7.MethodsMiner.ConfirmUpdateWorkerKey:
+	case builtinV8.MethodsMiner.ConfirmUpdateWorkerKey:
 		return "ConfirmUpdateWorkerKey", nil
 	default:
 		return "", fmt.Errorf("miner method %v not recognized", method)
@@ -583,11 +597,11 @@ func getMinerMethodString(method abi.MethodNum) (string, error) {
 
 func getVerifRegMethodString(method abi.MethodNum) (string, error) {
 	switch method {
-	case builtinV7.MethodsVerifiedRegistry.AddVerifiedClient:
+	case builtinV8.MethodsVerifiedRegistry.AddVerifiedClient:
 		return "AddVerifiedClient", nil
-	case builtinV7.MethodsVerifiedRegistry.AddVerifier:
+	case builtinV8.MethodsVerifiedRegistry.AddVerifier:
 		return "AddVerifier", nil
-	case builtinV7.MethodsVerifiedRegistry.RemoveVerifier:
+	case builtinV8.MethodsVerifiedRegistry.RemoveVerifier:
 		return "RemoveVerifier", nil
 	default:
 		return "", fmt.Errorf("verified registry method %v not recognized", method)
@@ -616,6 +630,9 @@ func (r RosettaConstructionFilecoin) ParseParamsMultisigTx(unsignedMultisigTx st
 
 	case builtinV7.MultisigActorCodeID:
 		return r.parseParamsMultisigTxV7(unsignedMultisigTx)
+
+	case actors.MultisigActorCodeID:
+		return r.parseParamsMultisigTxV8(unsignedMultisigTx)
 
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
