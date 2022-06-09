@@ -28,12 +28,6 @@ import (
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/crypto"
 	"github.com/filecoin-project/lotus/chain/types"
-	builtinV1 "github.com/filecoin-project/specs-actors/actors/builtin"
-	builtinV2 "github.com/filecoin-project/specs-actors/v2/actors/builtin"
-	builtinV3 "github.com/filecoin-project/specs-actors/v3/actors/builtin"
-	builtinV4 "github.com/filecoin-project/specs-actors/v4/actors/builtin"
-	builtinV5 "github.com/filecoin-project/specs-actors/v5/actors/builtin"
-	builtinV6 "github.com/filecoin-project/specs-actors/v6/actors/builtin"
 	builtinV7 "github.com/filecoin-project/specs-actors/v7/actors/builtin"
 	multisigV8 "github.com/filecoin-project/specs-actors/v8/actors/builtin/multisig"
 	"github.com/ipfs/go-cid"
@@ -170,24 +164,6 @@ func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (
 
 func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigPaymentRequest, destinationActorId cid.Cid) (string, error) {
 	switch destinationActorId {
-	case builtinV1.MultisigActorCodeID:
-		return r.ConstructMultisigPaymentV1(request, destinationActorId)
-
-	case builtinV2.MultisigActorCodeID:
-		return r.ConstructMultisigPaymentV2(request, destinationActorId)
-
-	case builtinV3.MultisigActorCodeID:
-		return r.ConstructMultisigPaymentV3(request, destinationActorId)
-
-	case builtinV4.MultisigActorCodeID:
-		return r.ConstructMultisigPaymentV4(request, destinationActorId)
-
-	case builtinV5.MultisigActorCodeID:
-		return r.ConstructMultisigPaymentV5(request, destinationActorId)
-
-	case builtinV6.MultisigActorCodeID:
-		return r.ConstructMultisigPaymentV6(request, destinationActorId)
-
 	case builtinV7.MultisigActorCodeID:
 		return r.ConstructMultisigPaymentV7(request, destinationActorId)
 
@@ -201,24 +177,6 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 
 func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
 	switch destinationActorId {
-	case builtinV1.MultisigActorCodeID:
-		return r.ConstructSwapAuthorizedPartyV1(request, destinationActorId)
-
-	case builtinV2.MultisigActorCodeID:
-		return r.ConstructSwapAuthorizedPartyV2(request, destinationActorId)
-
-	case builtinV3.MultisigActorCodeID:
-		return r.ConstructSwapAuthorizedPartyV3(request, destinationActorId)
-
-	case builtinV4.MultisigActorCodeID:
-		return r.ConstructSwapAuthorizedPartyV4(request, destinationActorId)
-
-	case builtinV5.MultisigActorCodeID:
-		return r.ConstructSwapAuthorizedPartyV5(request, destinationActorId)
-
-	case builtinV6.MultisigActorCodeID:
-		return r.ConstructSwapAuthorizedPartyV6(request, destinationActorId)
-
 	case builtinV7.MultisigActorCodeID:
 		return r.ConstructSwapAuthorizedPartyV7(request, destinationActorId)
 
@@ -232,24 +190,6 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 
 func (r RosettaConstructionFilecoin) ConstructRemoveAuthorizedParty(request *RemoveAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
 	switch destinationActorId {
-	case builtinV1.MultisigActorCodeID:
-		return r.ConstructRemoveAuthorizedPartyV1(request, destinationActorId)
-
-	case builtinV2.MultisigActorCodeID:
-		return r.ConstructRemoveAuthorizedPartyV2(request, destinationActorId)
-
-	case builtinV3.MultisigActorCodeID:
-		return r.ConstructRemoveAuthorizedPartyV3(request, destinationActorId)
-
-	case builtinV4.MultisigActorCodeID:
-		return r.ConstructRemoveAuthorizedPartyV4(request, destinationActorId)
-
-	case builtinV5.MultisigActorCodeID:
-		return r.ConstructRemoveAuthorizedPartyV5(request, destinationActorId)
-
-	case builtinV6.MultisigActorCodeID:
-		return r.ConstructRemoveAuthorizedPartyV6(request, destinationActorId)
-
 	case builtinV7.MultisigActorCodeID:
 		return r.ConstructRemoveAuthorizedPartyV7(request, destinationActorId)
 
@@ -487,13 +427,7 @@ func (r RosettaConstructionFilecoin) GetInnerProposeTxParams(unsignedMultisigTx 
 func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV8.ProposeParams, targetActorId cid.Cid) (string, error) {
 	switch targetActorId {
 	case actors.AccountActorCodeID,
-		builtinV7.AccountActorCodeID,
-		builtinV6.AccountActorCodeID,
-		builtinV5.AccountActorCodeID,
-		builtinV4.AccountActorCodeID,
-		builtinV3.AccountActorCodeID,
-		builtinV2.AccountActorCodeID,
-		builtinV1.AccountActorCodeID:
+		builtinV7.AccountActorCodeID:
 		innerMethod, err := getMsigMethodString(proposeParams.Method)
 		if err != nil {
 			return "", err
@@ -502,13 +436,7 @@ func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV8
 		return innerMethod, nil
 
 	case actors.MultisigActorCodeID,
-		builtinV7.MultisigActorCodeID,
-		builtinV6.MultisigActorCodeID,
-		builtinV5.MultisigActorCodeID,
-		builtinV4.MultisigActorCodeID,
-		builtinV3.MultisigActorCodeID,
-		builtinV2.MultisigActorCodeID,
-		builtinV1.MultisigActorCodeID:
+		builtinV7.MultisigActorCodeID:
 		innerMethod, err := getMsigMethodString(proposeParams.Method)
 		if err != nil {
 			return "", err
@@ -517,13 +445,7 @@ func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV8
 		return innerMethod, nil
 
 	case actors.StorageMinerActorCodeID,
-		builtinV7.StorageMinerActorCodeID,
-		builtinV6.StorageMinerActorCodeID,
-		builtinV5.StorageMinerActorCodeID,
-		builtinV4.StorageMinerActorCodeID,
-		builtinV3.StorageMinerActorCodeID,
-		builtinV2.StorageMinerActorCodeID,
-		builtinV1.StorageMinerActorCodeID:
+		builtinV7.StorageMinerActorCodeID:
 		innerMethod, err := getMinerMethodString(proposeParams.Method)
 		if err != nil {
 			return "", err
@@ -532,13 +454,7 @@ func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV8
 		return innerMethod, nil
 
 	case actors.VerifiedRegistryActorCodeID,
-		builtinV7.VerifiedRegistryActorCodeID,
-		builtinV6.VerifiedRegistryActorCodeID,
-		builtinV5.VerifiedRegistryActorCodeID,
-		builtinV4.VerifiedRegistryActorCodeID,
-		builtinV3.VerifiedRegistryActorCodeID,
-		builtinV2.VerifiedRegistryActorCodeID,
-		builtinV1.VerifiedRegistryActorCodeID:
+		builtinV7.VerifiedRegistryActorCodeID:
 		innerMethod, err := getVerifRegMethodString(proposeParams.Method)
 		if err != nil {
 			return "", err
@@ -610,24 +526,6 @@ func getVerifRegMethodString(method abi.MethodNum) (string, error) {
 
 func (r RosettaConstructionFilecoin) ParseParamsMultisigTx(unsignedMultisigTx string, destinationActorId cid.Cid) (string, error) {
 	switch destinationActorId {
-	case builtinV1.MultisigActorCodeID:
-		return r.parseParamsMultisigTxV1(unsignedMultisigTx)
-
-	case builtinV2.MultisigActorCodeID:
-		return r.parseParamsMultisigTxV2(unsignedMultisigTx)
-
-	case builtinV3.MultisigActorCodeID:
-		return r.parseParamsMultisigTxV3(unsignedMultisigTx)
-
-	case builtinV4.MultisigActorCodeID:
-		return r.parseParamsMultisigTxV4(unsignedMultisigTx)
-
-	case builtinV5.MultisigActorCodeID:
-		return r.parseParamsMultisigTxV5(unsignedMultisigTx)
-
-	case builtinV6.MultisigActorCodeID:
-		return r.parseParamsMultisigTxV6(unsignedMultisigTx)
-
 	case builtinV7.MultisigActorCodeID:
 		return r.parseParamsMultisigTxV7(unsignedMultisigTx)
 

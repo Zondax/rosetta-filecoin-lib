@@ -7,12 +7,6 @@ require (
 	github.com/filecoin-project/go-crypto v0.0.1
 	github.com/filecoin-project/go-state-types v0.1.7
 	github.com/filecoin-project/lotus v1.16.0-pre-rc
-	github.com/filecoin-project/specs-actors v0.9.15-0.20220514164640-94e0d5e123bd
-	github.com/filecoin-project/specs-actors/v2 v2.3.6
-	github.com/filecoin-project/specs-actors/v3 v3.1.2
-	github.com/filecoin-project/specs-actors/v4 v4.0.2
-	github.com/filecoin-project/specs-actors/v5 v5.0.6-0.20220514165557-0b29a778685b
-	github.com/filecoin-project/specs-actors/v6 v6.0.2-0.20220511204807-569c6d12432b
 	github.com/filecoin-project/specs-actors/v7 v7.0.1-0.20220511223846-637436c27154
 	github.com/filecoin-project/specs-actors/v8 v8.0.0-20220422153930-0afe155bfffa
 	github.com/ipfs/go-cid v0.1.0
@@ -45,6 +39,12 @@ require (
 	github.com/filecoin-project/go-hamt-ipld/v3 v3.1.0 // indirect
 	github.com/filecoin-project/go-padreader v0.0.1 // indirect
 	github.com/filecoin-project/go-statestore v0.2.0 // indirect
+	github.com/filecoin-project/specs-actors v0.9.15-0.20220514164640-94e0d5e123bd // indirect
+	github.com/filecoin-project/specs-actors/v2 v2.3.6 // indirect
+	github.com/filecoin-project/specs-actors/v3 v3.1.2 // indirect
+	github.com/filecoin-project/specs-actors/v4 v4.0.2 // indirect
+	github.com/filecoin-project/specs-actors/v5 v5.0.6-0.20220514165557-0b29a778685b // indirect
+	github.com/filecoin-project/specs-actors/v6 v6.0.2-0.20220511204807-569c6d12432b // indirect
 	github.com/gbrlsnchs/jwt/v3 v3.0.1 // indirect
 	github.com/go-logr/logr v1.2.1 // indirect
 	github.com/go-logr/stdr v1.2.0 // indirect
