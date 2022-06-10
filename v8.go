@@ -10,7 +10,7 @@ import (
 	"github.com/filecoin-project/specs-actors/v8/actors/builtin"
 	"github.com/filecoin-project/specs-actors/v8/actors/builtin/multisig"
 	"github.com/ipfs/go-cid"
-	"github.com/zondax/rosetta-filecoin-proxy/rosetta/actors"
+	"github.com/zondax/rosetta-filecoin-lib/actors/builtin/V8"
 )
 
 func (r RosettaConstructionFilecoin) parseParamsMultisigTxV8(unsignedMultisigTx string) (string, error) {
@@ -144,7 +144,7 @@ func (r RosettaConstructionFilecoin) parseParamsMultisigTxV8(unsignedMultisigTx 
 }
 
 func (r RosettaConstructionFilecoin) ConstructMultisigPaymentV8(request *MultisigPaymentRequest, destinationActorId cid.Cid) (string, error) {
-	if destinationActorId != actors.MultisigActorCodeID {
+	if destinationActorId != V8.MultisigActorCodeID {
 		return "", fmt.Errorf("this actor id is not supported")
 	}
 
@@ -220,7 +220,7 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPaymentV8(request *Multisi
 }
 
 func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedPartyV8(request *SwapAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
-	if destinationActorId != actors.MultisigActorCodeID {
+	if destinationActorId != V8.MultisigActorCodeID {
 		return "", fmt.Errorf("this actor id is not supported")
 	}
 
@@ -303,7 +303,7 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedPartyV8(request *Swa
 }
 
 func (r RosettaConstructionFilecoin) ConstructRemoveAuthorizedPartyV8(request *RemoveAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
-	if destinationActorId != actors.MultisigActorCodeID {
+	if destinationActorId != V8.MultisigActorCodeID {
 		return "", fmt.Errorf("this actor id is not supported")
 	}
 

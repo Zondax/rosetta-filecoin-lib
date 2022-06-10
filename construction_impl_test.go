@@ -19,13 +19,13 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
-	"github.com/zondax/rosetta-filecoin-proxy/rosetta/actors"
+	"github.com/zondax/rosetta-filecoin-lib/actors/builtin/V7"
+	"github.com/zondax/rosetta-filecoin-lib/actors/builtin/V8"
 	"sync"
 	"testing"
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/lotus/chain/types"
-	builtinV7 "github.com/filecoin-project/specs-actors/v7/actors/builtin"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -195,7 +195,7 @@ func TestConstructMultisigPaymentV7(t *testing.T) {
 		Params:   params,
 	}
 
-	tx, err := r.ConstructMultisigPayment(request, builtinV7.MultisigActorCodeID)
+	tx, err := r.ConstructMultisigPayment(request, V7.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -224,7 +224,7 @@ func TestConstructMultisigPaymentV8(t *testing.T) {
 		Params:   params,
 	}
 
-	tx, err := r.ConstructMultisigPayment(request, actors.MultisigActorCodeID)
+	tx, err := r.ConstructMultisigPayment(request, V8.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -252,7 +252,7 @@ func TestConstructSwapAuthorizedPartyV7(t *testing.T) {
 		Params:   params,
 	}
 
-	tx, err := r.ConstructSwapAuthorizedParty(request, builtinV7.MultisigActorCodeID)
+	tx, err := r.ConstructSwapAuthorizedParty(request, V7.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -280,7 +280,7 @@ func TestConstructSwapAuthorizedPartyV8(t *testing.T) {
 		Params:   params,
 	}
 
-	tx, err := r.ConstructSwapAuthorizedParty(request, actors.MultisigActorCodeID)
+	tx, err := r.ConstructSwapAuthorizedParty(request, V8.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -308,7 +308,7 @@ func TestConstructRemoveAuthorizedPartyV7(t *testing.T) {
 		Params:   params,
 	}
 
-	tx, err := r.ConstructRemoveAuthorizedParty(request, builtinV7.MultisigActorCodeID)
+	tx, err := r.ConstructRemoveAuthorizedParty(request, V7.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -336,7 +336,7 @@ func TestConstructRemoveAuthorizedPartyV8(t *testing.T) {
 		Params:   params,
 	}
 
-	tx, err := r.ConstructRemoveAuthorizedParty(request, actors.MultisigActorCodeID)
+	tx, err := r.ConstructRemoveAuthorizedParty(request, V8.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -446,22 +446,22 @@ func TestParseParamsMultisigPaymentTx(t *testing.T) {
 		},
 	}
 
-	txV7, err := r.ConstructMultisigPayment(request, builtinV7.MultisigActorCodeID)
+	txV7, err := r.ConstructMultisigPayment(request, V7.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	txV8, err := r.ConstructMultisigPayment(request, actors.MultisigActorCodeID)
+	txV8, err := r.ConstructMultisigPayment(request, V8.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	expandedParamsV7, err := r.ParseParamsMultisigTx(txV7, builtinV7.MultisigActorCodeID)
+	expandedParamsV7, err := r.ParseParamsMultisigTx(txV7, V7.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	expandedParamsV8, err := r.ParseParamsMultisigTx(txV8, actors.MultisigActorCodeID)
+	expandedParamsV8, err := r.ParseParamsMultisigTx(txV8, V8.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -493,22 +493,22 @@ func TestParseParamsMultisigSwapAuthTx(t *testing.T) {
 		Params:   params,
 	}
 
-	txV7, err := r.ConstructSwapAuthorizedParty(request, builtinV7.MultisigActorCodeID)
+	txV7, err := r.ConstructSwapAuthorizedParty(request, V7.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	txV8, err := r.ConstructSwapAuthorizedParty(request, actors.MultisigActorCodeID)
+	txV8, err := r.ConstructSwapAuthorizedParty(request, V8.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	expandedParamsV7, err := r.ParseParamsMultisigTx(txV7, builtinV7.MultisigActorCodeID)
+	expandedParamsV7, err := r.ParseParamsMultisigTx(txV7, V7.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	expandedParamsV8, err := r.ParseParamsMultisigTx(txV8, actors.MultisigActorCodeID)
+	expandedParamsV8, err := r.ParseParamsMultisigTx(txV8, V8.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -540,22 +540,22 @@ func TestParseParamsMultisigRemoveSignerTx(t *testing.T) {
 		Params:   params,
 	}
 
-	txV7, err := r.ConstructRemoveAuthorizedParty(request, builtinV7.MultisigActorCodeID)
+	txV7, err := r.ConstructRemoveAuthorizedParty(request, V7.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	txV8, err := r.ConstructRemoveAuthorizedParty(request, actors.MultisigActorCodeID)
+	txV8, err := r.ConstructRemoveAuthorizedParty(request, V8.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	expandedParamsV7, err := r.ParseParamsMultisigTx(txV7, builtinV7.MultisigActorCodeID)
+	expandedParamsV7, err := r.ParseParamsMultisigTx(txV7, V7.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	expandedParamsV8, err := r.ParseParamsMultisigTx(txV8, actors.MultisigActorCodeID)
+	expandedParamsV8, err := r.ParseParamsMultisigTx(txV8, V8.MultisigActorCodeID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
