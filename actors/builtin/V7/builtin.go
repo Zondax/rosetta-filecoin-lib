@@ -26,7 +26,7 @@ var (
 var (
 	AccountActorCodeID          = builtin7.AccountActorCodeID
 	CronActorCodeID             = builtin7.CronActorCodeID
-	InitActorCodeID             = builtin7.InitActorCodeID.String()
+	InitActorCodeID             = builtin7.InitActorCodeID
 	StorageMarketActorCodeID    = builtin7.StorageMarketActorCodeID
 	StorageMinerActorCodeID     = builtin7.StorageMinerActorCodeID
 	MultisigActorCodeID         = builtin7.MultisigActorCodeID
