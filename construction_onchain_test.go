@@ -21,8 +21,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/filecoin-project/go-state-types/big"
-	builtinV7 "github.com/filecoin-project/specs-actors/v7/actors/builtin"
 	"github.com/stretchr/testify/assert"
+	"github.com/zondax/rosetta-filecoin-lib/actors/builtin/V7"
 	"net/http"
 	"os"
 	"testing"
@@ -257,7 +257,7 @@ func TestSendFromMultisig(t *testing.T) {
 		},
 	}
 
-	unsignedTxBase64, err := r.ConstructMultisigPayment(request, builtinV7.MultisigActorCodeID)
+	unsignedTxBase64, err := r.ConstructMultisigPayment(request, V7.MultisigActorCodeID)
 	assert.NoError(t, err)
 
 	signedTx, err := r.SignTxJSON(unsignedTxBase64, sk)
@@ -338,7 +338,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 		Params:   params,
 	}
 
-	unsignedTxBase64, err := r.ConstructSwapAuthorizedParty(request, builtinV7.MultisigActorCodeID)
+	unsignedTxBase64, err := r.ConstructSwapAuthorizedParty(request, V7.MultisigActorCodeID)
 	assert.NoError(t, err)
 
 	signedTx, err := r.SignTxJSON(unsignedTxBase64, sk)
