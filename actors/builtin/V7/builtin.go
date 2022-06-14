@@ -51,8 +51,8 @@ var BuiltinActorsKeys = map[string]string{
 	ActorVerifiedRegistryCode: actors.ActorVerifiedRegistryName,
 }
 
-func IsMultisigActor(actorCode cid.Cid) bool {
-	return builtin.IsMultisigActor(actorCode)
+func IsActor(actorCode cid.Cid, actorName string) bool {
+	return BuiltinActorsKeys[actorCode.String()] == actorName
 }
 
 func GetActorNameFromCid(actorCode cid.Cid) (bool, string) {

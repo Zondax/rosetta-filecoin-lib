@@ -8,12 +8,12 @@ import (
 	"github.com/zondax/rosetta-filecoin-lib/actors/builtin/V8"
 )
 
-func IsMultisigActor(actorCode cid.Cid) bool {
-	if V8.IsMultisigActor(actorCode) {
+func IsActor(actorCode cid.Cid, actorName string) bool {
+	if V8.IsActor(actorCode, actorName) {
 		return true
 	}
 
-	if V7.IsMultisigActor(actorCode) {
+	if V7.IsActor(actorCode, actorName) {
 		return true
 	}
 
