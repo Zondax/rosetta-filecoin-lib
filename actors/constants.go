@@ -1,7 +1,6 @@
 package actors
 
 const (
-	// ActorsNameCidMap names
 	ActorAccountName          = "account"
 	ActorCronName             = "cron"
 	ActorInitName             = "init"
@@ -14,6 +13,5 @@ const (
 	ActorSystemName           = "system"
 	ActorVerifiedRegistryName = "verifiedregistry"
 
-	// Misc
 	UnknownStr = "<unknown>"
 )
