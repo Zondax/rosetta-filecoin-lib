@@ -1,7 +1,7 @@
 package actors
 
 const (
-	// Actors names
+	// ActorsNameCidMap names
 	ActorAccountName          = "account"
 	ActorCronName             = "cron"
 	ActorInitName             = "init"

@@ -20,8 +20,7 @@ import (
 	"encoding/json"
 	"fmt"
 	builtinV8 "github.com/filecoin-project/specs-actors/v8/actors/builtin"
-	"github.com/zondax/rosetta-filecoin-lib/actors/builtin/V7"
-	"github.com/zondax/rosetta-filecoin-lib/actors/builtin/V8"
+	"github.com/zondax/rosetta-filecoin-lib/actors"
 	"sync"
 
 	filAddr "github.com/filecoin-project/go-address"
@@ -33,10 +32,25 @@ import (
 	"github.com/ipfs/go-cid"
 	"github.com/minio/blake2b-simd"
 	cbg "github.com/whyrusleeping/cbor-gen"
+	actorsCID "github.com/zondax/filecoin-actors-cids/utils"
 )
 
 type RosettaConstructionFilecoin struct {
-	Mainnet bool
+	networkName   string
+	builtinActors actors.BuiltinActors
+}
+
+func NewRosettaConstructionFilecoin(network string) *RosettaConstructionFilecoin {
+	var builtinActors actors.BuiltinActors
+	err := builtinActors.GetMetadata(network)
+	if err != nil {
+		return nil
+	}
+
+	return &RosettaConstructionFilecoin{
+		networkName:   network,
+		builtinActors: builtinActors,
+	}
 }
 
 // String returns an address encoded as a string
@@ -164,10 +178,10 @@ func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (
 
 func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigPaymentRequest, destinationActorId cid.Cid) (string, error) {
 	switch destinationActorId {
-	case V7.MultisigActorCodeID:
+	case r.builtinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName):
 		return r.ConstructMultisigPaymentV7(request, destinationActorId)
 
-	case V8.MultisigActorCodeID:
+	case r.builtinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName):
 		return r.ConstructMultisigPaymentV8(request, destinationActorId)
 
 	default:
@@ -177,11 +191,11 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 
 func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
 	switch destinationActorId {
-	case V7.MultisigActorCodeID:
-		return r.ConstructSwapAuthorizedPartyV7(request, destinationActorId)
-
-	case V8.MultisigActorCodeID:
+	case r.builtinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName):
 		return r.ConstructSwapAuthorizedPartyV8(request, destinationActorId)
+
+	case r.builtinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName):
+		return r.ConstructSwapAuthorizedPartyV7(request, destinationActorId)
 
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
@@ -190,11 +204,11 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 
 func (r RosettaConstructionFilecoin) ConstructRemoveAuthorizedParty(request *RemoveAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
 	switch destinationActorId {
-	case V7.MultisigActorCodeID:
-		return r.ConstructRemoveAuthorizedPartyV7(request, destinationActorId)
-
-	case V8.MultisigActorCodeID:
+	case r.builtinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName):
 		return r.ConstructRemoveAuthorizedPartyV8(request, destinationActorId)
+
+	case r.builtinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName):
+		return r.ConstructRemoveAuthorizedPartyV7(request, destinationActorId)
 
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
@@ -426,8 +440,8 @@ func (r RosettaConstructionFilecoin) GetInnerProposeTxParams(unsignedMultisigTx 
 
 func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV8.ProposeParams, targetActorId cid.Cid) (string, error) {
 	switch targetActorId {
-	case V8.AccountActorCodeID,
-		V7.AccountActorCodeID:
+	case r.builtinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorAccountName),
+		r.builtinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorAccountName):
 		innerMethod, err := getMsigMethodString(proposeParams.Method)
 		if err != nil {
 			return "", err
@@ -435,8 +449,8 @@ func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV8
 
 		return innerMethod, nil
 
-	case V8.MultisigActorCodeID,
-		V7.MultisigActorCodeID:
+	case r.builtinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName),
+		r.builtinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName):
 		innerMethod, err := getMsigMethodString(proposeParams.Method)
 		if err != nil {
 			return "", err
@@ -444,8 +458,8 @@ func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV8
 
 		return innerMethod, nil
 
-	case V8.StorageMinerActorCodeID,
-		V7.StorageMinerActorCodeID:
+	case r.builtinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorStorageMinerName),
+		r.builtinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorStorageMinerName):
 		innerMethod, err := getMinerMethodString(proposeParams.Method)
 		if err != nil {
 			return "", err
@@ -453,8 +467,8 @@ func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV8
 
 		return innerMethod, nil
 
-	case V8.VerifiedRegistryActorCodeID,
-		V7.VerifiedRegistryActorCodeID:
+	case r.builtinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorVerifiedRegistryName),
+		r.builtinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorVerifiedRegistryName):
 		innerMethod, err := getVerifRegMethodString(proposeParams.Method)
 		if err != nil {
 			return "", err
@@ -526,11 +540,11 @@ func getVerifRegMethodString(method abi.MethodNum) (string, error) {
 
 func (r RosettaConstructionFilecoin) ParseParamsMultisigTx(unsignedMultisigTx string, destinationActorId cid.Cid) (string, error) {
 	switch destinationActorId {
-	case V7.MultisigActorCodeID:
-		return r.parseParamsMultisigTxV7(unsignedMultisigTx)
-
-	case V8.MultisigActorCodeID:
+	case r.builtinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName):
 		return r.parseParamsMultisigTxV8(unsignedMultisigTx)
+
+	case r.builtinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName):
+		return r.parseParamsMultisigTxV7(unsignedMultisigTx)
 
 	default:
 		return "", fmt.Errorf("this actor id is not supported")

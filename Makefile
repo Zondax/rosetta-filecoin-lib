@@ -17,3 +17,7 @@ fmt:
 
 deps_update:
 	go get -u ./...
+
+
+export_actors_cid:
+	go run ./actors/gen
