@@ -179,10 +179,10 @@ func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (
 func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigPaymentRequest, destinationActorId cid.Cid) (string, error) {
 	switch destinationActorId {
 	case r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName):
-		return r.ConstructMultisigPaymentV7(request, destinationActorId)
+		return r.ConstructMultisigPaymentV8(request, destinationActorId)
 
 	case r.BuiltinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName):
-		return r.ConstructMultisigPaymentV8(request, destinationActorId)
+		return r.ConstructMultisigPaymentV7(request, destinationActorId)
 
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
