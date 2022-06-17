@@ -199,7 +199,7 @@ func TestConstructMultisigPaymentV7(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV7 := r.builtinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName)
+	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName)
 	tx, err := r.ConstructMultisigPayment(request, msigActorCidV7)
 	if err != nil {
 		t.Errorf(err.Error())
@@ -229,7 +229,7 @@ func TestConstructMultisigPaymentV8(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV8 := r.builtinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
+	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
 	tx, err := r.ConstructMultisigPayment(request, msigActorCidV8)
 	if err != nil {
 		t.Errorf(err.Error())
@@ -259,7 +259,7 @@ func TestConstructSwapAuthorizedPartyV7(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV7 := r.builtinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName)
+	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName)
 	tx, err := r.ConstructSwapAuthorizedParty(request, msigActorCidV7)
 	if err != nil {
 		t.Errorf(err.Error())
@@ -289,7 +289,7 @@ func TestConstructSwapAuthorizedPartyV8(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV8 := r.builtinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
+	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
 	tx, err := r.ConstructSwapAuthorizedParty(request, msigActorCidV8)
 	if err != nil {
 		t.Errorf(err.Error())
@@ -319,7 +319,7 @@ func TestConstructRemoveAuthorizedPartyV7(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV7 := r.builtinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName)
+	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName)
 	tx, err := r.ConstructRemoveAuthorizedParty(request, msigActorCidV7)
 	if err != nil {
 		t.Errorf(err.Error())
@@ -349,7 +349,7 @@ func TestConstructRemoveAuthorizedPartyV8(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV8 := r.builtinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
+	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
 	tx, err := r.ConstructRemoveAuthorizedParty(request, msigActorCidV8)
 	if err != nil {
 		t.Errorf(err.Error())
@@ -463,8 +463,8 @@ func TestParseParamsMultisigPaymentTx(t *testing.T) {
 		},
 	}
 
-	msigActorCidV7 := r.builtinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName)
-	msigActorCidV8 := r.builtinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
+	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName)
+	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
 
 	txV7, err := r.ConstructMultisigPayment(request, msigActorCidV7)
 	if err != nil {
@@ -514,8 +514,8 @@ func TestParseParamsMultisigSwapAuthTx(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV7 := r.builtinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName)
-	msigActorCidV8 := r.builtinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
+	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName)
+	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
 
 	txV7, err := r.ConstructSwapAuthorizedParty(request, msigActorCidV7)
 	if err != nil {
@@ -565,8 +565,8 @@ func TestParseParamsMultisigRemoveSignerTx(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV7 := r.builtinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName)
-	msigActorCidV8 := r.builtinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
+	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName)
+	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
 
 	txV7, err := r.ConstructRemoveAuthorizedParty(request, msigActorCidV7)
 	if err != nil {

@@ -144,7 +144,7 @@ func (r RosettaConstructionFilecoin) parseParamsMultisigTxV8(unsignedMultisigTx 
 }
 
 func (r RosettaConstructionFilecoin) ConstructMultisigPaymentV8(request *MultisigPaymentRequest, destinationActorId cid.Cid) (string, error) {
-	if !r.builtinActors.IsActor(destinationActorId, actors.ActorMultisigName) {
+	if !r.BuiltinActors.IsActor(destinationActorId, actors.ActorMultisigName) {
 		return "", fmt.Errorf("this actor id is not supported")
 	}
 
@@ -220,7 +220,7 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPaymentV8(request *Multisi
 }
 
 func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedPartyV8(request *SwapAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
-	if !r.builtinActors.IsActor(destinationActorId, actors.ActorMultisigName) {
+	if !r.BuiltinActors.IsActor(destinationActorId, actors.ActorMultisigName) {
 		return "", fmt.Errorf("this actor id is not supported")
 	}
 
@@ -303,7 +303,7 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedPartyV8(request *Swa
 }
 
 func (r RosettaConstructionFilecoin) ConstructRemoveAuthorizedPartyV8(request *RemoveAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
-	if !r.builtinActors.IsActor(destinationActorId, actors.ActorMultisigName) {
+	if !r.BuiltinActors.IsActor(destinationActorId, actors.ActorMultisigName) {
 		return "", fmt.Errorf("this actor id is not supported")
 	}
 
