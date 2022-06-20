@@ -22,7 +22,8 @@ import (
 	"fmt"
 	"github.com/filecoin-project/go-state-types/big"
 	"github.com/stretchr/testify/assert"
-	"github.com/zondax/rosetta-filecoin-lib/actors/builtin/V7"
+	actorsCID "github.com/zondax/filecoin-actors-cids/utils"
+	"github.com/zondax/rosetta-filecoin-lib/actors"
 	"net/http"
 	"os"
 	"testing"
@@ -180,7 +181,7 @@ func TestSendTransaction(t *testing.T) {
 
 	/* Create Transaction */
 
-	r := &RosettaConstructionFilecoin{false}
+	r := NewRosettaConstructionFilecoin(NETWORK)
 	pr := &PaymentRequest{
 		From:     SourceAddress1,
 		To:       DestAddress1,
@@ -238,7 +239,7 @@ func TestSendFromMultisig(t *testing.T) {
 
 	/* Create Transaction */
 
-	r := &RosettaConstructionFilecoin{false}
+	r := NewRosettaConstructionFilecoin(NETWORK)
 
 	mtx := TxMetadata{
 		Nonce:      nonce,
@@ -257,7 +258,9 @@ func TestSendFromMultisig(t *testing.T) {
 		},
 	}
 
-	unsignedTxBase64, err := r.ConstructMultisigPayment(request, V7.MultisigActorCodeID)
+	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
+
+	unsignedTxBase64, err := r.ConstructMultisigPayment(request, msigActorCidV8)
 	assert.NoError(t, err)
 
 	signedTx, err := r.SignTxJSON(unsignedTxBase64, sk)
@@ -320,7 +323,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 
 	/* Create Transaction */
 
-	r := &RosettaConstructionFilecoin{false}
+	r := NewRosettaConstructionFilecoin(NETWORK)
 	mtx := TxMetadata{
 		Nonce:      nonce,
 		GasFeeCap:  GasFeeCap,
@@ -338,7 +341,9 @@ func TestSwapKeysMultisig(t *testing.T) {
 		Params:   params,
 	}
 
-	unsignedTxBase64, err := r.ConstructSwapAuthorizedParty(request, V7.MultisigActorCodeID)
+	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
+
+	unsignedTxBase64, err := r.ConstructSwapAuthorizedParty(request, msigActorCidV8)
 	assert.NoError(t, err)
 
 	signedTx, err := r.SignTxJSON(unsignedTxBase64, sk)
