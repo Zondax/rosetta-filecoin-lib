@@ -5,8 +5,8 @@ go 1.17
 require (
 	github.com/filecoin-project/go-address v0.0.6
 	github.com/filecoin-project/go-crypto v0.0.1
-	github.com/filecoin-project/go-state-types v0.1.9
-	github.com/filecoin-project/lotus v1.16.0-rc1
+	github.com/filecoin-project/go-state-types v0.1.10
+	github.com/filecoin-project/lotus v1.16.0
 	github.com/filecoin-project/specs-actors/v7 v7.0.1
 	github.com/filecoin-project/specs-actors/v8 v8.0.0
 	github.com/ipfs/go-cid v0.1.0
