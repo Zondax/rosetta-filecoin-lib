@@ -13,7 +13,7 @@ require (
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
 	github.com/stretchr/testify v1.7.1
 	github.com/whyrusleeping/cbor-gen v0.0.0-20220323183124-98fa8256a799
-	github.com/zondax/filecoin-actors-cids v1.1600.0
+	github.com/zondax/filecoin-actors-cids v1.1600.2
 )
 
 require (
