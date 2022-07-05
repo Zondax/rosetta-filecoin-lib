@@ -114,8 +114,8 @@ func TestVerify(t *testing.T) {
     "From": "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
     "Nonce": 1,
     "Value": "100000",
-		"GasFeeCap": "1",
-		"GasPremium": "1",
+	"GasFeeCap": "1",
+	"GasPremium": "1",
     "GasLimit": 25000,
     "Method": 0,
     "Params": ""
@@ -151,7 +151,51 @@ func TestVerify(t *testing.T) {
 	if err != nil {
 		t.Fail()
 	}
+}
 
+func TestVerify2(t *testing.T) {
+	unsignedTx := `{
+		"To": "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
+		"From": "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
+		"Nonce": 1,
+		"Value": "100000",
+		"GasFeeCap": "1",
+		"GasPremium": "1",
+		"GasLimit": 2500000,
+		"Method": 0,
+		"Params": ""
+  }`
+
+	pk, err := hex.DecodeString("0435e752dc6b4113f78edcf2cf7b8082e442021de5f00818f555397a6f181af795ace98f0f7d065793eaffa1b06bf52e572c97030c53a2396dfab40ba0e976b108")
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	sig, err := base64.StdEncoding.DecodeString("0wRrFJZFIVh8m0JD+f5C55YrxD6YAWtCXWYihrPTKdMfgMhYAy86MVhs43hSLXnV+47UReRIe8qFdHRJqFlreAE=")
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	r := &RosettaConstructionFilecoin{false}
+
+	rawIn := json.RawMessage(unsignedTx)
+
+	bytes, err := rawIn.MarshalJSON()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	var msg types.Message
+	err = json.Unmarshal(bytes, &msg)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	digest := msg.Cid().Bytes()
+
+	err = r.VerifyRaw(digest, pk, sig)
+
+	if err != nil {
+		t.Fail()
+	}
 }
 
 func TestConstructPayment(t *testing.T) {

@@ -562,6 +562,21 @@ func (r RosettaConstructionFilecoin) Hash(signedMessage string) (string, error) 
 	var msg types.SignedMessage
 	err = json.Unmarshal(txBytes, &msg)
 	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+
+	// Verify teh signed message is valid to avoid generating wrong CID
+	// see https://github.com/Zondax/rosetta-filecoin-lib/issues/21
+	digest :=  msg.Message.Cid().Bytes()
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+
+	err = verifySecp256k1(msg.Signature.Data, msg.Message.From, digest)
+	if err != nil {
+		fmt.Println(err)
 		return "", err
 	}
 
