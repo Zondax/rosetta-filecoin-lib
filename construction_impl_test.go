@@ -47,6 +47,41 @@ func seq() func() {
 	}
 }
 
+func verify(unsignedTx string, pkHex string, sigBase64 string) error {
+	pk, err := hex.DecodeString(pkHex)
+	if err != nil {
+		return err
+	}
+	sig, err := base64.StdEncoding.DecodeString(sigBase64)
+	if err != nil {
+		return err
+	}
+	r := NewRosettaConstructionFilecoin(NETWORK)
+
+	rawIn := json.RawMessage(unsignedTx)
+
+	bytes, err := rawIn.MarshalJSON()
+	if err != nil {
+		return err
+	}
+
+	var msg types.Message
+	err = json.Unmarshal(bytes, &msg)
+	if err != nil {
+		return err
+	}
+
+	digest := msg.Cid().Bytes()
+
+	err = r.VerifyRaw(digest, pk, sig)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func TestDeriveFromPublicKey(t *testing.T) {
 	pk, err := hex.DecodeString("04fc016f3d88dc7070cdd95b5754d32fd5290f850b7c2208fca0f715d35861de1841d9a342a487692a63810a6c906b443a18aa804d9d508d69facc5b06789a01b4")
 	if err != nil {
@@ -121,33 +156,11 @@ func TestVerify(t *testing.T) {
     "Params": ""
   }`
 
-	pk, err := hex.DecodeString("0435e752dc6b4113f78edcf2cf7b8082e442021de5f00818f555397a6f181af795ace98f0f7d065793eaffa1b06bf52e572c97030c53a2396dfab40ba0e976b108")
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	sig, err := base64.StdEncoding.DecodeString("nFuTI7MxEXqTQ0QmmQTmqbUsNZfHFXlNjz+susVDkAk1SrRCdJKxlVZZrM4vUtVBSYgtMIeigNfpqdKGIFhoWQA=")
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	r := NewRosettaConstructionFilecoin(NETWORK)
+	pkHex := "0435e752dc6b4113f78edcf2cf7b8082e442021de5f00818f555397a6f181af795ace98f0f7d065793eaffa1b06bf52e572c97030c53a2396dfab40ba0e976b108"
 
-	rawIn := json.RawMessage(unsignedTx)
+	sigBase64 := "nFuTI7MxEXqTQ0QmmQTmqbUsNZfHFXlNjz+susVDkAk1SrRCdJKxlVZZrM4vUtVBSYgtMIeigNfpqdKGIFhoWQA="
 
-	bytes, err := rawIn.MarshalJSON()
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-
-	var msg types.Message
-	err = json.Unmarshal(bytes, &msg)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-
-	digest := msg.Cid().Bytes()
-
-	err = r.VerifyRaw(digest, pk, sig)
-
+	err := verify(unsignedTx, pkHex, sigBase64)
 	if err != nil {
 		t.Fail()
 	}
@@ -166,33 +179,10 @@ func TestVerify2(t *testing.T) {
 		"Params": ""
   }`
 
-	pk, err := hex.DecodeString("0435e752dc6b4113f78edcf2cf7b8082e442021de5f00818f555397a6f181af795ace98f0f7d065793eaffa1b06bf52e572c97030c53a2396dfab40ba0e976b108")
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	sig, err := base64.StdEncoding.DecodeString("0wRrFJZFIVh8m0JD+f5C55YrxD6YAWtCXWYihrPTKdMfgMhYAy86MVhs43hSLXnV+47UReRIe8qFdHRJqFlreAE=")
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	r := &RosettaConstructionFilecoin{false}
+	pkHex := "0435e752dc6b4113f78edcf2cf7b8082e442021de5f00818f555397a6f181af795ace98f0f7d065793eaffa1b06bf52e572c97030c53a2396dfab40ba0e976b108"
+	sigBase64 := "0wRrFJZFIVh8m0JD+f5C55YrxD6YAWtCXWYihrPTKdMfgMhYAy86MVhs43hSLXnV+47UReRIe8qFdHRJqFlreAE="
 
-	rawIn := json.RawMessage(unsignedTx)
-
-	bytes, err := rawIn.MarshalJSON()
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-
-	var msg types.Message
-	err = json.Unmarshal(bytes, &msg)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-
-	digest := msg.Cid().Bytes()
-
-	err = r.VerifyRaw(digest, pk, sig)
-
+	err := verify(unsignedTx, pkHex, sigBase64)
 	if err != nil {
 		t.Fail()
 	}
