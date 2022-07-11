@@ -568,7 +568,7 @@ func (r RosettaConstructionFilecoin) Hash(signedMessage string) (string, error) 
 
 	// Verify teh signed message is valid to avoid generating wrong CID
 	// see https://github.com/Zondax/rosetta-filecoin-lib/issues/21
-	digest :=  msg.Message.Cid().Bytes()
+	digest := msg.Message.Cid().Bytes()
 	if err != nil {
 		fmt.Println(err)
 		return "", err
