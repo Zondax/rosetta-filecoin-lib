@@ -202,6 +202,7 @@ func TestSendTransaction(t *testing.T) {
 
 	// Send request
 	res, err := sendLotusRequest("Filecoin.MpoolPush", 1, signedTx)
+	fmt.Printf("%v\n", res)
 	assert.NoError(t, err)
 	assert.NotNil(t, res["result"])
 
