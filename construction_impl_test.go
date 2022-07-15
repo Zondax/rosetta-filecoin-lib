@@ -36,6 +36,7 @@ const (
 	EXPECTED_MULTISIG_PAYMENT = `{"Version":0,"To":"f01002","From":"f1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba","Nonce":1,"Value":"0","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":2,"Params":"hFUB/R0PTfzX6Zr8uZqDJrfcRZ0yxihDAAPoAEA=","CID":{"/":"bafy2bzaceaeyq6sksxeo7yoftkblpt6sd5umv34ha3qjdubk52u4rxleiq6eo"}}`
 	EXPECTED_SWAP_AUTHORIZED  = `{"Version":0,"To":"f01002","From":"f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy","Nonce":1,"Value":"0","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":2,"Params":"hEMA6gdAB1gtglUB3+SRhNRq3I+J1EY4vrRfePytJZBVAeQ8w10L4iTPA9V+iE3/tipwhzV8","CID":{"/":"bafy2bzacebyohxxqn66r22dumjqcqyuqqdehz5jrnrwwcnycezyaakc45glp6"}}`
 	NETWORK                   = utils.NetworkDevnet
+	EXPECTED_SIGNATURE        = "nFuTI7MxEXqTQ0QmmQTmqbUsNZfHFXlNjz+susVDkAk1SrRCdJKxlVZZrM4vUtVBSYgtMIeigNfpqdKGIFhoWQA="
 )
 
 var seqMutex sync.Mutex
@@ -45,6 +46,41 @@ func seq() func() {
 	return func() {
 		seqMutex.Unlock()
 	}
+}
+
+func verify(unsignedTx string, pkHex string, sigBase64 string) error {
+	pk, err := hex.DecodeString(pkHex)
+	if err != nil {
+		return err
+	}
+	sig, err := base64.StdEncoding.DecodeString(sigBase64)
+	if err != nil {
+		return err
+	}
+	r := NewRosettaConstructionFilecoin(NETWORK)
+
+	rawIn := json.RawMessage(unsignedTx)
+
+	bytes, err := rawIn.MarshalJSON()
+	if err != nil {
+		return err
+	}
+
+	var msg types.Message
+	err = json.Unmarshal(bytes, &msg)
+	if err != nil {
+		return err
+	}
+
+	digest := msg.Cid().Bytes()
+
+	err = r.VerifyRaw(digest, pk, sig)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func TestDeriveFromPublicKey(t *testing.T) {
@@ -102,7 +138,7 @@ func TestSign(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	if base64.StdEncoding.EncodeToString(sig) != "nFuTI7MxEXqTQ0QmmQTmqbUsNZfHFXlNjz+susVDkAk1SrRCdJKxlVZZrM4vUtVBSYgtMIeigNfpqdKGIFhoWQA=" {
+	if base64.StdEncoding.EncodeToString(sig) != EXPECTED_SIGNATURE {
 		t.Fail()
 	}
 
@@ -114,44 +150,43 @@ func TestVerify(t *testing.T) {
     "From": "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
     "Nonce": 1,
     "Value": "100000",
-		"GasFeeCap": "1",
-		"GasPremium": "1",
+	"GasFeeCap": "1",
+	"GasPremium": "1",
     "GasLimit": 25000,
     "Method": 0,
     "Params": ""
   }`
 
-	pk, err := hex.DecodeString("0435e752dc6b4113f78edcf2cf7b8082e442021de5f00818f555397a6f181af795ace98f0f7d065793eaffa1b06bf52e572c97030c53a2396dfab40ba0e976b108")
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	sig, err := base64.StdEncoding.DecodeString("nFuTI7MxEXqTQ0QmmQTmqbUsNZfHFXlNjz+susVDkAk1SrRCdJKxlVZZrM4vUtVBSYgtMIeigNfpqdKGIFhoWQA=")
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	r := NewRosettaConstructionFilecoin(NETWORK)
+	pkHex := "0435e752dc6b4113f78edcf2cf7b8082e442021de5f00818f555397a6f181af795ace98f0f7d065793eaffa1b06bf52e572c97030c53a2396dfab40ba0e976b108"
 
-	rawIn := json.RawMessage(unsignedTx)
+	sigBase64 := EXPECTED_SIGNATURE
 
-	bytes, err := rawIn.MarshalJSON()
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-
-	var msg types.Message
-	err = json.Unmarshal(bytes, &msg)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-
-	digest := msg.Cid().Bytes()
-
-	err = r.VerifyRaw(digest, pk, sig)
-
+	err := verify(unsignedTx, pkHex, sigBase64)
 	if err != nil {
 		t.Fail()
 	}
+}
 
+func TestVerify2(t *testing.T) {
+	unsignedTx := `{
+		"To": "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
+		"From": "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
+		"Nonce": 1,
+		"Value": "100000",
+		"GasFeeCap": "1",
+		"GasPremium": "1",
+		"GasLimit": 2500000,
+		"Method": 0,
+		"Params": ""
+  }`
+
+	pkHex := "0435e752dc6b4113f78edcf2cf7b8082e442021de5f00818f555397a6f181af795ace98f0f7d065793eaffa1b06bf52e572c97030c53a2396dfab40ba0e976b108"
+	sigBase64 := "0wRrFJZFIVh8m0JD+f5C55YrxD6YAWtCXWYihrPTKdMfgMhYAy86MVhs43hSLXnV+47UReRIe8qFdHRJqFlreAE="
+
+	err := verify(unsignedTx, pkHex, sigBase64)
+	if err != nil {
+		t.Fail()
+	}
 }
 
 func TestConstructPayment(t *testing.T) {
@@ -389,7 +424,7 @@ func TestSignTx(t *testing.T) {
 	}
 
 	dataSignature := base64.StdEncoding.EncodeToString(msg.Signature.Data)
-	if dataSignature != "nFuTI7MxEXqTQ0QmmQTmqbUsNZfHFXlNjz+susVDkAk1SrRCdJKxlVZZrM4vUtVBSYgtMIeigNfpqdKGIFhoWQA=" {
+	if dataSignature != EXPECTED_SIGNATURE {
 		t.Fail()
 	}
 
