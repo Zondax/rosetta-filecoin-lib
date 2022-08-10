@@ -439,43 +439,21 @@ func (r RosettaConstructionFilecoin) GetInnerProposeTxParams(unsignedMultisigTx 
 }
 
 func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV8.ProposeParams, targetActorId cid.Cid) (string, error) {
-	switch targetActorId {
-	case r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorAccountName),
-		r.BuiltinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorAccountName):
+	actorName, err := r.BuiltinActors.GetActorNameFromCid(targetActorId)
+	if err != nil {
+		return "", err
+	}
+
+	switch actorName {
+	case actors.ActorAccountName, actors.ActorMultisigName:
 		innerMethod, err := getMsigMethodString(proposeParams.Method)
-		if err != nil {
-			return "", err
-		}
-
-		return innerMethod, nil
-
-	case r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName),
-		r.BuiltinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName):
-		innerMethod, err := getMsigMethodString(proposeParams.Method)
-		if err != nil {
-			return "", err
-		}
-
-		return innerMethod, nil
-
-	case r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorStorageMinerName),
-		r.BuiltinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorStorageMinerName):
+		return innerMethod, err
+	case actors.ActorStorageMinerName:
 		innerMethod, err := getMinerMethodString(proposeParams.Method)
-		if err != nil {
-			return "", err
-		}
-
-		return innerMethod, nil
-
-	case r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorVerifiedRegistryName),
-		r.BuiltinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorVerifiedRegistryName):
+		return innerMethod, err
+	case actors.ActorVerifiedRegistryName:
 		innerMethod, err := getVerifRegMethodString(proposeParams.Method)
-		if err != nil {
-			return "", err
-		}
-
-		return innerMethod, nil
-
+		return innerMethod, err
 	default:
 		return "", fmt.Errorf("target actor %v currently not supported inside Propose params", targetActorId)
 	}
@@ -539,16 +517,17 @@ func getVerifRegMethodString(method abi.MethodNum) (string, error) {
 }
 
 func (r RosettaConstructionFilecoin) ParseParamsMultisigTx(unsignedMultisigTx string, destinationActorId cid.Cid) (string, error) {
-	switch destinationActorId {
-	case r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName):
+	// Try the latest version first
+	if destinationActorId == r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName) {
 		return r.parseParamsMultisigTxV8(unsignedMultisigTx)
-
-	case r.BuiltinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName):
-		return r.parseParamsMultisigTxV7(unsignedMultisigTx)
-
-	default:
-		return "", fmt.Errorf("this actor id is not supported")
 	}
+
+	// Try legacy actors
+	if actors.IsLegacyActor(destinationActorId, actors.ActorMultisigName) {
+		return r.parseParamsMultisigTxV7(unsignedMultisigTx)
+	}
+
+	return "", fmt.Errorf("actor id '%s' is not supported", destinationActorId.String())
 }
 
 func (r RosettaConstructionFilecoin) Hash(signedMessage string) (string, error) {

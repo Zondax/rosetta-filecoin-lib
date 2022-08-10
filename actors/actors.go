@@ -2,6 +2,7 @@ package actors
 
 import (
 	"fmt"
+	"github.com/filecoin-project/lotus/chain/actors/builtin"
 	"github.com/ipfs/go-cid"
 	actorsCID "github.com/zondax/filecoin-actors-cids/utils"
 )
@@ -29,12 +30,13 @@ func (a *BuiltinActors) GetMetadata(network string) error {
 }
 
 func (a *BuiltinActors) IsActor(actorCode cid.Cid, actorName string) bool {
-
-	if a.metadata.GetActorCid(actorsCID.ActorsV7, actorName) == actorCode {
+	// Try the latest actors' version first
+	if a.metadata.GetActorCid(actorsCID.ActorsV8, actorName) == actorCode {
 		return true
 	}
 
-	if a.metadata.GetActorCid(actorsCID.ActorsV8, actorName) == actorCode {
+	// Try legacy actors
+	if IsLegacyActor(actorCode, actorName) {
 		return true
 	}
 
@@ -42,12 +44,14 @@ func (a *BuiltinActors) IsActor(actorCode cid.Cid, actorName string) bool {
 }
 
 func (a *BuiltinActors) GetActorNameFromCid(actorCode cid.Cid) (string, error) {
-
-	if ok, name := a.metadata.GetActorName(actorsCID.ActorsV7, actorCode); ok {
+	// Try the latest actors' version first
+	if ok, name := a.metadata.GetActorName(actorsCID.ActorsV8, actorCode); ok {
 		return name, nil
 	}
 
-	if ok, name := a.metadata.GetActorName(actorsCID.ActorsV8, actorCode); ok {
+	// Try legacy actors
+	name := builtin.ActorNameByCode(actorCode)
+	if name != UnknownStr {
 		return name, nil
 	}
 
