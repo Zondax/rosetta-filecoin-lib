@@ -213,7 +213,7 @@ func TestConstructPayment(t *testing.T) {
 	assert.Equal(t, expected, tx)
 }
 
-func TestConstructMultisigPaymentV7(t *testing.T) {
+func TestConstructMultisigPaymentV8(t *testing.T) {
 	expected := EXPECTED_MULTISIG_PAYMENT
 	r := NewRosettaConstructionFilecoin(NETWORK)
 
@@ -243,7 +243,7 @@ func TestConstructMultisigPaymentV7(t *testing.T) {
 	assert.Equal(t, expected, tx)
 }
 
-func TestConstructMultisigPaymentV8(t *testing.T) {
+func TestConstructMultisigPaymentV9(t *testing.T) {
 	expected := EXPECTED_MULTISIG_PAYMENT
 	r := NewRosettaConstructionFilecoin(NETWORK)
 
@@ -273,7 +273,7 @@ func TestConstructMultisigPaymentV8(t *testing.T) {
 	assert.Equal(t, expected, tx)
 }
 
-func TestConstructSwapAuthorizedPartyV7(t *testing.T) {
+func TestConstructSwapAuthorizedPartyV8(t *testing.T) {
 	expected := EXPECTED_SWAP_AUTHORIZED
 	r := NewRosettaConstructionFilecoin(NETWORK)
 
@@ -303,7 +303,7 @@ func TestConstructSwapAuthorizedPartyV7(t *testing.T) {
 	assert.Equal(t, expected, tx)
 }
 
-func TestConstructSwapAuthorizedPartyV8(t *testing.T) {
+func TestConstructSwapAuthorizedPartyV9(t *testing.T) {
 	expected := EXPECTED_SWAP_AUTHORIZED
 	r := NewRosettaConstructionFilecoin(NETWORK)
 
@@ -333,7 +333,7 @@ func TestConstructSwapAuthorizedPartyV8(t *testing.T) {
 	assert.Equal(t, expected, tx)
 }
 
-func TestConstructRemoveAuthorizedPartyV7(t *testing.T) {
+func TestConstructRemoveAuthorizedPartyV8(t *testing.T) {
 	expected := EXPECTED
 	r := NewRosettaConstructionFilecoin(NETWORK)
 
@@ -363,7 +363,7 @@ func TestConstructRemoveAuthorizedPartyV7(t *testing.T) {
 	assert.Equal(t, expected, tx)
 }
 
-func TestConstructRemoveAuthorizedPartyV8(t *testing.T) {
+func TestConstructRemoveAuthorizedPartyV9(t *testing.T) {
 	expected := EXPECTED
 	r := NewRosettaConstructionFilecoin(NETWORK)
 

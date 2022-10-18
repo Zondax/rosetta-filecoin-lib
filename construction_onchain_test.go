@@ -25,7 +25,6 @@ import (
 	actorsCID "github.com/zondax/filecoin-actors-cids/utils"
 	"github.com/zondax/rosetta-filecoin-lib/actors"
 	"net/http"
-	"os"
 	"testing"
 	"time"
 )
@@ -44,15 +43,17 @@ const Signer2long = "t1itpqzzcx6yf52oc35dgsoxfqkoxpy6kdmygbaja"
 const Signer2short = "t01003"
 
 func getCredentials() (string, string, error) {
-	lotusURL, found := os.LookupEnv("LOTUS_URL")
-	if !found {
-		return "", "", fmt.Errorf("Lotus URL has not been defined")
-	}
+	//lotusURL, found := os.LookupEnv("LOTUS_URL")
+	//if !found {
+	//	return "", "", fmt.Errorf("Lotus URL has not been defined")
+	//}
+	lotusURL := "https://filecoin.node.test.zondax.xyz/rpc"
 
-	lotusJWT, found := os.LookupEnv("LOTUS_JWT")
-	if !found {
-		return "", "", fmt.Errorf("Lotus JWT has not been defined")
-	}
+	//lotusJWT, found := os.LookupEnv("LOTUS_JWT")
+	lotusJWT := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.OqMuzGRLfI97giJdk8HaxvWx0XKJdBP2XTm1addpgWo"
+	//if !found {
+	//	return "", "", fmt.Errorf("Lotus JWT has not been defined")
+	//}
 
 	return lotusURL, lotusJWT, nil
 }
