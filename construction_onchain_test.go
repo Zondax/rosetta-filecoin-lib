@@ -259,7 +259,7 @@ func TestSendFromMultisig(t *testing.T) {
 		},
 	}
 
-	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
+	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
 
 	unsignedTxBase64, err := r.ConstructMultisigPayment(request, msigActorCidV8)
 	assert.NoError(t, err)
@@ -342,7 +342,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
+	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
 
 	unsignedTxBase64, err := r.ConstructSwapAuthorizedParty(request, msigActorCidV8)
 	assert.NoError(t, err)
