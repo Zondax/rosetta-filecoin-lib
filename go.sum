@@ -253,8 +253,8 @@ github.com/filecoin-project/go-statemachine v1.0.2 h1:421SSWBk8GIoCoWYYTE/d+qCWc
 github.com/filecoin-project/go-statestore v0.2.0 h1:cRRO0aPLrxKQCZ2UOQbzFGn4WDNdofHZoGPjfNaAo5Q=
 github.com/filecoin-project/go-statestore v0.2.0/go.mod h1:8sjBYbS35HwPzct7iT4lIXjLlYyPor80aU7t7a/Kspo=
 github.com/filecoin-project/index-provider v0.8.1 h1:ggoBWvMSWR91HZQCWfv8SZjoTGNyJBwNMLuN9bJZrbU=
-github.com/filecoin-project/lotus v1.18.0-rc2 h1:Cl71y/aOL/SSlYRKMvC/NhdEeShc+qhfJuWrIz2n6ps=
-github.com/filecoin-project/lotus v1.18.0-rc2/go.mod h1:DdCQv+QB/XIGCOMsCf58Agyyta+/c1Du8hy5JKkxQKY=
+github.com/filecoin-project/lotus v1.18.0-rc3 h1:ykO9lzrAHPkb52+E1Rpmy9/7XU1LlYNiufPCoGYWE1Q=
+github.com/filecoin-project/lotus v1.18.0-rc3/go.mod h1:DdCQv+QB/XIGCOMsCf58Agyyta+/c1Du8hy5JKkxQKY=
 github.com/filecoin-project/specs-actors v0.9.4/go.mod h1:BStZQzx5x7TmCkLv0Bpa07U6cPKol6fd3w9KjMPZ6Z4=
 github.com/filecoin-project/specs-actors v0.9.13/go.mod h1:TS1AW/7LbG+615j4NsjMK1qlpAwaFsG9w0V2tg2gSao=
 github.com/filecoin-project/specs-actors v0.9.15-0.20220514164640-94e0d5e123bd/go.mod h1:pjGEe3QlWtK20ju/aFRsiArbMX6Cn8rqEhhsiCM9xYE=
@@ -1362,8 +1362,8 @@ github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9de
 github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
-github.com/zondax/filecoin-actors-cids v1.1800.0-rc2 h1:lR/YeHNQbRKxOAqRi96oukruf/AYD8b56UiJRuMgui0=
-github.com/zondax/filecoin-actors-cids v1.1800.0-rc2/go.mod h1:IUtRL+9SGoERzNDmZDWBDCcYa1IQCrma07p974QQiLY=
+github.com/zondax/filecoin-actors-cids v1.1800.0-rc3 h1:yxLjWB5N1JAPDhHKrwArtNi+QYdKd+fl3Vvh9WevI2Q=
+github.com/zondax/filecoin-actors-cids v1.1800.0-rc3/go.mod h1:8V+Qj2X7a5zp+rEJv3y0xHOy1RiA1hA38NDNE3qOjs8=
 go.etcd.io/bbolt v1.3.3/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.etcd.io/etcd v0.0.0-20191023171146-3cf2f69b5738/go.mod h1:dnLIgRNXwCJa5e+c6mIZCrds/GIG4ncV9HhK5PX7jPg=
 go.opencensus.io v0.18.0/go.mod h1:vKdFvxhtzZ9onBp9VKHK8z/sRpBMnKAsufL7wlDrCOA=
