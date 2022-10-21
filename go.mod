@@ -5,8 +5,8 @@ go 1.18
 require (
 	github.com/filecoin-project/go-address v1.0.0
 	github.com/filecoin-project/go-crypto v0.0.1
-	github.com/filecoin-project/go-state-types v0.9.1
-	github.com/filecoin-project/lotus v1.18.0-rc3
+	github.com/filecoin-project/go-state-types v0.9.2
+	github.com/filecoin-project/lotus v1.18.0-rc4
 	github.com/filecoin-project/specs-actors v0.9.15
 	github.com/filecoin-project/specs-actors/v2 v2.3.6
 	github.com/filecoin-project/specs-actors/v3 v3.1.2
