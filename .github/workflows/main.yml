@@ -18,7 +18,7 @@ jobs:
         run: make test
         env:
           LOTUS_URL: ${{ secrets.LOTUS_URL }}
-          LOTUS_JWT: ${{ secrets.LOTUS_JWT }}
+          AUTH_JWT: ${{ secrets.AUTH_JWT }}
 
   checks:
     runs-on: ubuntu-latest
