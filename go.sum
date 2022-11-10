@@ -1362,8 +1362,8 @@ github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9de
 github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
-github.com/zondax/filecoin-actors-cids v1.1800.1-rc5 h1:7MlWMkXxCGgz/CKC83mEv8bxId4hog6QBqDAI7Zp4HI=
-github.com/zondax/filecoin-actors-cids v1.1800.1-rc5/go.mod h1:e+v+4OrHY6rtNJBbehMlZ6s0HsTLkW8DT31YvL4RSSA=
+github.com/zondax/filecoin-actors-cids v1.1800.2-rc5 h1:fmrArGai05tjL+362f3sAhn6Opi5iZ1RW2LspXX/hy4=
+github.com/zondax/filecoin-actors-cids v1.1800.2-rc5/go.mod h1:hC/01fZv9K5YVg7NpD+yafq095JzzswNsWPly6vujOw=
 go.etcd.io/bbolt v1.3.3/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.etcd.io/etcd v0.0.0-20191023171146-3cf2f69b5738/go.mod h1:dnLIgRNXwCJa5e+c6mIZCrds/GIG4ncV9HhK5PX7jPg=
 go.opencensus.io v0.18.0/go.mod h1:vKdFvxhtzZ9onBp9VKHK8z/sRpBMnKAsufL7wlDrCOA=

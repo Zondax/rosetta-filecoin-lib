@@ -19,7 +19,7 @@ require (
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
 	github.com/stretchr/testify v1.8.0
 	github.com/whyrusleeping/cbor-gen v0.0.0-20220514204315-f29c37e9c44c
-	github.com/zondax/filecoin-actors-cids v1.1800.1-rc5
+	github.com/zondax/filecoin-actors-cids v1.1800.2-rc5
 	go.uber.org/zap v1.22.0
 )
 
