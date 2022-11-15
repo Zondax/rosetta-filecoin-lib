@@ -213,7 +213,7 @@ func TestConstructPayment(t *testing.T) {
 	assert.Equal(t, expected, tx)
 }
 
-func TestConstructMultisigPaymentV8(t *testing.T) {
+func TestConstructMultisigPaymentPrevious(t *testing.T) {
 	expected := EXPECTED_MULTISIG_PAYMENT
 	r := NewRosettaConstructionFilecoin(NETWORK)
 
@@ -234,8 +234,8 @@ func TestConstructMultisigPaymentV8(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName)
-	tx, err := r.ConstructMultisigPayment(request, msigActorCidV7)
+	msigActorCidPrevious := r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName)
+	tx, err := r.ConstructMultisigPayment(request, msigActorCidPrevious)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -243,7 +243,7 @@ func TestConstructMultisigPaymentV8(t *testing.T) {
 	assert.Equal(t, expected, tx)
 }
 
-func TestConstructMultisigPaymentV9(t *testing.T) {
+func TestConstructMultisigPaymentLatest(t *testing.T) {
 	expected := EXPECTED_MULTISIG_PAYMENT
 	r := NewRosettaConstructionFilecoin(NETWORK)
 
@@ -264,8 +264,8 @@ func TestConstructMultisigPaymentV9(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
-	tx, err := r.ConstructMultisigPayment(request, msigActorCidV8)
+	msigActorCidLatest := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
+	tx, err := r.ConstructMultisigPayment(request, msigActorCidLatest)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -273,7 +273,7 @@ func TestConstructMultisigPaymentV9(t *testing.T) {
 	assert.Equal(t, expected, tx)
 }
 
-func TestConstructSwapAuthorizedPartyV8(t *testing.T) {
+func TestConstructSwapAuthorizedPartyPrevious(t *testing.T) {
 	expected := EXPECTED_SWAP_AUTHORIZED
 	r := NewRosettaConstructionFilecoin(NETWORK)
 
@@ -294,8 +294,8 @@ func TestConstructSwapAuthorizedPartyV8(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName)
-	tx, err := r.ConstructSwapAuthorizedParty(request, msigActorCidV7)
+	msigActorCidPrevious := r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName)
+	tx, err := r.ConstructSwapAuthorizedParty(request, msigActorCidPrevious)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -303,7 +303,7 @@ func TestConstructSwapAuthorizedPartyV8(t *testing.T) {
 	assert.Equal(t, expected, tx)
 }
 
-func TestConstructSwapAuthorizedPartyV9(t *testing.T) {
+func TestConstructSwapAuthorizedPartyLatest(t *testing.T) {
 	expected := EXPECTED_SWAP_AUTHORIZED
 	r := NewRosettaConstructionFilecoin(NETWORK)
 
@@ -324,8 +324,8 @@ func TestConstructSwapAuthorizedPartyV9(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
-	tx, err := r.ConstructSwapAuthorizedParty(request, msigActorCidV8)
+	msigActorCidLatest := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
+	tx, err := r.ConstructSwapAuthorizedParty(request, msigActorCidLatest)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -333,7 +333,7 @@ func TestConstructSwapAuthorizedPartyV9(t *testing.T) {
 	assert.Equal(t, expected, tx)
 }
 
-func TestConstructRemoveAuthorizedPartyV8(t *testing.T) {
+func TestConstructRemoveAuthorizedPartyPrevious(t *testing.T) {
 	expected := EXPECTED
 	r := NewRosettaConstructionFilecoin(NETWORK)
 
@@ -354,8 +354,8 @@ func TestConstructRemoveAuthorizedPartyV8(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName)
-	tx, err := r.ConstructRemoveAuthorizedParty(request, msigActorCidV7)
+	msigActorCidPrevious := r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName)
+	tx, err := r.ConstructRemoveAuthorizedParty(request, msigActorCidPrevious)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -363,7 +363,7 @@ func TestConstructRemoveAuthorizedPartyV8(t *testing.T) {
 	assert.Equal(t, expected, tx)
 }
 
-func TestConstructRemoveAuthorizedPartyV9(t *testing.T) {
+func TestConstructRemoveAuthorizedPartyLatest(t *testing.T) {
 	expected := EXPECTED
 	r := NewRosettaConstructionFilecoin(NETWORK)
 
@@ -384,8 +384,8 @@ func TestConstructRemoveAuthorizedPartyV9(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
-	tx, err := r.ConstructRemoveAuthorizedParty(request, msigActorCidV8)
+	msigActorCidLatest := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
+	tx, err := r.ConstructRemoveAuthorizedParty(request, msigActorCidLatest)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -498,36 +498,36 @@ func TestParseParamsMultisigPaymentTx(t *testing.T) {
 		},
 	}
 
-	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName)
-	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
+	msigActorCidPrevious := r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName)
+	msigActorCidLatest := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
 
-	txV7, err := r.ConstructMultisigPayment(request, msigActorCidV7)
+	txPrevious, err := r.ConstructMultisigPayment(request, msigActorCidPrevious)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	txV8, err := r.ConstructMultisigPayment(request, msigActorCidV8)
+	txLatest, err := r.ConstructMultisigPayment(request, msigActorCidLatest)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	expandedParamsV7, err := r.ParseParamsMultisigTx(txV7, msigActorCidV7)
+	expandedParamsPrevious, err := r.ParseParamsMultisigTx(txPrevious, msigActorCidPrevious)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	expandedParamsV8, err := r.ParseParamsMultisigTx(txV8, msigActorCidV8)
+	expandedParamsLatest, err := r.ParseParamsMultisigTx(txLatest, msigActorCidLatest)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	assert.Equal(t, expectedParams, expandedParamsV7)
-	assert.Equal(t, expectedParams, expandedParamsV8)
+	assert.Equal(t, expectedParams, expandedParamsPrevious)
+	assert.Equal(t, expectedParams, expandedParamsLatest)
 }
 
 func TestParseParamsMultisigSwapAuthTx(t *testing.T) {
-	expectedParamsV7 := `{"From":"f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy","To":"f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q"}`
-	expectedParamsV8 := expectedParamsV7
+	expectedParamsPrevious := `{"From":"f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy","To":"f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q"}`
+	expectedParamsLatest := expectedParamsPrevious
 
 	r := NewRosettaConstructionFilecoin(NETWORK)
 
@@ -549,36 +549,36 @@ func TestParseParamsMultisigSwapAuthTx(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName)
-	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
+	msigActorCidPrevious := r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName)
+	msigActorCidLatest := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
 
-	txV7, err := r.ConstructSwapAuthorizedParty(request, msigActorCidV7)
+	txPrevious, err := r.ConstructSwapAuthorizedParty(request, msigActorCidPrevious)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	txV8, err := r.ConstructSwapAuthorizedParty(request, msigActorCidV8)
+	txLatest, err := r.ConstructSwapAuthorizedParty(request, msigActorCidLatest)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	expandedParamsV7, err := r.ParseParamsMultisigTx(txV7, msigActorCidV7)
+	expandedParamsPrevious, err := r.ParseParamsMultisigTx(txPrevious, msigActorCidPrevious)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	expandedParamsV8, err := r.ParseParamsMultisigTx(txV8, msigActorCidV8)
+	expandedParamsLatest, err := r.ParseParamsMultisigTx(txLatest, msigActorCidLatest)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	assert.Equal(t, expectedParamsV7, expandedParamsV7)
-	assert.Equal(t, expectedParamsV8, expandedParamsV8)
+	assert.Equal(t, expectedParamsPrevious, expandedParamsPrevious)
+	assert.Equal(t, expectedParamsLatest, expandedParamsLatest)
 }
 
 func TestParseParamsMultisigRemoveSignerTx(t *testing.T) {
-	expectedParamsV7 := `{"Signer":"f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q","Decrease":false}`
-	expectedParamsV8 := expectedParamsV7
+	expectedParamsPrevious := `{"Signer":"f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q","Decrease":false}`
+	expectedParamsLatest := expectedParamsPrevious
 
 	r := NewRosettaConstructionFilecoin(NETWORK)
 
@@ -600,31 +600,31 @@ func TestParseParamsMultisigRemoveSignerTx(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName)
-	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
+	msigActorCidPrevious := r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName)
+	msigActorCidLatest := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
 
-	txV7, err := r.ConstructRemoveAuthorizedParty(request, msigActorCidV7)
+	txPrevious, err := r.ConstructRemoveAuthorizedParty(request, msigActorCidPrevious)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	txV8, err := r.ConstructRemoveAuthorizedParty(request, msigActorCidV8)
+	txLatest, err := r.ConstructRemoveAuthorizedParty(request, msigActorCidLatest)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	expandedParamsV7, err := r.ParseParamsMultisigTx(txV7, msigActorCidV7)
+	expandedParamsPrevious, err := r.ParseParamsMultisigTx(txPrevious, msigActorCidPrevious)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	expandedParamsV8, err := r.ParseParamsMultisigTx(txV8, msigActorCidV8)
+	expandedParamsLatest, err := r.ParseParamsMultisigTx(txLatest, msigActorCidLatest)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
-	assert.Equal(t, expectedParamsV7, expandedParamsV7)
-	assert.Equal(t, expectedParamsV8, expandedParamsV8)
+	assert.Equal(t, expectedParamsPrevious, expandedParamsPrevious)
+	assert.Equal(t, expectedParamsLatest, expandedParamsLatest)
 }
 
 func TestHash(t *testing.T) {

@@ -43,27 +43,22 @@ const Signer1short = "t01002"
 const Signer2long = "t1itpqzzcx6yf52oc35dgsoxfqkoxpy6kdmygbaja"
 const Signer2short = "t01003"
 
-func getCredentials() (string, string, string, error) {
+func getCredentials() (string, string, error) {
 	lotusURL, found := os.LookupEnv("LOTUS_URL")
 	if !found {
-		return "", "", "", fmt.Errorf("Lotus URL has not been defined")
-	}
-
-	lotusJWT, found := os.LookupEnv("LOTUS_JWT")
-	if !found {
-		return "", "", "", fmt.Errorf("Lotus JWT has not been defined")
+		return "", "", fmt.Errorf("Lotus URL has not been defined")
 	}
 
 	auth, found := os.LookupEnv("AUTH_JWT")
 	if !found {
-		return "", "", "", fmt.Errorf("Authentication header not found")
+		return "", "", fmt.Errorf("Authentication header not found")
 	}
 
-	return lotusURL, lotusJWT, auth, nil
+	return lotusURL, auth, nil
 }
 
 func sendLotusRequest(method string, id int, params string) (map[string]interface{}, error) {
-	lotusURL, lotusJWT, auth, err := getCredentials()
+	lotusURL, auth, err := getCredentials()
 	if err != nil {
 		return nil, err
 	}
@@ -78,8 +73,7 @@ func sendLotusRequest(method string, id int, params string) (map[string]interfac
 
 	// Set headers
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-Lotus-JWT", fmt.Sprintf("Beaderer %s", lotusJWT))
-	req.Header.Set("Authorization", fmt.Sprintf("Beaderer %s", auth))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", auth))
 
 	// Set client timeout
 	client := &http.Client{Timeout: time.Second * 60}
