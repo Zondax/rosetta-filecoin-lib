@@ -43,10 +43,10 @@ const Signer1short = "t01002"
 const Signer2long = "t1itpqzzcx6yf52oc35dgsoxfqkoxpy6kdmygbaja"
 const Signer2short = "t01003"
 
-func getCredentials() (string, string, error) {
+func getCredentials() (string, string,  error) {
 	lotusURL, found := os.LookupEnv("LOTUS_URL")
 	if !found {
-		return "", "", fmt.Errorf("Lotus URL has not been defined")
+		return "", "",  fmt.Errorf("Lotus URL has not been defined")
 	}
 
 	auth, found := os.LookupEnv("AUTH_JWT")
