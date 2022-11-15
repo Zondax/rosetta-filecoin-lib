@@ -9,6 +9,7 @@ import (
 	builtin5 "github.com/filecoin-project/specs-actors/v5/actors/builtin"
 	builtin6 "github.com/filecoin-project/specs-actors/v6/actors/builtin"
 	builtin7 "github.com/filecoin-project/specs-actors/v7/actors/builtin"
+	builtin8 "github.com/filecoin-project/specs-actors/v8/actors/builtin"
 	"github.com/ipfs/go-cid"
 	"go.uber.org/zap"
 )
@@ -72,6 +73,10 @@ func IsLegacyMultisigActor(c cid.Cid) bool {
 		return true
 	}
 
+	if c == builtin8.MultisigActorCodeID {
+		return true
+	}
+
 	return false
 }
 
@@ -101,6 +106,10 @@ func IsLegacyAccountActor(c cid.Cid) bool {
 	}
 
 	if c == builtin7.AccountActorCodeID {
+		return true
+	}
+
+	if c == builtin8.AccountActorCodeID {
 		return true
 	}
 
@@ -136,6 +145,10 @@ func IsLegacyVerifiedRegistryActor(c cid.Cid) bool {
 		return true
 	}
 
+	if c == builtin8.VerifiedRegistryActorCodeID {
+		return true
+	}
+
 	return false
 }
 
@@ -165,6 +178,10 @@ func IsLegacyRewardActor(c cid.Cid) bool {
 	}
 
 	if c == builtin7.RewardActorCodeID {
+		return true
+	}
+
+	if c == builtin8.RewardActorCodeID {
 		return true
 	}
 
@@ -200,6 +217,10 @@ func IsLegacyPaymentChannelActor(c cid.Cid) bool {
 		return true
 	}
 
+	if c == builtin8.PaymentChannelActorCodeID {
+		return true
+	}
+
 	return false
 }
 
@@ -229,6 +250,10 @@ func IsLegacyStorageMarketActor(c cid.Cid) bool {
 	}
 
 	if c == builtin7.StorageMarketActorCodeID {
+		return true
+	}
+
+	if c == builtin8.StorageMarketActorCodeID {
 		return true
 	}
 
@@ -264,6 +289,10 @@ func IsLegacyStorageMinerActor(c cid.Cid) bool {
 		return true
 	}
 
+	if c == builtin8.StorageMinerActorCodeID {
+		return true
+	}
+
 	return false
 }
 
@@ -293,6 +322,10 @@ func IsLegacyInitActor(c cid.Cid) bool {
 	}
 
 	if c == builtin7.InitActorCodeID {
+		return true
+	}
+
+	if c == builtin8.InitActorCodeID {
 		return true
 	}
 
@@ -328,6 +361,10 @@ func IsLegacySystemActor(c cid.Cid) bool {
 		return true
 	}
 
+	if c == builtin8.SystemActorCodeID {
+		return true
+	}
+
 	return false
 }
 
@@ -360,6 +397,10 @@ func IsLegacyCronActor(c cid.Cid) bool {
 		return true
 	}
 
+	if c == builtin8.CronActorCodeID {
+		return true
+	}
+
 	return false
 }
 
@@ -389,6 +430,10 @@ func IsLegacyStoragePowerActor(c cid.Cid) bool {
 	}
 
 	if c == builtin7.StoragePowerActorCodeID {
+		return true
+	}
+
+	if c == builtin8.StoragePowerActorCodeID {
 		return true
 	}
 

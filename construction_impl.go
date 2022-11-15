@@ -178,11 +178,11 @@ func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (
 
 func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigPaymentRequest, destinationActorId cid.Cid) (string, error) {
 	switch destinationActorId {
-	case r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName):
-		return r.ConstructMultisigPaymentV8(request, destinationActorId)
+	case r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName):
+		return r.ConstructMultisigPaymentV9(request, destinationActorId)
 
-	case r.BuiltinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName):
-		return r.ConstructMultisigPaymentV7(request, destinationActorId)
+	case r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName):
+		return r.ConstructMultisigPaymentV8(request, destinationActorId)
 
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
@@ -191,11 +191,11 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigP
 
 func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
 	switch destinationActorId {
-	case r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName):
-		return r.ConstructSwapAuthorizedPartyV8(request, destinationActorId)
+	case r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName):
+		return r.ConstructSwapAuthorizedPartyV9(request, destinationActorId)
 
-	case r.BuiltinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName):
-		return r.ConstructSwapAuthorizedPartyV7(request, destinationActorId)
+	case r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName):
+		return r.ConstructSwapAuthorizedPartyV8(request, destinationActorId)
 
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
@@ -204,11 +204,11 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapA
 
 func (r RosettaConstructionFilecoin) ConstructRemoveAuthorizedParty(request *RemoveAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
 	switch destinationActorId {
-	case r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName):
-		return r.ConstructRemoveAuthorizedPartyV8(request, destinationActorId)
+	case r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName):
+		return r.ConstructRemoveAuthorizedPartyV9(request, destinationActorId)
 
-	case r.BuiltinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName):
-		return r.ConstructRemoveAuthorizedPartyV7(request, destinationActorId)
+	case r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName):
+		return r.ConstructRemoveAuthorizedPartyV8(request, destinationActorId)
 
 	default:
 		return "", fmt.Errorf("this actor id is not supported")
@@ -518,13 +518,13 @@ func getVerifRegMethodString(method abi.MethodNum) (string, error) {
 
 func (r RosettaConstructionFilecoin) ParseParamsMultisigTx(unsignedMultisigTx string, destinationActorId cid.Cid) (string, error) {
 	// Try the latest version first
-	if destinationActorId == r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName) {
-		return r.parseParamsMultisigTxV8(unsignedMultisigTx)
+	if destinationActorId == r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName) {
+		return r.parseParamsMultisigTxV9(unsignedMultisigTx)
 	}
 
 	// Try legacy actors
 	if actors.IsLegacyActor(destinationActorId, actors.ActorMultisigName) {
-		return r.parseParamsMultisigTxV7(unsignedMultisigTx)
+		return r.parseParamsMultisigTxV8(unsignedMultisigTx)
 	}
 
 	return "", fmt.Errorf("actor id '%s' is not supported", destinationActorId.String())

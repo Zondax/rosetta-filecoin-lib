@@ -43,22 +43,27 @@ const Signer1short = "t01002"
 const Signer2long = "t1itpqzzcx6yf52oc35dgsoxfqkoxpy6kdmygbaja"
 const Signer2short = "t01003"
 
-func getCredentials() (string, string, error) {
+func getCredentials() (string, string, string, error) {
 	lotusURL, found := os.LookupEnv("LOTUS_URL")
 	if !found {
-		return "", "", fmt.Errorf("Lotus URL has not been defined")
+		return "", "", "", fmt.Errorf("Lotus URL has not been defined")
 	}
 
 	lotusJWT, found := os.LookupEnv("LOTUS_JWT")
 	if !found {
-		return "", "", fmt.Errorf("Lotus JWT has not been defined")
+		return "", "", "", fmt.Errorf("Lotus JWT has not been defined")
 	}
 
-	return lotusURL, lotusJWT, nil
+	auth, found := os.LookupEnv("AUTH_JWT")
+	if !found {
+		return "", "", "", fmt.Errorf("Authentication header not found")
+	}
+
+	return lotusURL, lotusJWT, auth, nil
 }
 
 func sendLotusRequest(method string, id int, params string) (map[string]interface{}, error) {
-	lotusURL, lotusJWT, err := getCredentials()
+	lotusURL, lotusJWT, auth, err := getCredentials()
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +78,8 @@ func sendLotusRequest(method string, id int, params string) (map[string]interfac
 
 	// Set headers
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+lotusJWT)
+	req.Header.Set("X-Lotus-JWT", fmt.Sprintf("Beaderer %s", lotusJWT))
+	req.Header.Set("Authorization", fmt.Sprintf("Beaderer %s", auth))
 
 	// Set client timeout
 	client := &http.Client{Timeout: time.Second * 60}
@@ -259,7 +265,7 @@ func TestSendFromMultisig(t *testing.T) {
 		},
 	}
 
-	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
+	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
 
 	unsignedTxBase64, err := r.ConstructMultisigPayment(request, msigActorCidV8)
 	assert.NoError(t, err)
@@ -342,7 +348,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
+	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
 
 	unsignedTxBase64, err := r.ConstructSwapAuthorizedParty(request, msigActorCidV8)
 	assert.NoError(t, err)

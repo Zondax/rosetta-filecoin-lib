@@ -213,36 +213,6 @@ func TestConstructPayment(t *testing.T) {
 	assert.Equal(t, expected, tx)
 }
 
-func TestConstructMultisigPaymentV7(t *testing.T) {
-	expected := EXPECTED_MULTISIG_PAYMENT
-	r := NewRosettaConstructionFilecoin(NETWORK)
-
-	mtx := TxMetadata{
-		Nonce:      1,
-		GasFeeCap:  "1",
-		GasPremium: "1",
-		GasLimit:   25000,
-	}
-	params := MultisigPaymentParams{
-		To:       "f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
-		Quantity: "1000",
-	}
-	request := &MultisigPaymentRequest{
-		Multisig: "t01002",
-		From:     "f1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
-		Metadata: mtx,
-		Params:   params,
-	}
-
-	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName)
-	tx, err := r.ConstructMultisigPayment(request, msigActorCidV7)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-
-	assert.Equal(t, expected, tx)
-}
-
 func TestConstructMultisigPaymentV8(t *testing.T) {
 	expected := EXPECTED_MULTISIG_PAYMENT
 	r := NewRosettaConstructionFilecoin(NETWORK)
@@ -264,8 +234,8 @@ func TestConstructMultisigPaymentV8(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
-	tx, err := r.ConstructMultisigPayment(request, msigActorCidV8)
+	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName)
+	tx, err := r.ConstructMultisigPayment(request, msigActorCidV7)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -273,8 +243,8 @@ func TestConstructMultisigPaymentV8(t *testing.T) {
 	assert.Equal(t, expected, tx)
 }
 
-func TestConstructSwapAuthorizedPartyV7(t *testing.T) {
-	expected := EXPECTED_SWAP_AUTHORIZED
+func TestConstructMultisigPaymentV9(t *testing.T) {
+	expected := EXPECTED_MULTISIG_PAYMENT
 	r := NewRosettaConstructionFilecoin(NETWORK)
 
 	mtx := TxMetadata{
@@ -283,19 +253,19 @@ func TestConstructSwapAuthorizedPartyV7(t *testing.T) {
 		GasPremium: "1",
 		GasLimit:   25000,
 	}
-	params := SwapAuthorizedPartyParams{
-		From: "f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy",
-		To:   "f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q",
+	params := MultisigPaymentParams{
+		To:       "f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
+		Quantity: "1000",
 	}
-	request := &SwapAuthorizedPartyRequest{
-		Multisig: "f01002",
-		From:     "f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy",
+	request := &MultisigPaymentRequest{
+		Multisig: "t01002",
+		From:     "f1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
 		Metadata: mtx,
 		Params:   params,
 	}
 
-	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName)
-	tx, err := r.ConstructSwapAuthorizedParty(request, msigActorCidV7)
+	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
+	tx, err := r.ConstructMultisigPayment(request, msigActorCidV8)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -324,8 +294,8 @@ func TestConstructSwapAuthorizedPartyV8(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
-	tx, err := r.ConstructSwapAuthorizedParty(request, msigActorCidV8)
+	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName)
+	tx, err := r.ConstructSwapAuthorizedParty(request, msigActorCidV7)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -333,8 +303,8 @@ func TestConstructSwapAuthorizedPartyV8(t *testing.T) {
 	assert.Equal(t, expected, tx)
 }
 
-func TestConstructRemoveAuthorizedPartyV7(t *testing.T) {
-	expected := EXPECTED
+func TestConstructSwapAuthorizedPartyV9(t *testing.T) {
+	expected := EXPECTED_SWAP_AUTHORIZED
 	r := NewRosettaConstructionFilecoin(NETWORK)
 
 	mtx := TxMetadata{
@@ -343,19 +313,19 @@ func TestConstructRemoveAuthorizedPartyV7(t *testing.T) {
 		GasPremium: "1",
 		GasLimit:   25000,
 	}
-	params := RemoveAuthorizedPartyParams{
-		ToRemove: "f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q",
-		Decrease: false,
+	params := SwapAuthorizedPartyParams{
+		From: "f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy",
+		To:   "f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q",
 	}
-	request := &RemoveAuthorizedPartyRequest{
+	request := &SwapAuthorizedPartyRequest{
 		Multisig: "f01002",
 		From:     "f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy",
 		Metadata: mtx,
 		Params:   params,
 	}
 
-	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName)
-	tx, err := r.ConstructRemoveAuthorizedParty(request, msigActorCidV7)
+	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
+	tx, err := r.ConstructSwapAuthorizedParty(request, msigActorCidV8)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -384,7 +354,37 @@ func TestConstructRemoveAuthorizedPartyV8(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
+	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName)
+	tx, err := r.ConstructRemoveAuthorizedParty(request, msigActorCidV7)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	assert.Equal(t, expected, tx)
+}
+
+func TestConstructRemoveAuthorizedPartyV9(t *testing.T) {
+	expected := EXPECTED
+	r := NewRosettaConstructionFilecoin(NETWORK)
+
+	mtx := TxMetadata{
+		Nonce:      1,
+		GasFeeCap:  "1",
+		GasPremium: "1",
+		GasLimit:   25000,
+	}
+	params := RemoveAuthorizedPartyParams{
+		ToRemove: "f14q6mgxil4ism6a6vp2ee375wfjyionl46wtle5q",
+		Decrease: false,
+	}
+	request := &RemoveAuthorizedPartyRequest{
+		Multisig: "f01002",
+		From:     "f137sjdbgunloi7couiy4l5nc7pd6k2jmq32vizpy",
+		Metadata: mtx,
+		Params:   params,
+	}
+
+	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
 	tx, err := r.ConstructRemoveAuthorizedParty(request, msigActorCidV8)
 	if err != nil {
 		t.Errorf(err.Error())
@@ -498,8 +498,8 @@ func TestParseParamsMultisigPaymentTx(t *testing.T) {
 		},
 	}
 
-	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName)
-	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
+	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName)
+	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
 
 	txV7, err := r.ConstructMultisigPayment(request, msigActorCidV7)
 	if err != nil {
@@ -549,8 +549,8 @@ func TestParseParamsMultisigSwapAuthTx(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName)
-	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
+	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName)
+	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
 
 	txV7, err := r.ConstructSwapAuthorizedParty(request, msigActorCidV7)
 	if err != nil {
@@ -600,8 +600,8 @@ func TestParseParamsMultisigRemoveSignerTx(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV7, actors.ActorMultisigName)
-	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.ActorsV8, actors.ActorMultisigName)
+	msigActorCidV7 := r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName)
+	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
 
 	txV7, err := r.ConstructRemoveAuthorizedParty(request, msigActorCidV7)
 	if err != nil {

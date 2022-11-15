@@ -5,6 +5,7 @@ import (
 	"github.com/filecoin-project/lotus/chain/actors/builtin"
 	"github.com/ipfs/go-cid"
 	actorsCID "github.com/zondax/filecoin-actors-cids/utils"
+	"go.uber.org/zap"
 )
 
 type BuiltinActors struct {
@@ -12,26 +13,35 @@ type BuiltinActors struct {
 }
 
 func (a *BuiltinActors) GetMetadata(network string) error {
-	ok, metaLatest := actorsCID.GetMetadataForNetwork(actorsCID.ActorsV8, network)
+	ok, metaLatest := actorsCID.GetMetadataForNetwork(actorsCID.LatestVersion, network)
 	if !ok {
-		return fmt.Errorf("network and/or version are invalid")
+		zap.S().Warnf("there's no actors metadata for network '%s' with version '%d'", network, actorsCID.LatestVersion)
 	}
 
-	ok, metaPrev := actorsCID.GetMetadataForNetwork(actorsCID.ActorsV7, network)
+	ok, metaPrev := actorsCID.GetMetadataForNetwork(actorsCID.PreviousVersion, network)
 	if !ok {
-		return fmt.Errorf("network and/or version are invalid")
+		zap.S().Warnf("there's no actors metadata for network '%s' with version '%d'", network, actorsCID.LatestVersion)
+	}
+
+	if len(metaLatest.ActorsNameCidMap) == 0 && len(metaPrev.ActorsNameCidMap) == 0 {
+		return fmt.Errorf("could not get any metadata for network '%s'", network)
 	}
 
 	a.metadata = make(actorsCID.ActorsMetadataMap)
-	a.metadata[actorsCID.ActorsV8] = metaLatest
-	a.metadata[actorsCID.ActorsV7] = metaPrev
+	a.metadata[actorsCID.LatestVersion] = metaLatest
+	a.metadata[actorsCID.PreviousVersion] = metaPrev
 
 	return nil
 }
 
 func (a *BuiltinActors) IsActor(actorCode cid.Cid, actorName string) bool {
 	// Try the latest actors' version first
-	if a.metadata.GetActorCid(actorsCID.ActorsV8, actorName) == actorCode {
+	if a.metadata.GetActorCid(actorsCID.LatestVersion, actorName) == actorCode {
+		return true
+	}
+
+	// Try the previous actors' version
+	if a.metadata.GetActorCid(actorsCID.PreviousVersion, actorName) == actorCode {
 		return true
 	}
 
@@ -45,7 +55,12 @@ func (a *BuiltinActors) IsActor(actorCode cid.Cid, actorName string) bool {
 
 func (a *BuiltinActors) GetActorNameFromCid(actorCode cid.Cid) (string, error) {
 	// Try the latest actors' version first
-	if ok, name := a.metadata.GetActorName(actorsCID.ActorsV8, actorCode); ok {
+	if ok, name := a.metadata.GetActorName(actorsCID.LatestVersion, actorCode); ok {
+		return name, nil
+	}
+
+	// Try the previous actors' version
+	if ok, name := a.metadata.GetActorName(actorsCID.PreviousVersion, actorCode); ok {
 		return name, nil
 	}
 

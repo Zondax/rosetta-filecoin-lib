@@ -6,9 +6,9 @@ import (
 	"fmt"
 	filAddr "github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
+	"github.com/filecoin-project/go-state-types/builtin"
+	"github.com/filecoin-project/go-state-types/builtin/v8/multisig"
 	"github.com/filecoin-project/lotus/chain/types"
-	"github.com/filecoin-project/specs-actors/v8/actors/builtin"
-	"github.com/filecoin-project/specs-actors/v8/actors/builtin/multisig"
 	"github.com/ipfs/go-cid"
 	"github.com/zondax/rosetta-filecoin-lib/actors"
 )
