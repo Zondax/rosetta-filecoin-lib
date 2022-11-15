@@ -520,6 +520,8 @@ func (r RosettaConstructionFilecoin) ParseParamsMultisigTx(unsignedMultisigTx st
 	// Try the latest version first
 	if destinationActorId == r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName) {
 		return r.parseParamsMultisigTxV9(unsignedMultisigTx)
+	} else if destinationActorId == r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName) {
+		return r.parseParamsMultisigTxV8(unsignedMultisigTx)
 	}
 
 	// Try legacy actors
