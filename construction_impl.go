@@ -17,10 +17,13 @@ package rosettaFilecoinLib
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/filecoin-project/lotus/api"
 	builtinV8 "github.com/filecoin-project/specs-actors/v8/actors/builtin"
 	"github.com/zondax/rosetta-filecoin-lib/actors"
+	"go.uber.org/zap"
 	"sync"
 
 	filAddr "github.com/filecoin-project/go-address"
@@ -40,15 +43,38 @@ type RosettaConstructionFilecoin struct {
 	BuiltinActors actors.BuiltinActors
 }
 
-func NewRosettaConstructionFilecoin(network string) *RosettaConstructionFilecoin {
-	var builtinActors actors.BuiltinActors
-	err := builtinActors.GetMetadata(network)
+func NewRosettaConstructionFilecoin(lotusApi *api.FullNode) *RosettaConstructionFilecoin {
+	networkVersion, err := (*lotusApi).StateNetworkVersion(context.Background(), types.EmptyTSK)
 	if err != nil {
+		zap.S().Errorf("could not get lotus network version!: %s", err.Error())
 		return nil
 	}
 
+	networkName, err := (*lotusApi).StateNetworkName(context.Background())
+	if err != nil {
+		zap.S().Errorf("could not get lotus network name!: %s", err.Error())
+		return nil
+	}
+
+	actorCids, err := (*lotusApi).StateActorCodeCIDs(context.Background(), networkVersion)
+	if err != nil {
+		zap.S().Errorf("could not get actors cids!: %s", err.Error())
+		return nil
+	}
+
+	builtinActors := actors.BuiltinActors{}
+	builtinActors.Metadata = make(actorsCID.ActorsMetadataMap)
+
+	metadata := actorsCID.ActorsMetadata{
+		Network:          string(networkName),
+		ActorsNameCidMap: actorCids,
+	}
+
+	builtinActors.Metadata[actorsCID.LatestVersion] = metadata
+	builtinActors.Metadata[actorsCID.PreviousVersion] = metadata
+
 	return &RosettaConstructionFilecoin{
-		networkName:   network,
+		networkName:   string(networkName),
 		BuiltinActors: builtinActors,
 	}
 }

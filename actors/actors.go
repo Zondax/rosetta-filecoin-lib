@@ -9,7 +9,7 @@ import (
 )
 
 type BuiltinActors struct {
-	metadata actorsCID.ActorsMetadataMap
+	Metadata actorsCID.ActorsMetadataMap
 }
 
 func (a *BuiltinActors) GetMetadata(network string) error {
@@ -27,21 +27,21 @@ func (a *BuiltinActors) GetMetadata(network string) error {
 		return fmt.Errorf("could not get any metadata for network '%s'", network)
 	}
 
-	a.metadata = make(actorsCID.ActorsMetadataMap)
-	a.metadata[actorsCID.LatestVersion] = metaLatest
-	a.metadata[actorsCID.PreviousVersion] = metaPrev
+	a.Metadata = make(actorsCID.ActorsMetadataMap)
+	a.Metadata[actorsCID.LatestVersion] = metaLatest
+	a.Metadata[actorsCID.PreviousVersion] = metaPrev
 
 	return nil
 }
 
 func (a *BuiltinActors) IsActor(actorCode cid.Cid, actorName string) bool {
 	// Try the latest actors' version first
-	if a.metadata.GetActorCid(actorsCID.LatestVersion, actorName) == actorCode {
+	if a.Metadata.GetActorCid(actorsCID.LatestVersion, actorName) == actorCode {
 		return true
 	}
 
 	// Try the previous actors' version
-	if a.metadata.GetActorCid(actorsCID.PreviousVersion, actorName) == actorCode {
+	if a.Metadata.GetActorCid(actorsCID.PreviousVersion, actorName) == actorCode {
 		return true
 	}
 
@@ -55,12 +55,12 @@ func (a *BuiltinActors) IsActor(actorCode cid.Cid, actorName string) bool {
 
 func (a *BuiltinActors) GetActorNameFromCid(actorCode cid.Cid) (string, error) {
 	// Try the latest actors' version first
-	if ok, name := a.metadata.GetActorName(actorsCID.LatestVersion, actorCode); ok {
+	if ok, name := a.Metadata.GetActorName(actorsCID.LatestVersion, actorCode); ok {
 		return name, nil
 	}
 
 	// Try the previous actors' version
-	if ok, name := a.metadata.GetActorName(actorsCID.PreviousVersion, actorCode); ok {
+	if ok, name := a.Metadata.GetActorName(actorsCID.PreviousVersion, actorCode); ok {
 		return name, nil
 	}
 
@@ -74,5 +74,5 @@ func (a *BuiltinActors) GetActorNameFromCid(actorCode cid.Cid) (string, error) {
 }
 
 func (a *BuiltinActors) GetActorCid(version uint, name string) cid.Cid {
-	return a.metadata.GetActorCid(version, name)
+	return a.Metadata.GetActorCid(version, name)
 }
