@@ -43,20 +43,20 @@ type RosettaConstructionFilecoin struct {
 	BuiltinActors actors.BuiltinActors
 }
 
-func NewRosettaConstructionFilecoin(lotusApi *api.FullNode) *RosettaConstructionFilecoin {
-	networkVersion, err := (*lotusApi).StateNetworkVersion(context.Background(), types.EmptyTSK)
+func NewRosettaConstructionFilecoin(lotusApi api.FullNode) *RosettaConstructionFilecoin {
+	networkVersion, err := lotusApi.StateNetworkVersion(context.Background(), types.EmptyTSK)
 	if err != nil {
 		zap.S().Errorf("could not get lotus network version!: %s", err.Error())
 		return nil
 	}
 
-	networkName, err := (*lotusApi).StateNetworkName(context.Background())
+	networkName, err := lotusApi.StateNetworkName(context.Background())
 	if err != nil {
 		zap.S().Errorf("could not get lotus network name!: %s", err.Error())
 		return nil
 	}
 
-	actorCids, err := (*lotusApi).StateActorCodeCIDs(context.Background(), networkVersion)
+	actorCids, err := lotusApi.StateActorCodeCIDs(context.Background(), networkVersion)
 	if err != nil {
 		zap.S().Errorf("could not get actors cids!: %s", err.Error())
 		return nil
