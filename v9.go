@@ -13,7 +13,7 @@ import (
 	"github.com/zondax/rosetta-filecoin-lib/actors"
 )
 
-func (r RosettaConstructionFilecoin) parseParamsMultisigTxV9(unsignedMultisigTx string) (string, error) {
+func (r *RosettaConstructionFilecoin) parseParamsMultisigTxV9(unsignedMultisigTx string) (string, error) {
 	rawIn := json.RawMessage(unsignedMultisigTx)
 
 	txBytes, err := rawIn.MarshalJSON()
@@ -143,7 +143,7 @@ func (r RosettaConstructionFilecoin) parseParamsMultisigTxV9(unsignedMultisigTx 
 	}
 }
 
-func (r RosettaConstructionFilecoin) ConstructMultisigPaymentV9(request *MultisigPaymentRequest, destinationActorId cid.Cid) (string, error) {
+func (r *RosettaConstructionFilecoin) ConstructMultisigPaymentV9(request *MultisigPaymentRequest, destinationActorId cid.Cid) (string, error) {
 	if !r.BuiltinActors.IsActor(destinationActorId, actors.ActorMultisigName) {
 		return "", fmt.Errorf("this actor id is not supported")
 	}
@@ -219,7 +219,7 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPaymentV9(request *Multisi
 	return string(tx), nil
 }
 
-func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedPartyV9(request *SwapAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
+func (r *RosettaConstructionFilecoin) ConstructSwapAuthorizedPartyV9(request *SwapAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
 	if !r.BuiltinActors.IsActor(destinationActorId, actors.ActorMultisigName) {
 		return "", fmt.Errorf("this actor id is not supported")
 	}
@@ -302,7 +302,7 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedPartyV9(request *Swa
 	return string(tx), nil
 }
 
-func (r RosettaConstructionFilecoin) ConstructRemoveAuthorizedPartyV9(request *RemoveAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
+func (r *RosettaConstructionFilecoin) ConstructRemoveAuthorizedPartyV9(request *RemoveAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
 	if !r.BuiltinActors.IsActor(destinationActorId, actors.ActorMultisigName) {
 		return "", fmt.Errorf("this actor id is not supported")
 	}

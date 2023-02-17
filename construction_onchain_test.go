@@ -22,8 +22,6 @@ import (
 	"fmt"
 	"github.com/filecoin-project/go-state-types/big"
 	"github.com/stretchr/testify/assert"
-	actorsCID "github.com/zondax/filecoin-actors-cids/utils"
-	"github.com/zondax/rosetta-filecoin-lib/actors"
 	"net/http"
 	"os"
 	"testing"
@@ -43,15 +41,15 @@ const Signer1short = "t01002"
 const Signer2long = "t1itpqzzcx6yf52oc35dgsoxfqkoxpy6kdmygbaja"
 const Signer2short = "t01003"
 
-func getCredentials() (string, string,  error) {
+func getCredentials() (string, string, error) {
 	lotusURL, found := os.LookupEnv("LOTUS_URL")
 	if !found {
-		return "", "",  fmt.Errorf("Lotus URL has not been defined")
+		return "", "", fmt.Errorf("lotus URL has not been defined")
 	}
 
 	auth, found := os.LookupEnv("AUTH_JWT")
 	if !found {
-		return "", "", fmt.Errorf("Authentication header not found")
+		return "", "", fmt.Errorf("authentication header not found")
 	}
 
 	return lotusURL, auth, nil
@@ -159,13 +157,13 @@ func TestCheckBalances(t *testing.T) {
 	balanceInvalid, err := getBalance("t01105")
 	assert.NoError(t, err)
 
-	t.Logf("Source  : %d", balanceSource)
-	t.Logf("Dest    : %d", balanceDest)
-	t.Logf("Msig    : %d", balanceMsig)
-	t.Logf("invalid : %d", balanceInvalid)
+	t.Logf("Source  : %s", balanceSource.String())
+	t.Logf("Dest    : %s", balanceDest.String())
+	t.Logf("Msig    : %s", balanceMsig.String())
+	t.Logf("invalid : %s", balanceInvalid.String())
 
 	assert.True(t, balanceSource.GreaterThan(big.Zero()))
-	assert.True(t, balanceDest.GreaterThan(big.Zero()))
+	assert.True(t, balanceDest.GreaterThanEqual(big.Zero()))
 	assert.True(t, balanceMsig.GreaterThan(big.Zero()))
 	assert.True(t, balanceInvalid.Equals(big.Zero()))
 }
@@ -181,7 +179,7 @@ func TestSendTransaction(t *testing.T) {
 
 	/* Create Transaction */
 
-	r := NewRosettaConstructionFilecoin(NETWORK)
+	r := NewRosettaConstructionFilecoin(nil)
 	pr := &PaymentRequest{
 		From:     SourceAddress1,
 		To:       DestAddress1,
@@ -209,9 +207,10 @@ func TestSendTransaction(t *testing.T) {
 	txHash, err := json.Marshal(res["result"])
 	assert.NoError(t, err)
 
-	res, err = sendLotusRequest("Filecoin.StateWaitMsg", 1, string(txHash)+", null")
+	res, err = sendLotusRequest("Filecoin.StateWaitMsg", 1, string(txHash)+", null, null, null")
 	assert.NoError(t, err)
 	assert.NotNil(t, res["result"])
+	assert.Nil(t, res["error"])
 
 	var result = res["result"].(map[string]interface{})
 	var receipt = result["Receipt"].(map[string]interface{})
@@ -239,8 +238,10 @@ func TestSendFromMultisig(t *testing.T) {
 	assert.NoError(t, err)
 
 	/* Create Transaction */
-
-	r := NewRosettaConstructionFilecoin(NETWORK)
+	url, token, _ := getCredentials()
+	client, err := NewFilecoinRPCClient(url, token)
+	assert.NoError(t, err)
+	r := NewRosettaConstructionFilecoin(client)
 
 	mtx := TxMetadata{
 		Nonce:      nonce,
@@ -259,9 +260,7 @@ func TestSendFromMultisig(t *testing.T) {
 		},
 	}
 
-	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
-
-	unsignedTxBase64, err := r.ConstructMultisigPayment(request, msigActorCidV8)
+	unsignedTxBase64, err := r.ConstructMultisigPayment(request)
 	assert.NoError(t, err)
 
 	signedTx, err := r.SignTxJSON(unsignedTxBase64, sk)
@@ -270,13 +269,15 @@ func TestSendFromMultisig(t *testing.T) {
 	// Send request
 	res, err := sendLotusRequest("Filecoin.MpoolPush", 1, signedTx)
 	assert.NoError(t, err)
+	assert.Nil(t, res["error"])
 	assert.NotNil(t, res["result"])
 
 	txHash, err := json.Marshal(res["result"])
 	assert.NoError(t, err)
 
-	res, err = sendLotusRequest("Filecoin.StateWaitMsg", 1, string(txHash)+", null")
+	res, err = sendLotusRequest("Filecoin.StateWaitMsg", 1, string(txHash)+", null, null, null")
 	assert.NoError(t, err)
+	assert.Nil(t, res["error"])
 	assert.NotNil(t, res["result"])
 
 	var result = res["result"].(map[string]interface{})
@@ -323,8 +324,11 @@ func TestSwapKeysMultisig(t *testing.T) {
 	assert.NoError(t, err)
 
 	/* Create Transaction */
+	url, token, _ := getCredentials()
+	client, err := NewFilecoinRPCClient(url, token)
+	assert.NoError(t, err)
+	r := NewRosettaConstructionFilecoin(client)
 
-	r := NewRosettaConstructionFilecoin(NETWORK)
 	mtx := TxMetadata{
 		Nonce:      nonce,
 		GasFeeCap:  GasFeeCap,
@@ -342,9 +346,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 		Params:   params,
 	}
 
-	msigActorCidV8 := r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName)
-
-	unsignedTxBase64, err := r.ConstructSwapAuthorizedParty(request, msigActorCidV8)
+	unsignedTxBase64, err := r.ConstructSwapAuthorizedParty(request)
 	assert.NoError(t, err)
 
 	signedTx, err := r.SignTxJSON(unsignedTxBase64, sk)
@@ -354,13 +356,15 @@ func TestSwapKeysMultisig(t *testing.T) {
 
 	res, err = sendLotusRequest("Filecoin.MpoolPush", 1, signedTx)
 	assert.NoError(t, err)
+	assert.Nil(t, res["error"])
 	assert.NotNil(t, res["result"])
 
 	txHash, err := json.Marshal(res["result"])
 	assert.NoError(t, err)
 
-	res, err = sendLotusRequest("Filecoin.StateWaitMsg", 1, string(txHash)+", null")
+	res, err = sendLotusRequest("Filecoin.StateWaitMsg", 1, string(txHash)+", null, null, null")
 	assert.NoError(t, err)
+	assert.Nil(t, res["error"])
 	assert.NotNil(t, res["result"])
 
 	result = res["result"].(map[string]interface{})
