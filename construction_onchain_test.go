@@ -42,6 +42,8 @@ const Signer1short = "t01002"
 const Signer2long = "t1itpqzzcx6yf52oc35dgsoxfqkoxpy6kdmygbaja"
 const Signer2short = "t01003"
 
+const StateWaitMsg = "Filecoin.StateWaitMsg"
+
 func getCredentials() (string, string, error) {
 	lotusURL, found := os.LookupEnv("LOTUS_URL")
 	if !found {
@@ -208,7 +210,7 @@ func TestSendTransaction(t *testing.T) {
 	txHash, err := json.Marshal(res["result"])
 	assert.NoError(t, err)
 
-	res, err = sendLotusRequest("Filecoin.StateWaitMsg", 1, string(txHash)+", null, null, null")
+	res, err = sendLotusRequest(StateWaitMsg, 1, string(txHash)+", null, null, null")
 	assert.NoError(t, err)
 	assert.NotNil(t, res["result"])
 	assert.Nil(t, res["error"])
@@ -276,7 +278,7 @@ func TestSendFromMultisig(t *testing.T) {
 	txHash, err := json.Marshal(res["result"])
 	assert.NoError(t, err)
 
-	res, err = sendLotusRequest("Filecoin.StateWaitMsg", 1, string(txHash)+", null, null, null")
+	res, err = sendLotusRequest(StateWaitMsg, 1, string(txHash)+", null, null, null")
 	assert.NoError(t, err)
 	assert.Nil(t, res["error"])
 	assert.NotNil(t, res["result"])
@@ -363,7 +365,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 	txHash, err := json.Marshal(res["result"])
 	assert.NoError(t, err)
 
-	res, err = sendLotusRequest("Filecoin.StateWaitMsg", 1, string(txHash)+", null, null, null")
+	res, err = sendLotusRequest(StateWaitMsg, 1, string(txHash)+", null, null, null")
 	assert.NoError(t, err)
 	assert.Nil(t, res["error"])
 	assert.NotNil(t, res["result"])

@@ -13,6 +13,8 @@ import (
 	"github.com/zondax/rosetta-filecoin-lib/actors"
 )
 
+const NotSupportedActorMessage = "this actor id is not supported"
+
 func (r *RosettaConstructionFilecoin) parseParamsMultisigTxV10(unsignedMultisigTx string) (string, error) {
 	rawIn := json.RawMessage(unsignedMultisigTx)
 
@@ -145,7 +147,7 @@ func (r *RosettaConstructionFilecoin) parseParamsMultisigTxV10(unsignedMultisigT
 
 func (r *RosettaConstructionFilecoin) ConstructMultisigPaymentV10(request *MultisigPaymentRequest, destinationActorId cid.Cid) (string, error) {
 	if !r.BuiltinActors.IsActor(destinationActorId, actors.ActorMultisigName) {
-		return "", fmt.Errorf("this actor id is not supported")
+		return "", fmt.Errorf(NotSupportedActorMessage)
 	}
 
 	to, err := filAddr.NewFromString(request.Multisig)
@@ -221,7 +223,7 @@ func (r *RosettaConstructionFilecoin) ConstructMultisigPaymentV10(request *Multi
 
 func (r *RosettaConstructionFilecoin) ConstructSwapAuthorizedPartyV10(request *SwapAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
 	if !r.BuiltinActors.IsActor(destinationActorId, actors.ActorMultisigName) {
-		return "", fmt.Errorf("this actor id is not supported")
+		return "", fmt.Errorf(NotSupportedActorMessage)
 	}
 
 	to, err := filAddr.NewFromString(request.Multisig)
@@ -304,7 +306,7 @@ func (r *RosettaConstructionFilecoin) ConstructSwapAuthorizedPartyV10(request *S
 
 func (r *RosettaConstructionFilecoin) ConstructRemoveAuthorizedPartyV10(request *RemoveAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
 	if !r.BuiltinActors.IsActor(destinationActorId, actors.ActorMultisigName) {
-		return "", fmt.Errorf("this actor id is not supported")
+		return "", fmt.Errorf(NotSupportedActorMessage)
 	}
 
 	to, err := filAddr.NewFromString(request.Multisig)
