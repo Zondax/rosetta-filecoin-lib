@@ -566,12 +566,12 @@ func TestHash(t *testing.T) {
 	testActorCidMap[manifest.MultisigKey] = cid.Cid{}
 	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMap = testActorCidMap
 
-	cid, err := rosettaLib.Hash(signedTx)
+	responseCID, err := rosettaLib.Hash(signedTx)
 
 	if err != nil {
 		t.Errorf("Something went Wrong")
 	}
 
-	t.Log(cid)
-	assert.Equal(t, cid, "bafy2bzacebaiinljwwctblf7czp4zxwhz4747z6tpricgn5cumd4xhebftcvu")
+	t.Log(responseCID)
+	assert.Equal(t, responseCID, "bafy2bzacebaiinljwwctblf7czp4zxwhz4747z6tpricgn5cumd4xhebftcvu")
 }

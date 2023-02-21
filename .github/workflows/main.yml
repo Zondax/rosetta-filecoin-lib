@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -17,11 +17,11 @@ jobs:
       - name: Test
         run: make test
         env:
-          LOTUS_URL: ${{ secrets.LOTUS_URL }}
-          AUTH_JWT: ${{ secrets.AUTH_JWT }}
+          LOTUS_URL: ${{ secrets.LOTUS_URL_DEVNET }}
+          AUTH_JWT: ${{ secrets.LOTUS_JWT_DEVNET }}
 
   checks:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
