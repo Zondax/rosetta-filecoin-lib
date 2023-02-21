@@ -1,7 +1,7 @@
 package actors
 
 import (
-	"github.com/filecoin-project/lotus/chain/actors"
+	"github.com/filecoin-project/go-state-types/manifest"
 	builtin0 "github.com/filecoin-project/specs-actors/actors/builtin"
 	builtin2 "github.com/filecoin-project/specs-actors/v2/actors/builtin"
 	builtin3 "github.com/filecoin-project/specs-actors/v3/actors/builtin"
@@ -16,27 +16,27 @@ import (
 
 func IsLegacyActor(actorCode cid.Cid, actorName string) bool {
 	switch actorName {
-	case actors.InitKey:
+	case manifest.InitKey:
 		return IsLegacyInitActor(actorCode)
-	case actors.SystemKey:
+	case manifest.SystemKey:
 		return IsLegacySystemActor(actorCode)
-	case actors.CronKey:
+	case manifest.CronKey:
 		return IsLegacyCronActor(actorCode)
-	case actors.PowerKey:
+	case manifest.PowerKey:
 		return IsLegacyStoragePowerActor(actorCode)
-	case actors.MinerKey:
+	case manifest.MinerKey:
 		return IsLegacyStorageMinerActor(actorCode)
-	case actors.MarketKey:
+	case manifest.MarketKey:
 		return IsLegacyStorageMarketActor(actorCode)
-	case actors.PaychKey:
+	case manifest.PaychKey:
 		return IsLegacyPaymentChannelActor(actorCode)
-	case actors.RewardKey:
+	case manifest.RewardKey:
 		return IsLegacyRewardActor(actorCode)
-	case actors.VerifregKey:
+	case manifest.VerifregKey:
 		return IsLegacyVerifiedRegistryActor(actorCode)
-	case actors.AccountKey:
+	case manifest.AccountKey:
 		return IsLegacyAccountActor(actorCode)
-	case actors.MultisigKey:
+	case manifest.MultisigKey:
 		return IsLegacyMultisigActor(actorCode)
 	default:
 		zap.S().Errorf("could not find a legacy actor '%s' with cid '%s'", actorName, actorCode.String())

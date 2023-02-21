@@ -17,39 +17,91 @@ package rosettaFilecoinLib
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
-	builtinV8 "github.com/filecoin-project/specs-actors/v8/actors/builtin"
+	"github.com/filecoin-project/go-state-types/builtin"
+	"github.com/filecoin-project/lotus/api"
+	"github.com/filecoin-project/lotus/api/client"
 	"github.com/zondax/rosetta-filecoin-lib/actors"
+	"go.uber.org/zap"
+	"net/http"
 	"sync"
 
 	filAddr "github.com/filecoin-project/go-address"
 	gocrypto "github.com/filecoin-project/go-crypto"
 	"github.com/filecoin-project/go-state-types/abi"
+	multisigV10 "github.com/filecoin-project/go-state-types/builtin/v10/multisig"
 	"github.com/filecoin-project/go-state-types/crypto"
 	"github.com/filecoin-project/lotus/chain/types"
-	multisigV8 "github.com/filecoin-project/specs-actors/v8/actors/builtin/multisig"
 	"github.com/ipfs/go-cid"
 	"github.com/minio/blake2b-simd"
 	cbg "github.com/whyrusleeping/cbor-gen"
-	actorsCID "github.com/zondax/filecoin-actors-cids/utils"
 )
 
 type RosettaConstructionFilecoin struct {
 	networkName   string
+	online        bool
 	BuiltinActors actors.BuiltinActors
 }
 
-func NewRosettaConstructionFilecoin(network string) *RosettaConstructionFilecoin {
-	var builtinActors actors.BuiltinActors
-	err := builtinActors.GetMetadata(network)
+type LotusRpcV1 api.FullNode
+
+// NewFilecoinRPCClient creates a new lotus rpc client
+func NewFilecoinRPCClient(url string, token string) (LotusRpcV1, error) {
+	ctx := context.Background()
+
+	headers := http.Header{}
+	if len(token) > 0 {
+		headers.Add("Authorization", "Bearer "+token)
+	}
+
+	lotusAPI, _, err := client.NewFullNodeRPCV1(ctx, url, headers)
 	if err != nil {
+		return nil, err
+	}
+
+	return lotusAPI, nil
+}
+
+func NewRosettaConstructionFilecoin(lotusApi api.FullNode) *RosettaConstructionFilecoin {
+	if lotusApi == nil {
+		zap.S().Warn("library running in offline mode")
+		return &RosettaConstructionFilecoin{
+			online: false,
+		}
+	}
+
+	networkVersion, err := lotusApi.StateNetworkVersion(context.Background(), types.EmptyTSK)
+	if err != nil {
+		zap.S().Errorf("could not get lotus network version!: %s", err.Error())
 		return nil
 	}
 
+	networkName, err := lotusApi.StateNetworkName(context.Background())
+	if err != nil {
+		zap.S().Errorf("could not get lotus network name!: %s", err.Error())
+		return nil
+	}
+
+	actorCids, err := lotusApi.StateActorCodeCIDs(context.Background(), networkVersion)
+	if err != nil {
+		zap.S().Errorf("could not get actors cids!: %s", err.Error())
+		return nil
+	}
+
+	zap.S().Infof("Got actors CIDs for network: '%s' version: '%d'", networkName, networkVersion)
+
+	metadata := actors.BuiltinActorsMetadata{
+		Network:          string(networkName),
+		Version:          networkVersion,
+		ActorsNameCidMap: actorCids,
+	}
+
 	return &RosettaConstructionFilecoin{
-		networkName:   network,
-		BuiltinActors: builtinActors,
+		networkName:   string(networkName),
+		BuiltinActors: actors.BuiltinActors{Metadata: metadata},
+		online:        true,
 	}
 }
 
@@ -104,7 +156,7 @@ func verifySecp256k1(sig []byte, a filAddr.Address, msg []byte) error {
 	return fmt.Errorf("invalid signature")
 }
 
-func (r RosettaConstructionFilecoin) DeriveFromPublicKey(publicKey []byte, network filAddr.Network) (string, error) {
+func (r *RosettaConstructionFilecoin) DeriveFromPublicKey(publicKey []byte, network filAddr.Network) (string, error) {
 	addr, err := filAddr.NewSecp256k1Address(publicKey)
 	if err != nil {
 		return "", err
@@ -113,11 +165,11 @@ func (r RosettaConstructionFilecoin) DeriveFromPublicKey(publicKey []byte, netwo
 	return formatAddress(network, addr), nil
 }
 
-func (r RosettaConstructionFilecoin) SignRaw(message []byte, sk []byte) ([]byte, error) {
+func (r *RosettaConstructionFilecoin) SignRaw(message []byte, sk []byte) ([]byte, error) {
 	return signSecp256k1(message, sk)
 }
 
-func (r RosettaConstructionFilecoin) VerifyRaw(message []byte, publicKey []byte, signature []byte) error {
+func (r *RosettaConstructionFilecoin) VerifyRaw(message []byte, publicKey []byte, signature []byte) error {
 	addr, err := filAddr.NewSecp256k1Address(publicKey)
 	if err != nil {
 		return err
@@ -126,7 +178,7 @@ func (r RosettaConstructionFilecoin) VerifyRaw(message []byte, publicKey []byte,
 	return verifySecp256k1(signature, addr, message)
 }
 
-func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (string, error) {
+func (r *RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (string, error) {
 	to, err := filAddr.NewFromString(request.To)
 	if err != nil {
 		return "", err
@@ -154,7 +206,7 @@ func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (
 
 	gaslimit := request.Metadata.GasLimit
 
-	methodNum := builtinV8.MethodSend
+	methodNum := builtin.MethodSend
 
 	msg := &types.Message{Version: types.MessageVersion,
 		To:         to,
@@ -176,46 +228,34 @@ func (r RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) (
 	return string(tx), nil
 }
 
-func (r RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigPaymentRequest, destinationActorId cid.Cid) (string, error) {
-	switch destinationActorId {
-	case r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName):
-		return r.ConstructMultisigPaymentV9(request, destinationActorId)
-
-	case r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName):
-		return r.ConstructMultisigPaymentV8(request, destinationActorId)
-
-	default:
-		return "", fmt.Errorf("this actor id is not supported")
+func (r *RosettaConstructionFilecoin) ConstructMultisigPayment(request *MultisigPaymentRequest) (string, error) {
+	actorCid, err := r.BuiltinActors.GetActorCid(actors.ActorMultisigName)
+	if err != nil {
+		return "", err
 	}
+
+	return r.ConstructMultisigPaymentV10(request, actorCid)
 }
 
-func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
-	switch destinationActorId {
-	case r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName):
-		return r.ConstructSwapAuthorizedPartyV9(request, destinationActorId)
-
-	case r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName):
-		return r.ConstructSwapAuthorizedPartyV8(request, destinationActorId)
-
-	default:
-		return "", fmt.Errorf("this actor id is not supported")
+func (r *RosettaConstructionFilecoin) ConstructSwapAuthorizedParty(request *SwapAuthorizedPartyRequest) (string, error) {
+	actorCid, err := r.BuiltinActors.GetActorCid(actors.ActorMultisigName)
+	if err != nil {
+		return "", err
 	}
+
+	return r.ConstructSwapAuthorizedPartyV10(request, actorCid)
 }
 
-func (r RosettaConstructionFilecoin) ConstructRemoveAuthorizedParty(request *RemoveAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
-	switch destinationActorId {
-	case r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName):
-		return r.ConstructRemoveAuthorizedPartyV9(request, destinationActorId)
-
-	case r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName):
-		return r.ConstructRemoveAuthorizedPartyV8(request, destinationActorId)
-
-	default:
-		return "", fmt.Errorf("this actor id is not supported")
+func (r *RosettaConstructionFilecoin) ConstructRemoveAuthorizedParty(request *RemoveAuthorizedPartyRequest) (string, error) {
+	actorCid, err := r.BuiltinActors.GetActorCid(actors.ActorMultisigName)
+	if err != nil {
+		return "", err
 	}
+
+	return r.ConstructRemoveAuthorizedPartyV10(request, actorCid)
 }
 
-func (r RosettaConstructionFilecoin) unsignedMessageFromCBOR(messageCbor []byte) (*types.Message, error) {
+func (r *RosettaConstructionFilecoin) unsignedMessageFromCBOR(messageCbor []byte) (*types.Message, error) {
 	br := cbg.GetPeeker(bytes.NewReader(messageCbor))
 	scratch := make([]byte, 8)
 	maj, extra, err := cbg.CborReadHeaderBuf(br, scratch)
@@ -240,7 +280,7 @@ func (r RosettaConstructionFilecoin) unsignedMessageFromCBOR(messageCbor []byte)
 	return msg, nil
 }
 
-func (r RosettaConstructionFilecoin) unsignedMessageFromJSON(unsignedTxJson string) (*types.Message, error) {
+func (r *RosettaConstructionFilecoin) unsignedMessageFromJSON(unsignedTxJson string) (*types.Message, error) {
 	rawIn := json.RawMessage(unsignedTxJson)
 
 	txBytes, err := rawIn.MarshalJSON()
@@ -257,7 +297,7 @@ func (r RosettaConstructionFilecoin) unsignedMessageFromJSON(unsignedTxJson stri
 	return &msg, nil
 }
 
-func (r RosettaConstructionFilecoin) EncodeTx(unsignedTxJson string) ([]byte, error) {
+func (r *RosettaConstructionFilecoin) EncodeTx(unsignedTxJson string) ([]byte, error) {
 	msg, err := r.unsignedMessageFromJSON(unsignedTxJson)
 	if err != nil {
 		return nil, err
@@ -271,7 +311,7 @@ func (r RosettaConstructionFilecoin) EncodeTx(unsignedTxJson string) ([]byte, er
 	return response, nil
 }
 
-func (r RosettaConstructionFilecoin) SignTx(unsignedTx []byte, privateKey []byte) ([]byte, error) {
+func (r *RosettaConstructionFilecoin) SignTx(unsignedTx []byte, privateKey []byte) ([]byte, error) {
 	msg, err := r.unsignedMessageFromCBOR(unsignedTx)
 	if err != nil {
 		return nil, err
@@ -302,7 +342,7 @@ func (r RosettaConstructionFilecoin) SignTx(unsignedTx []byte, privateKey []byte
 	return m, nil
 }
 
-func (r RosettaConstructionFilecoin) SignTxJSON(unsignedTxJson string, privateKey []byte) (string, error) {
+func (r *RosettaConstructionFilecoin) SignTxJSON(unsignedTxJson string, privateKey []byte) (string, error) {
 	msg, err := r.unsignedMessageFromJSON(unsignedTxJson)
 	if err != nil {
 		return "", err
@@ -333,7 +373,7 @@ func (r RosettaConstructionFilecoin) SignTxJSON(unsignedTxJson string, privateKe
 	return string(m), nil
 }
 
-func (r RosettaConstructionFilecoin) ParseTx(messageCbor []byte) (string, error) {
+func (r *RosettaConstructionFilecoin) ParseTx(messageCbor []byte) (string, error) {
 	br := cbg.GetPeeker(bytes.NewReader(messageCbor))
 	scratch := make([]byte, 8)
 	maj, extra, err := cbg.CborReadHeaderBuf(br, scratch)
@@ -372,7 +412,7 @@ func (r RosettaConstructionFilecoin) ParseTx(messageCbor []byte) (string, error)
 	return string(msgJson), nil
 }
 
-func (r RosettaConstructionFilecoin) ParseProposeTxParams(unsignedMultisigTx string, destinationActorId cid.Cid) (string, string, error) {
+func (r *RosettaConstructionFilecoin) ParseProposeTxParams(unsignedMultisigTx string, destinationActorId cid.Cid) (string, string, error) {
 	rawIn := json.RawMessage(unsignedMultisigTx)
 
 	txBytes, err := rawIn.MarshalJSON()
@@ -386,12 +426,13 @@ func (r RosettaConstructionFilecoin) ParseProposeTxParams(unsignedMultisigTx str
 		return "", "", err
 	}
 
-	if msg.Method != builtinV8.MethodsMultisig.Propose {
+	meta, ok := multisigV10.Methods[msg.Method]
+	if !ok || meta.Name != "Propose" {
 		return "", "", fmt.Errorf("method does not correspond to a 'Propose' transaction")
 	}
 
 	reader := bytes.NewReader(msg.Params)
-	var proposeParams multisigV8.ProposeParams
+	var proposeParams multisigV10.ProposeParams
 	err = proposeParams.UnmarshalCBOR(reader)
 	if err != nil {
 		return "", "", err
@@ -410,7 +451,7 @@ func (r RosettaConstructionFilecoin) ParseProposeTxParams(unsignedMultisigTx str
 	return innerMethod, innerParams, nil
 }
 
-func (r RosettaConstructionFilecoin) GetInnerProposeTxParams(unsignedMultisigTx string) (*multisigV8.ProposeParams, error) {
+func (r *RosettaConstructionFilecoin) GetInnerProposeTxParams(unsignedMultisigTx string) (*multisigV10.ProposeParams, error) {
 	rawIn := json.RawMessage(unsignedMultisigTx)
 
 	txBytes, err := rawIn.MarshalJSON()
@@ -424,12 +465,13 @@ func (r RosettaConstructionFilecoin) GetInnerProposeTxParams(unsignedMultisigTx 
 		return nil, err
 	}
 
-	if msg.Method != builtinV8.MethodsMultisig.Propose {
+	meta, ok := multisigV10.Methods[msg.Method]
+	if !ok || meta.Name != "Propose" {
 		return nil, fmt.Errorf("method does not correspond to a 'Propose' transaction")
 	}
 
 	reader := bytes.NewReader(msg.Params)
-	var proposeParams multisigV8.ProposeParams
+	var proposeParams multisigV10.ProposeParams
 	err = proposeParams.UnmarshalCBOR(reader)
 	if err != nil {
 		return nil, err
@@ -438,7 +480,7 @@ func (r RosettaConstructionFilecoin) GetInnerProposeTxParams(unsignedMultisigTx 
 	return &proposeParams, nil
 }
 
-func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV8.ProposeParams, targetActorId cid.Cid) (string, error) {
+func (r *RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV10.ProposeParams, targetActorId cid.Cid) (string, error) {
 	actorName, err := r.BuiltinActors.GetActorNameFromCid(targetActorId)
 	if err != nil {
 		return "", err
@@ -461,25 +503,25 @@ func (r RosettaConstructionFilecoin) GetProposedMethod(proposeParams *multisigV8
 
 func getMsigMethodString(method abi.MethodNum) (string, error) {
 	switch method {
-	case builtinV8.MethodSend:
+	case builtin.MethodSend:
 		return "Send", nil
-	case builtinV8.MethodsMultisig.Approve:
+	case builtin.MethodsMultisig.Approve:
 		return "Approve", nil
-	case builtinV8.MethodsMultisig.Cancel:
+	case builtin.MethodsMultisig.Cancel:
 		return "Cancel", nil
-	case builtinV8.MethodsMultisig.SwapSigner:
+	case builtin.MethodsMultisig.SwapSigner:
 		return "SwapSigner", nil
-	case builtinV8.MethodsMultisig.RemoveSigner:
+	case builtin.MethodsMultisig.RemoveSigner:
 		return "RemoveSigner", nil
-	case builtinV8.MethodsMultisig.AddSigner:
+	case builtin.MethodsMultisig.AddSigner:
 		return "AddSigner", nil
-	case builtinV8.MethodsMultisig.ChangeNumApprovalsThreshold:
+	case builtin.MethodsMultisig.ChangeNumApprovalsThreshold:
 		return "ChangeNumApprovalsThreshold", nil
-	case builtinV8.MethodsMultisig.LockBalance:
+	case builtin.MethodsMultisig.LockBalance:
 		return "LockBalance", nil
-	case builtinV8.MethodsMultisig.Constructor:
+	case builtin.MethodsMultisig.Constructor:
 		return "Constructor", nil
-	case builtinV8.MethodsMultisig.Propose:
+	case builtin.MethodsMultisig.Propose:
 		return "Propose", nil
 	default:
 		return "", fmt.Errorf("multisig method %v not recognized", method)
@@ -488,16 +530,15 @@ func getMsigMethodString(method abi.MethodNum) (string, error) {
 
 func getMinerMethodString(method abi.MethodNum) (string, error) {
 	switch method {
-	case builtinV8.MethodSend:
+	case builtin.MethodSend:
 		return "Send", nil
-	case builtinV8.MethodsMiner.WithdrawBalance:
+	case builtin.MethodsMiner.WithdrawBalance:
 		return "WithdrawBalance", nil
-	case builtinV8.MethodsMiner.ChangeOwnerAddress:
+	case builtin.MethodsMiner.ChangeOwnerAddress:
 		return "ChangeOwnerAddress", nil
-	case builtinV8.MethodsMiner.ChangeWorkerAddress:
+	case builtin.MethodsMiner.ChangeWorkerAddress:
 		return "ChangeWorkerAddress", nil
-	case builtinV8.MethodsMiner.ConfirmUpdateWorkerKey:
-		return "ConfirmUpdateWorkerKey", nil
+	// TODO: complete with all methods
 	default:
 		return "", fmt.Errorf("miner method %v not recognized", method)
 	}
@@ -505,34 +546,38 @@ func getMinerMethodString(method abi.MethodNum) (string, error) {
 
 func getVerifRegMethodString(method abi.MethodNum) (string, error) {
 	switch method {
-	case builtinV8.MethodsVerifiedRegistry.AddVerifiedClient:
+	case builtin.MethodsVerifiedRegistry.AddVerifiedClient:
 		return "AddVerifiedClient", nil
-	case builtinV8.MethodsVerifiedRegistry.AddVerifier:
+	case builtin.MethodsVerifiedRegistry.AddVerifier:
 		return "AddVerifier", nil
-	case builtinV8.MethodsVerifiedRegistry.RemoveVerifier:
+	case builtin.MethodsVerifiedRegistry.RemoveVerifier:
 		return "RemoveVerifier", nil
+	// TODO: complete with all methods
 	default:
 		return "", fmt.Errorf("verified registry method %v not recognized", method)
 	}
 }
 
-func (r RosettaConstructionFilecoin) ParseParamsMultisigTx(unsignedMultisigTx string, destinationActorId cid.Cid) (string, error) {
+func (r *RosettaConstructionFilecoin) ParseParamsMultisigTx(unsignedMultisigTx string, destinationActorId cid.Cid) (string, error) {
 	// Try the latest version first
-	if destinationActorId == r.BuiltinActors.GetActorCid(actorsCID.LatestVersion, actors.ActorMultisigName) {
-		return r.parseParamsMultisigTxV9(unsignedMultisigTx)
-	} else if destinationActorId == r.BuiltinActors.GetActorCid(actorsCID.PreviousVersion, actors.ActorMultisigName) {
-		return r.parseParamsMultisigTxV8(unsignedMultisigTx)
+	msigCid, err := r.BuiltinActors.GetActorCid(actors.ActorMultisigName)
+	if err != nil {
+		return "", err
+	}
+
+	if destinationActorId == msigCid {
+		return r.parseParamsMultisigTxV10(unsignedMultisigTx)
 	}
 
 	// Try legacy actors
 	if actors.IsLegacyActor(destinationActorId, actors.ActorMultisigName) {
-		return r.parseParamsMultisigTxV8(unsignedMultisigTx)
+		return "", fmt.Errorf("actor id '%s' is a legacy actor and is not supported", destinationActorId.String())
 	}
 
 	return "", fmt.Errorf("actor id '%s' is not supported", destinationActorId.String())
 }
 
-func (r RosettaConstructionFilecoin) Hash(signedMessage string) (string, error) {
+func (r *RosettaConstructionFilecoin) Hash(signedMessage string) (string, error) {
 	rawIn := json.RawMessage(signedMessage)
 
 	txBytes, err := rawIn.MarshalJSON()

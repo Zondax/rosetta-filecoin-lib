@@ -2,46 +2,24 @@ package actors
 
 import (
 	"fmt"
+	"github.com/filecoin-project/go-state-types/network"
 	"github.com/filecoin-project/lotus/chain/actors/builtin"
 	"github.com/ipfs/go-cid"
-	actorsCID "github.com/zondax/filecoin-actors-cids/utils"
-	"go.uber.org/zap"
 )
 
-type BuiltinActors struct {
-	metadata actorsCID.ActorsMetadataMap
+type BuiltinActorsMetadata struct {
+	Network          string
+	Version          network.Version
+	ActorsNameCidMap map[string]cid.Cid
 }
 
-func (a *BuiltinActors) GetMetadata(network string) error {
-	ok, metaLatest := actorsCID.GetMetadataForNetwork(actorsCID.LatestVersion, network)
-	if !ok {
-		zap.S().Warnf("there's no actors metadata for network '%s' with version '%d'", network, actorsCID.LatestVersion)
-	}
-
-	ok, metaPrev := actorsCID.GetMetadataForNetwork(actorsCID.PreviousVersion, network)
-	if !ok {
-		zap.S().Warnf("there's no actors metadata for network '%s' with version '%d'", network, actorsCID.LatestVersion)
-	}
-
-	if len(metaLatest.ActorsNameCidMap) == 0 && len(metaPrev.ActorsNameCidMap) == 0 {
-		return fmt.Errorf("could not get any metadata for network '%s'", network)
-	}
-
-	a.metadata = make(actorsCID.ActorsMetadataMap)
-	a.metadata[actorsCID.LatestVersion] = metaLatest
-	a.metadata[actorsCID.PreviousVersion] = metaPrev
-
-	return nil
+type BuiltinActors struct {
+	Metadata BuiltinActorsMetadata
 }
 
 func (a *BuiltinActors) IsActor(actorCode cid.Cid, actorName string) bool {
 	// Try the latest actors' version first
-	if a.metadata.GetActorCid(actorsCID.LatestVersion, actorName) == actorCode {
-		return true
-	}
-
-	// Try the previous actors' version
-	if a.metadata.GetActorCid(actorsCID.PreviousVersion, actorName) == actorCode {
+	if a.Metadata.ActorsNameCidMap[actorName] == actorCode {
 		return true
 	}
 
@@ -55,13 +33,10 @@ func (a *BuiltinActors) IsActor(actorCode cid.Cid, actorName string) bool {
 
 func (a *BuiltinActors) GetActorNameFromCid(actorCode cid.Cid) (string, error) {
 	// Try the latest actors' version first
-	if ok, name := a.metadata.GetActorName(actorsCID.LatestVersion, actorCode); ok {
-		return name, nil
-	}
-
-	// Try the previous actors' version
-	if ok, name := a.metadata.GetActorName(actorsCID.PreviousVersion, actorCode); ok {
-		return name, nil
+	for name, code := range a.Metadata.ActorsNameCidMap {
+		if actorCode == code {
+			return name, nil
+		}
 	}
 
 	// Try legacy actors
@@ -73,6 +48,10 @@ func (a *BuiltinActors) GetActorNameFromCid(actorCode cid.Cid) (string, error) {
 	return UnknownStr, fmt.Errorf("invalid actor code CID: %s", actorCode)
 }
 
-func (a *BuiltinActors) GetActorCid(version uint, name string) cid.Cid {
-	return a.metadata.GetActorCid(version, name)
+func (a *BuiltinActors) GetActorCid(name string) (cid.Cid, error) {
+	if cid, ok := a.Metadata.ActorsNameCidMap[name]; ok {
+		return cid, nil
+	}
+
+	return cid.Cid{}, fmt.Errorf("actor '%s' not found in metadata", name)
 }

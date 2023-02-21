@@ -7,13 +7,15 @@ import (
 	filAddr "github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/builtin"
-	"github.com/filecoin-project/go-state-types/builtin/v9/multisig"
+	"github.com/filecoin-project/go-state-types/builtin/v10/multisig"
 	"github.com/filecoin-project/lotus/chain/types"
 	"github.com/ipfs/go-cid"
 	"github.com/zondax/rosetta-filecoin-lib/actors"
 )
 
-func (r RosettaConstructionFilecoin) parseParamsMultisigTxV9(unsignedMultisigTx string) (string, error) {
+const NotSupportedActorMessage = "this actor id is not supported"
+
+func (r *RosettaConstructionFilecoin) parseParamsMultisigTxV10(unsignedMultisigTx string) (string, error) {
 	rawIn := json.RawMessage(unsignedMultisigTx)
 
 	txBytes, err := rawIn.MarshalJSON()
@@ -143,9 +145,9 @@ func (r RosettaConstructionFilecoin) parseParamsMultisigTxV9(unsignedMultisigTx 
 	}
 }
 
-func (r RosettaConstructionFilecoin) ConstructMultisigPaymentV9(request *MultisigPaymentRequest, destinationActorId cid.Cid) (string, error) {
+func (r *RosettaConstructionFilecoin) ConstructMultisigPaymentV10(request *MultisigPaymentRequest, destinationActorId cid.Cid) (string, error) {
 	if !r.BuiltinActors.IsActor(destinationActorId, actors.ActorMultisigName) {
-		return "", fmt.Errorf("this actor id is not supported")
+		return "", fmt.Errorf(NotSupportedActorMessage)
 	}
 
 	to, err := filAddr.NewFromString(request.Multisig)
@@ -219,9 +221,9 @@ func (r RosettaConstructionFilecoin) ConstructMultisigPaymentV9(request *Multisi
 	return string(tx), nil
 }
 
-func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedPartyV9(request *SwapAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
+func (r *RosettaConstructionFilecoin) ConstructSwapAuthorizedPartyV10(request *SwapAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
 	if !r.BuiltinActors.IsActor(destinationActorId, actors.ActorMultisigName) {
-		return "", fmt.Errorf("this actor id is not supported")
+		return "", fmt.Errorf(NotSupportedActorMessage)
 	}
 
 	to, err := filAddr.NewFromString(request.Multisig)
@@ -302,9 +304,9 @@ func (r RosettaConstructionFilecoin) ConstructSwapAuthorizedPartyV9(request *Swa
 	return string(tx), nil
 }
 
-func (r RosettaConstructionFilecoin) ConstructRemoveAuthorizedPartyV9(request *RemoveAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
+func (r *RosettaConstructionFilecoin) ConstructRemoveAuthorizedPartyV10(request *RemoveAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
 	if !r.BuiltinActors.IsActor(destinationActorId, actors.ActorMultisigName) {
-		return "", fmt.Errorf("this actor id is not supported")
+		return "", fmt.Errorf(NotSupportedActorMessage)
 	}
 
 	to, err := filAddr.NewFromString(request.Multisig)
