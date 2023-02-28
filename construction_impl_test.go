@@ -222,6 +222,34 @@ func TestConstructPayment(t *testing.T) {
 	assert.Equal(t, expected, tx)
 }
 
+func TestConstructPayment_f410(t *testing.T) {
+	expected := `{"Version":0,"To":"f410f4wpf3mfwravsgjzsgaaxzc7aj3dxplmfqylctxy","From":"f1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba","Nonce":1,"Value":"100000","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":3844450837,"Params":"","CID":{"/":"bafy2bzaceaoqmxcyaoffakwxhu6amadvkufd2wphlkejvfqkup5q26sh7no5o"}}`
+	rosettaLib := NewRosettaConstructionFilecoin(nil)
+	testActorCidMap := make(map[string]cid.Cid)
+	testActorCidMap[manifest.MultisigKey] = cid.Cid{}
+	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMap = testActorCidMap
+
+	mtx := TxMetadata{
+		Nonce:      1,
+		GasFeeCap:  "1",
+		GasPremium: "1",
+		GasLimit:   25000,
+	}
+	pr := &PaymentRequest{
+		From:     "f1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
+		To:       "f410f4wpf3mfwravsgjzsgaaxzc7aj3dxplmfqylctxy",
+		Quantity: "100000",
+		Metadata: mtx,
+	}
+
+	tx, err := rosettaLib.ConstructPayment(pr)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	assert.Equal(t, expected, tx)
+}
+
 func TestConstructMultisigPaymentLatest(t *testing.T) {
 	expected := EXPECTED_MULTISIG_PAYMENT
 	rosettaLib := NewRosettaConstructionFilecoin(nil)

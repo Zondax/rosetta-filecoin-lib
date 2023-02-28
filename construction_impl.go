@@ -26,6 +26,7 @@ import (
 	"github.com/zondax/rosetta-filecoin-lib/actors"
 	"go.uber.org/zap"
 	"net/http"
+	"strings"
 	"sync"
 
 	filAddr "github.com/filecoin-project/go-address"
@@ -207,6 +208,10 @@ func (r *RosettaConstructionFilecoin) ConstructPayment(request *PaymentRequest) 
 	gaslimit := request.Metadata.GasLimit
 
 	methodNum := builtin.MethodSend
+	// check the dest address to set the correct methodNum
+	if strings.HasPrefix(request.To, "f410") {
+		methodNum = builtin.MethodsEVM.InvokeContract
+	}
 
 	msg := &types.Message{Version: types.MessageVersion,
 		To:         to,
