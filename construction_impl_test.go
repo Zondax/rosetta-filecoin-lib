@@ -19,11 +19,12 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"sync"
+	"testing"
+
 	"github.com/filecoin-project/go-state-types/manifest"
 	"github.com/ipfs/go-cid"
 	"github.com/zondax/rosetta-filecoin-lib/actors"
-	"sync"
-	"testing"
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/lotus/chain/types"
@@ -602,4 +603,74 @@ func TestHash(t *testing.T) {
 
 	t.Log(responseCID)
 	assert.Equal(t, responseCID, "bafy2bzacebaiinljwwctblf7czp4zxwhz4747z6tpricgn5cumd4xhebftcvu")
+}
+
+func TestEthToFilAddress(t *testing.T) {
+	// Test from lotus ethtypes_test.go
+	var ethAddress = [20]byte{255, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 01}
+	f4Addr, err := ethToFilAddress(ethAddress)
+
+	if err != nil {
+		t.Errorf("Something went Wrong")
+	}
+	t.Log(f4Addr)
+	assert.Equal(t, f4Addr.String(), "f01")
+
+	ethAddress = [20]byte{255, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 02}
+	f4Addr, err = ethToFilAddress(ethAddress)
+
+	if err != nil {
+		t.Errorf("Something went Wrong")
+	}
+	t.Log(f4Addr)
+	assert.Equal(t, f4Addr.String(), "f02")
+
+	ethAddress = [20]byte{255, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 03}
+	f4Addr, err = ethToFilAddress(ethAddress)
+
+	if err != nil {
+		t.Errorf("Something went Wrong")
+	}
+	t.Log(f4Addr)
+	assert.Equal(t, f4Addr.String(), "f03")
+
+	ethAddress = [20]byte{255, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 100}
+	f4Addr, err = ethToFilAddress(ethAddress)
+
+	if err != nil {
+		t.Errorf("Something went Wrong")
+	}
+	t.Log(f4Addr)
+	assert.Equal(t, f4Addr.String(), "f0100")
+
+	ethAddress = [20]byte{255, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 101}
+	f4Addr, err = ethToFilAddress(ethAddress)
+
+	if err != nil {
+		t.Errorf("Something went Wrong")
+	}
+	t.Log(f4Addr)
+	assert.Equal(t, f4Addr.String(), "f0101")
+
+	ethAddress = [20]byte{255, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 101}
+	f4Addr, err = ethToFilAddress(ethAddress)
+
+	if err != nil {
+		t.Errorf("Something went Wrong")
+	}
+	t.Log(f4Addr)
+	assert.Equal(t, f4Addr.String(), "f0101")
+
+	ethHexaddr, _ := hex.DecodeString("d4c5fb16488Aa48081296299d54b0c648C9333dA")
+	ethAddress = [20]byte{}
+
+	copy(ethAddress[:], ethHexaddr)
+
+	f4Addr, err = ethToFilAddress(ethAddress)
+
+	if err != nil {
+		t.Errorf("Something went Wrong")
+	}
+	t.Log(f4Addr)
+	assert.Equal(t, f4Addr.String(), "f410f2tc7wfsirksibajjmkm5ksymmsgjgm62hjnomwa")
 }

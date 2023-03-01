@@ -1,5 +1,5 @@
 /*******************************************************************************
-*   (c) 2020 Zondax GmbH
+*   (c) 2020-2023 Zondax GmbH
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -18,16 +18,20 @@ package rosettaFilecoinLib
 import (
 	"bytes"
 	"context"
+	"encoding/binary"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strings"
+	"sync"
+
+	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/builtin"
 	"github.com/filecoin-project/lotus/api"
 	"github.com/filecoin-project/lotus/api/client"
 	"github.com/zondax/rosetta-filecoin-lib/actors"
 	"go.uber.org/zap"
-	"net/http"
-	"strings"
-	"sync"
 
 	filAddr "github.com/filecoin-project/go-address"
 	gocrypto "github.com/filecoin-project/go-crypto"
@@ -121,6 +125,23 @@ func formatAddress(network filAddr.Network, addr filAddr.Address) string {
 
 	filAddr.CurrentNetwork = network
 	return addr.String()
+}
+
+func ethToFilAddress(ethAddress [20]byte) (filAddr.Address, error) {
+	idmask := [12]byte{0xff}
+
+	if bytes.Equal(ethAddress[:12], idmask[:]) {
+		// This is a masked ID address.
+		id := binary.BigEndian.Uint64(ethAddress[12:])
+		return address.NewIDAddress(id)
+	}
+
+	addr, err := filAddr.NewDelegatedAddress(builtin.EthereumAddressManagerActorID, ethAddress[:])
+	if err != nil {
+		return address.Undef, fmt.Errorf("failed to translate supplied address (%s) into a "+
+			"Filecoin f4 address: %w", hex.EncodeToString(ethAddress[:]), err)
+	}
+	return addr, nil
 }
 
 func signSecp256k1(msg []byte, pk []byte) ([]byte, error) {
