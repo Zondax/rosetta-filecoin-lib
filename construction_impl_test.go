@@ -615,6 +615,9 @@ func TestEthToFilAddress(t *testing.T) {
 	}
 	t.Log(f4Addr)
 	assert.Equal(t, f4Addr.String(), "f01")
+	a, _ := address.NewIDAddress(1)
+	ethAddressFound, _ := filToEthAddress(a)
+	assert.Equal(t, ethAddressFound, ethAddress)
 
 	ethAddress = [20]byte{255, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 02}
 	f4Addr, err = ethToFilAddress(ethAddress)
@@ -624,6 +627,9 @@ func TestEthToFilAddress(t *testing.T) {
 	}
 	t.Log(f4Addr)
 	assert.Equal(t, f4Addr.String(), "f02")
+	a, _ = address.NewIDAddress(2)
+	ethAddressFound, _ = filToEthAddress(a)
+	assert.Equal(t, ethAddressFound, ethAddress)
 
 	ethAddress = [20]byte{255, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 03}
 	f4Addr, err = ethToFilAddress(ethAddress)
@@ -633,6 +639,9 @@ func TestEthToFilAddress(t *testing.T) {
 	}
 	t.Log(f4Addr)
 	assert.Equal(t, f4Addr.String(), "f03")
+	a, _ = address.NewIDAddress(3)
+	ethAddressFound, _ = filToEthAddress(a)
+	assert.Equal(t, ethAddressFound, ethAddress)
 
 	ethAddress = [20]byte{255, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 100}
 	f4Addr, err = ethToFilAddress(ethAddress)
@@ -642,6 +651,9 @@ func TestEthToFilAddress(t *testing.T) {
 	}
 	t.Log(f4Addr)
 	assert.Equal(t, f4Addr.String(), "f0100")
+	a, _ = address.NewIDAddress(100)
+	ethAddressFound, _ = filToEthAddress(a)
+	assert.Equal(t, ethAddressFound, ethAddress)
 
 	ethAddress = [20]byte{255, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 101}
 	f4Addr, err = ethToFilAddress(ethAddress)
@@ -651,15 +663,9 @@ func TestEthToFilAddress(t *testing.T) {
 	}
 	t.Log(f4Addr)
 	assert.Equal(t, f4Addr.String(), "f0101")
-
-	ethAddress = [20]byte{255, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 101}
-	f4Addr, err = ethToFilAddress(ethAddress)
-
-	if err != nil {
-		t.Errorf("Something went Wrong")
-	}
-	t.Log(f4Addr)
-	assert.Equal(t, f4Addr.String(), "f0101")
+	a, _ = address.NewIDAddress(101)
+	ethAddressFound, _ = filToEthAddress(a)
+	assert.Equal(t, ethAddressFound, ethAddress)
 
 	ethHexaddr, _ := hex.DecodeString("d4c5fb16488Aa48081296299d54b0c648C9333dA")
 	ethAddress = [20]byte{}
@@ -673,4 +679,7 @@ func TestEthToFilAddress(t *testing.T) {
 	}
 	t.Log(f4Addr)
 	assert.Equal(t, f4Addr.String(), "f410f2tc7wfsirksibajjmkm5ksymmsgjgm62hjnomwa")
+	a, _ = address.NewFromString("f410f2tc7wfsirksibajjmkm5ksymmsgjgm62hjnomwa")
+	ethAddressFound, _ = filToEthAddress(a)
+	assert.Equal(t, ethAddressFound, ethAddress)
 }

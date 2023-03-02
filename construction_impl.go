@@ -30,8 +30,10 @@ import (
 	"github.com/filecoin-project/go-state-types/builtin"
 	"github.com/filecoin-project/lotus/api"
 	"github.com/filecoin-project/lotus/api/client"
+	"github.com/multiformats/go-varint"
 	"github.com/zondax/rosetta-filecoin-lib/actors"
 	"go.uber.org/zap"
+	"golang.org/x/xerrors"
 
 	filAddr "github.com/filecoin-project/go-address"
 	gocrypto "github.com/filecoin-project/go-crypto"
@@ -51,6 +53,8 @@ type RosettaConstructionFilecoin struct {
 }
 
 type LotusRpcV1 api.FullNode
+
+const EthAddressLength = 20
 
 // NewFilecoinRPCClient creates a new lotus rpc client
 func NewFilecoinRPCClient(url string, token string) (LotusRpcV1, error) {
@@ -142,6 +146,36 @@ func ethToFilAddress(ethAddress [20]byte) (filAddr.Address, error) {
 			"Filecoin f4 address: %w", hex.EncodeToString(ethAddress[:]), err)
 	}
 	return addr, nil
+}
+
+func filToEthAddress(addr filAddr.Address) ([EthAddressLength]byte, error) {
+	switch addr.Protocol() {
+	case address.ID:
+		id, err := address.IDFromAddress(addr)
+		if err != nil {
+			return [EthAddressLength]byte{}, err
+		}
+		var ethaddr [EthAddressLength]byte
+		ethaddr[0] = 0xff
+		binary.BigEndian.PutUint64(ethaddr[12:], id)
+		return ethaddr, nil
+	case address.Delegated:
+		payload := addr.Payload()
+		namespace, n, err := varint.FromUvarint(payload)
+		if err != nil {
+			return [EthAddressLength]byte{}, xerrors.Errorf("invalid delegated address namespace in: %s", addr)
+		}
+		payload = payload[n:]
+		if namespace == builtin.EthereumAddressManagerActorID {
+			var ethaddr [EthAddressLength]byte
+			if len(payload) != EthAddressLength {
+				return [EthAddressLength]byte{}, fmt.Errorf("cannot parse bytes into an EthAddress: incorrect input length")
+			}
+			copy(ethaddr[:], payload[:])
+			return ethaddr, nil
+		}
+	}
+	return [20]byte{}, fmt.Errorf("Invalid address (cannot be converted to an eth address)")
 }
 
 func signSecp256k1(msg []byte, pk []byte) ([]byte, error) {
