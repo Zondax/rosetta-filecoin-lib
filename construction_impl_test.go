@@ -607,7 +607,7 @@ func TestHash(t *testing.T) {
 
 func TestEthToFilAddress(t *testing.T) {
 	// Test from lotus ethtypes_test.go
-	var ethAddress = "ff00000000000000000000000000000000000001"
+	var ethAddress = "0xff00000000000000000000000000000000000001"
 	f4Addr, err := EthereumAddressToFilecoin(ethAddress)
 
 	if err != nil {
@@ -619,7 +619,7 @@ func TestEthToFilAddress(t *testing.T) {
 	ethAddressFound, _ := FilToEthAddress(a)
 	assert.Equal(t, ethAddressFound.String(), ethAddress)
 
-	ethAddress = "ff00000000000000000000000000000000000002"
+	ethAddress = "0xff00000000000000000000000000000000000002"
 	f4Addr, err = EthereumAddressToFilecoin(ethAddress)
 
 	if err != nil {
@@ -631,7 +631,7 @@ func TestEthToFilAddress(t *testing.T) {
 	ethAddressFound, _ = FilToEthAddress(a)
 	assert.Equal(t, ethAddressFound.String(), ethAddress)
 
-	ethAddress = "ff00000000000000000000000000000000000003"
+	ethAddress = "0xff00000000000000000000000000000000000003"
 	f4Addr, err = EthereumAddressToFilecoin(ethAddress)
 
 	if err != nil {
@@ -643,7 +643,7 @@ func TestEthToFilAddress(t *testing.T) {
 	ethAddressFound, _ = FilToEthAddress(a)
 	assert.Equal(t, ethAddressFound.String(), ethAddress)
 
-	ethAddress = "ff00000000000000000000000000000000000064"
+	ethAddress = "0xff00000000000000000000000000000000000064"
 	f4Addr, err = EthereumAddressToFilecoin(ethAddress)
 
 	if err != nil {
@@ -655,7 +655,7 @@ func TestEthToFilAddress(t *testing.T) {
 	ethAddressFound, _ = FilToEthAddress(a)
 	assert.Equal(t, ethAddressFound.String(), ethAddress)
 
-	ethAddress = "ff00000000000000000000000000000000000065"
+	ethAddress = "0xff00000000000000000000000000000000000065"
 	f4Addr, err = EthereumAddressToFilecoin(ethAddress)
 
 	if err != nil {
@@ -667,7 +667,7 @@ func TestEthToFilAddress(t *testing.T) {
 	ethAddressFound, _ = FilToEthAddress(a)
 	assert.Equal(t, ethAddressFound.String(), ethAddress)
 
-	var ethHexaddr = "d4c5fb16488Aa48081296299d54b0c648C9333dA"
+	var ethHexaddr = "0xd4c5fb16488aa48081296299d54b0c648c9333da"
 	f4Addr, err = EthereumAddressToFilecoin(ethHexaddr)
 
 	if err != nil {
@@ -676,18 +676,6 @@ func TestEthToFilAddress(t *testing.T) {
 	t.Log(f4Addr)
 	assert.Equal(t, f4Addr.String(), "f410f2tc7wfsirksibajjmkm5ksymmsgjgm62hjnomwa")
 	a, _ = address.NewFromString("f410f2tc7wfsirksibajjmkm5ksymmsgjgm62hjnomwa")
-	ethAddressFound, _ = FilToEthAddress(a)
-	assert.Equal(t, ethAddressFound.String(), ethAddress)
-
-	ethHexaddr = "0xd4c5fb16488Aa48081296299d54b0c648C9333dA"
-	f4Addr, err = EthereumAddressToFilecoin(ethHexaddr)
-
-	if err != nil {
-		t.Errorf("Something went Wrong")
-	}
-	t.Log(f4Addr)
-	assert.Equal(t, f4Addr.String(), "f410f2tc7wfsirksibajjmkm5ksymmsgjgm62hjnomwa")
-	a, _ = address.NewFromString("f410f2tc7wfsirksibajjmkm5ksymmsgjgm62hjnomwa")
-	ethAddressFound, _ = FilToEthAddress(a)
-	assert.Equal(t, ethAddressFound.String(), ethAddress)
+	ethAddressFound, _ = FilToEthAddress(f4Addr)
+	assert.Equal(t, ethAddressFound.String(), ethHexaddr)
 }
