@@ -18,8 +18,6 @@ package rosettaFilecoinLib
 import (
 	"bytes"
 	"context"
-	"encoding/binary"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -30,10 +28,8 @@ import (
 	"github.com/filecoin-project/go-state-types/builtin"
 	"github.com/filecoin-project/lotus/api"
 	"github.com/filecoin-project/lotus/api/client"
-	"github.com/multiformats/go-varint"
 	"github.com/zondax/rosetta-filecoin-lib/actors"
 	"go.uber.org/zap"
-	"golang.org/x/xerrors"
 
 	filAddr "github.com/filecoin-project/go-address"
 	gocrypto "github.com/filecoin-project/go-crypto"
@@ -41,6 +37,7 @@ import (
 	multisigV10 "github.com/filecoin-project/go-state-types/builtin/v10/multisig"
 	"github.com/filecoin-project/go-state-types/crypto"
 	"github.com/filecoin-project/lotus/chain/types"
+	"github.com/filecoin-project/lotus/chain/types/ethtypes"
 	"github.com/ipfs/go-cid"
 	"github.com/minio/blake2b-simd"
 	cbg "github.com/whyrusleeping/cbor-gen"
@@ -131,51 +128,31 @@ func formatAddress(network filAddr.Network, addr filAddr.Address) string {
 	return addr.String()
 }
 
-func ethToFilAddress(ethAddress [20]byte) (filAddr.Address, error) {
-	idmask := [12]byte{0xff}
-
-	if bytes.Equal(ethAddress[:12], idmask[:]) {
-		// This is a masked ID address.
-		id := binary.BigEndian.Uint64(ethAddress[12:])
-		return address.NewIDAddress(id)
-	}
-
-	addr, err := filAddr.NewDelegatedAddress(builtin.EthereumAddressManagerActorID, ethAddress[:])
+func EthereumAddressFromHex(add string) (ethtypes.EthAddress, error) {
+	ethAdd, err := ethtypes.ParseEthAddress(add)
 	if err != nil {
-		return address.Undef, fmt.Errorf("failed to translate supplied address (%s) into a "+
-			"Filecoin f4 address: %w", hex.EncodeToString(ethAddress[:]), err)
+		return ethtypes.EthAddress{}, err
 	}
-	return addr, nil
+
+	return ethAdd, nil
 }
 
-func filToEthAddress(addr filAddr.Address) ([EthAddressLength]byte, error) {
-	switch addr.Protocol() {
-	case address.ID:
-		id, err := address.IDFromAddress(addr)
-		if err != nil {
-			return [EthAddressLength]byte{}, err
-		}
-		var ethaddr [EthAddressLength]byte
-		ethaddr[0] = 0xff
-		binary.BigEndian.PutUint64(ethaddr[12:], id)
-		return ethaddr, nil
-	case address.Delegated:
-		payload := addr.Payload()
-		namespace, n, err := varint.FromUvarint(payload)
-		if err != nil {
-			return [EthAddressLength]byte{}, xerrors.Errorf("invalid delegated address namespace in: %s", addr)
-		}
-		payload = payload[n:]
-		if namespace == builtin.EthereumAddressManagerActorID {
-			var ethaddr [EthAddressLength]byte
-			if len(payload) != EthAddressLength {
-				return [EthAddressLength]byte{}, fmt.Errorf("cannot parse bytes into an EthAddress: incorrect input length")
-			}
-			copy(ethaddr[:], payload[:])
-			return ethaddr, nil
-		}
+func EthereumAddressToFilecoin(add string) (filAddr.Address, error) {
+	ethAdd, err := EthereumAddressFromHex(add)
+	if err != nil {
+		return address.Undef, err
 	}
-	return [20]byte{}, fmt.Errorf("Invalid address (cannot be converted to an eth address)")
+
+	filAdd, err := ethAdd.ToFilecoinAddress()
+	if err != nil {
+		return address.Undef, err
+	}
+
+	return filAdd, nil
+}
+
+func FilToEthAddress(addr filAddr.Address) (ethtypes.EthAddress, error) {
+	return ethtypes.EthAddressFromFilecoinAddress(addr)
 }
 
 func signSecp256k1(msg []byte, pk []byte) ([]byte, error) {
