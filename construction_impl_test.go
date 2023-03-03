@@ -19,11 +19,12 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"sync"
+	"testing"
+
 	"github.com/filecoin-project/go-state-types/manifest"
 	"github.com/ipfs/go-cid"
 	"github.com/zondax/rosetta-filecoin-lib/actors"
-	"sync"
-	"testing"
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/lotus/chain/types"
@@ -602,4 +603,79 @@ func TestHash(t *testing.T) {
 
 	t.Log(responseCID)
 	assert.Equal(t, responseCID, "bafy2bzacebaiinljwwctblf7czp4zxwhz4747z6tpricgn5cumd4xhebftcvu")
+}
+
+func TestEthToFilAddress(t *testing.T) {
+	// Test from lotus ethtypes_test.go
+	var ethAddress = "0xff00000000000000000000000000000000000001"
+	f4Addr, err := EthereumAddressToFilecoin(ethAddress)
+
+	if err != nil {
+		t.Errorf("Something went Wrong")
+	}
+	t.Log(f4Addr)
+	assert.Equal(t, f4Addr.String(), "f01")
+	a, _ := address.NewIDAddress(1)
+	ethAddressFound, _ := FilToEthAddress(a)
+	assert.Equal(t, ethAddressFound.String(), ethAddress)
+
+	ethAddress = "0xff00000000000000000000000000000000000002"
+	f4Addr, err = EthereumAddressToFilecoin(ethAddress)
+
+	if err != nil {
+		t.Errorf("Something went Wrong")
+	}
+	t.Log(f4Addr)
+	assert.Equal(t, f4Addr.String(), "f02")
+	a, _ = address.NewIDAddress(2)
+	ethAddressFound, _ = FilToEthAddress(a)
+	assert.Equal(t, ethAddressFound.String(), ethAddress)
+
+	ethAddress = "0xff00000000000000000000000000000000000003"
+	f4Addr, err = EthereumAddressToFilecoin(ethAddress)
+
+	if err != nil {
+		t.Errorf("Something went Wrong")
+	}
+	t.Log(f4Addr)
+	assert.Equal(t, f4Addr.String(), "f03")
+	a, _ = address.NewIDAddress(3)
+	ethAddressFound, _ = FilToEthAddress(a)
+	assert.Equal(t, ethAddressFound.String(), ethAddress)
+
+	ethAddress = "0xff00000000000000000000000000000000000064"
+	f4Addr, err = EthereumAddressToFilecoin(ethAddress)
+
+	if err != nil {
+		t.Errorf("Something went Wrong")
+	}
+	t.Log(f4Addr)
+	assert.Equal(t, f4Addr.String(), "f0100")
+	a, _ = address.NewIDAddress(100)
+	ethAddressFound, _ = FilToEthAddress(a)
+	assert.Equal(t, ethAddressFound.String(), ethAddress)
+
+	ethAddress = "0xff00000000000000000000000000000000000065"
+	f4Addr, err = EthereumAddressToFilecoin(ethAddress)
+
+	if err != nil {
+		t.Errorf("Something went Wrong")
+	}
+	t.Log(f4Addr)
+	assert.Equal(t, f4Addr.String(), "f0101")
+	a, _ = address.NewIDAddress(101)
+	ethAddressFound, _ = FilToEthAddress(a)
+	assert.Equal(t, ethAddressFound.String(), ethAddress)
+
+	var ethHexaddr = "0xd4c5fb16488aa48081296299d54b0c648c9333da"
+	f4Addr, err = EthereumAddressToFilecoin(ethHexaddr)
+
+	if err != nil {
+		t.Errorf("Something went Wrong")
+	}
+	t.Log(f4Addr)
+	assert.Equal(t, f4Addr.String(), "f410f2tc7wfsirksibajjmkm5ksymmsgjgm62hjnomwa")
+	a, _ = address.NewFromString("f410f2tc7wfsirksibajjmkm5ksymmsgjgm62hjnomwa")
+	ethAddressFound, _ = FilToEthAddress(f4Addr)
+	assert.Equal(t, ethAddressFound.String(), ethHexaddr)
 }

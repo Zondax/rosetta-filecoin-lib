@@ -1,5 +1,5 @@
 /*******************************************************************************
-*   (c) 2020 Zondax GmbH
+*   (c) 2020-2023 Zondax GmbH
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -20,14 +20,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strings"
+	"sync"
+
+	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/builtin"
 	"github.com/filecoin-project/lotus/api"
 	"github.com/filecoin-project/lotus/api/client"
 	"github.com/zondax/rosetta-filecoin-lib/actors"
 	"go.uber.org/zap"
-	"net/http"
-	"strings"
-	"sync"
 
 	filAddr "github.com/filecoin-project/go-address"
 	gocrypto "github.com/filecoin-project/go-crypto"
@@ -35,6 +37,7 @@ import (
 	multisigV10 "github.com/filecoin-project/go-state-types/builtin/v10/multisig"
 	"github.com/filecoin-project/go-state-types/crypto"
 	"github.com/filecoin-project/lotus/chain/types"
+	"github.com/filecoin-project/lotus/chain/types/ethtypes"
 	"github.com/ipfs/go-cid"
 	"github.com/minio/blake2b-simd"
 	cbg "github.com/whyrusleeping/cbor-gen"
@@ -47,6 +50,8 @@ type RosettaConstructionFilecoin struct {
 }
 
 type LotusRpcV1 api.FullNode
+
+const EthAddressLength = 20
 
 // NewFilecoinRPCClient creates a new lotus rpc client
 func NewFilecoinRPCClient(url string, token string) (LotusRpcV1, error) {
@@ -121,6 +126,33 @@ func formatAddress(network filAddr.Network, addr filAddr.Address) string {
 
 	filAddr.CurrentNetwork = network
 	return addr.String()
+}
+
+func EthereumAddressFromHex(add string) (ethtypes.EthAddress, error) {
+	ethAdd, err := ethtypes.ParseEthAddress(add)
+	if err != nil {
+		return ethtypes.EthAddress{}, err
+	}
+
+	return ethAdd, nil
+}
+
+func EthereumAddressToFilecoin(add string) (filAddr.Address, error) {
+	ethAdd, err := EthereumAddressFromHex(add)
+	if err != nil {
+		return address.Undef, err
+	}
+
+	filAdd, err := ethAdd.ToFilecoinAddress()
+	if err != nil {
+		return address.Undef, err
+	}
+
+	return filAdd, nil
+}
+
+func FilToEthAddress(addr filAddr.Address) (ethtypes.EthAddress, error) {
+	return ethtypes.EthAddressFromFilecoinAddress(addr)
 }
 
 func signSecp256k1(msg []byte, pk []byte) ([]byte, error) {
