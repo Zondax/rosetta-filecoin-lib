@@ -62,7 +62,8 @@ func (r *RosettaConstructionFilecoin) parseParamsMultisigTxV10(unsignedMultisigT
 			return string(jsonResponse), nil
 		}
 	case builtin.MethodsMultisig.Approve,
-		builtin.MethodsMultisig.Cancel:
+		builtin.MethodsMultisig.Cancel,
+		builtin.MethodsMultisig.CancelExported:
 		{
 			var params multisig.TxnIDParams
 			err := params.UnmarshalCBOR(reader)
