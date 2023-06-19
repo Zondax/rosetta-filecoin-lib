@@ -62,6 +62,7 @@ func (r *RosettaConstructionFilecoin) parseParamsMultisigTxV10(unsignedMultisigT
 			return string(jsonResponse), nil
 		}
 	case builtin.MethodsMultisig.Approve,
+		builtin.MethodsMultisig.ApproveExported,
 		builtin.MethodsMultisig.Cancel,
 		builtin.MethodsMultisig.CancelExported:
 		{
@@ -76,7 +77,8 @@ func (r *RosettaConstructionFilecoin) parseParamsMultisigTxV10(unsignedMultisigT
 			}
 			return string(jsonResponse), nil
 		}
-	case builtin.MethodsMultisig.AddSigner:
+	case builtin.MethodsMultisig.AddSigner,
+		builtin.MethodsMultisig.AddSignerExported:
 		{
 			var params multisig.AddSignerParams
 			err := params.UnmarshalCBOR(reader)
@@ -89,7 +91,8 @@ func (r *RosettaConstructionFilecoin) parseParamsMultisigTxV10(unsignedMultisigT
 			}
 			return string(jsonResponse), nil
 		}
-	case builtin.MethodsMultisig.RemoveSigner:
+	case builtin.MethodsMultisig.RemoveSigner,
+		builtin.MethodsMultisig.RemoveSignerExported:
 		{
 			var params multisig.RemoveSignerParams
 			err := params.UnmarshalCBOR(reader)
@@ -102,7 +105,8 @@ func (r *RosettaConstructionFilecoin) parseParamsMultisigTxV10(unsignedMultisigT
 			}
 			return string(jsonResponse), nil
 		}
-	case builtin.MethodsMultisig.SwapSigner:
+	case builtin.MethodsMultisig.SwapSigner,
+		builtin.MethodsMultisig.SwapSignerExported:
 		{
 			var params multisig.SwapSignerParams
 			err := params.UnmarshalCBOR(reader)
@@ -115,7 +119,8 @@ func (r *RosettaConstructionFilecoin) parseParamsMultisigTxV10(unsignedMultisigT
 			}
 			return string(jsonResponse), nil
 		}
-	case builtin.MethodsMultisig.ChangeNumApprovalsThreshold:
+	case builtin.MethodsMultisig.ChangeNumApprovalsThreshold,
+		builtin.MethodsMultisig.ChangeNumApprovalsThresholdExported:
 		{
 			var params multisig.ChangeNumApprovalsThresholdParams
 			err := params.UnmarshalCBOR(reader)
@@ -128,7 +133,8 @@ func (r *RosettaConstructionFilecoin) parseParamsMultisigTxV10(unsignedMultisigT
 			}
 			return string(jsonResponse), nil
 		}
-	case builtin.MethodsMultisig.LockBalance:
+	case builtin.MethodsMultisig.LockBalance,
+		builtin.MethodsMultisig.LockBalanceExported:
 		{
 			var params multisig.LockBalanceParams
 			err := params.UnmarshalCBOR(reader)
