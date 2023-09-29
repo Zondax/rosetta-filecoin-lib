@@ -14,13 +14,12 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: '^1.20'
-      - name: Test
-        run: make test
-        env:
-          LOTUS_URL: ${{ secrets.LOTUS_URL_DEVNET }}
-          AUTH_JWT: ${{ secrets.LOTUS_JWT_DEVNET }}
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install -yy build-essential
+      - name: Build
+        run: make build
 
-  checks:
+  test:
     runs-on: [self-hosted, linux, x64]
     steps:
       - name: Checkout
@@ -30,3 +29,10 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: '^1.20'
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install -yy build-essential
+      - name: Test
+        run: make test
+        env:
+          LOTUS_URL: ${{ secrets.LOTUS_URL_DEVNET }}
+          AUTH_JWT: ${{ secrets.LOTUS_JWT_DEVNET }}
