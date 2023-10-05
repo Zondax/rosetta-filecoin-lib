@@ -21,6 +21,7 @@ jobs:
 
   test:
     runs-on: [self-hosted, linux, x64]
+    environment: DEVNET
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -34,5 +35,5 @@ jobs:
       - name: Test
         run: make test
         env:
-          LOTUS_URL: ${{ secrets.LOTUS_URL_DEVNET }}
-          AUTH_JWT: ${{ secrets.LOTUS_JWT_DEVNET }}
+          LOTUS_URL: ${{ secrets.LOTUS_URL }}
+          AUTH_JWT: ${{ secrets.AUTH_JWT }}
