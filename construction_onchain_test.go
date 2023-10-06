@@ -38,9 +38,9 @@ const GasPremium = "10049470"
 const GasLimit = 200180810
 
 const Signer1long = "t1x5x7ekq5f2cjkk57ee3lismwmzu5rbhkhnsrooa"
-const Signer1short = "t01002"
+const Signer1short = "t01003"
 const Signer2long = "t1itpqzzcx6yf52oc35dgsoxfqkoxpy6kdmygbaja"
-const Signer2short = "t01003"
+const Signer2short = "t01004"
 
 const StateWaitMsg = "Filecoin.StateWaitMsg"
 
@@ -384,7 +384,7 @@ func TestSwapKeysMultisig(t *testing.T) {
 	state = result["State"].(map[string]interface{})
 	signers = state["Signers"].([]interface{})
 
-	assert.Equal(t, "t01001", signers[0])
+	assert.Equal(t, "t01002", signers[0])
 	if toParams == Signer1long {
 		assert.Equal(t, Signer1short, signers[1])
 	} else {
