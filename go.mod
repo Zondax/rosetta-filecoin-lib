@@ -5,8 +5,8 @@ go 1.20
 require (
 	github.com/filecoin-project/go-address v1.1.0
 	github.com/filecoin-project/go-crypto v0.0.1
-	github.com/filecoin-project/go-state-types v0.12.1
-	github.com/filecoin-project/lotus v1.23.3
+	github.com/filecoin-project/go-state-types v0.12.4
+	github.com/filecoin-project/lotus v1.24.0-rc1
 	github.com/filecoin-project/specs-actors v0.9.15
 	github.com/filecoin-project/specs-actors/v2 v2.3.6
 	github.com/filecoin-project/specs-actors/v3 v3.1.2
@@ -18,7 +18,7 @@ require (
 	github.com/ipfs/go-cid v0.4.1
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
 	github.com/stretchr/testify v1.8.4
-	github.com/whyrusleeping/cbor-gen v0.0.0-20230126041949-52956bd4c9aa
+	github.com/whyrusleeping/cbor-gen v0.0.0-20230923211252-36a87e1ba72f
 	go.uber.org/zap v1.25.0
 )
 
