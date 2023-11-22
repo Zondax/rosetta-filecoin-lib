@@ -5,8 +5,8 @@ go 1.20
 require (
 	github.com/filecoin-project/go-address v1.1.0
 	github.com/filecoin-project/go-crypto v0.0.1
-	github.com/filecoin-project/go-state-types v0.12.5
-	github.com/filecoin-project/lotus v1.24.0-rc6
+	github.com/filecoin-project/go-state-types v0.12.8
+	github.com/filecoin-project/lotus v1.24.0
 	github.com/filecoin-project/specs-actors v0.9.15
 	github.com/filecoin-project/specs-actors/v2 v2.3.6
 	github.com/filecoin-project/specs-actors/v3 v3.1.2
