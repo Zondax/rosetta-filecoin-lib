@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: [self-hosted, linux, x64]
+    runs-on: zondax-runners
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -20,7 +20,7 @@ jobs:
         run: make build
 
   test:
-    runs-on: [self-hosted, linux, x64]
+    runs-on: zondax-runners
     environment: DEVNET
     steps:
       - name: Checkout
