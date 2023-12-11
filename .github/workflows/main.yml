@@ -6,6 +6,9 @@ on:
 jobs:
   build:
     runs-on: zondax-runners
+    container:
+      image: golang:1.20
+      options: --tty
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -21,6 +24,9 @@ jobs:
 
   test:
     runs-on: zondax-runners
+    container:
+      image: golang:1.20
+      options: --tty
     environment: DEVNET
     steps:
       - name: Checkout
