@@ -17,7 +17,7 @@ require (
 	github.com/filecoin-project/specs-actors/v8 v8.0.1
 	github.com/ipfs/go-cid v0.4.1
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	github.com/whyrusleeping/cbor-gen v0.1.0
 	go.uber.org/zap v1.26.0
 )
