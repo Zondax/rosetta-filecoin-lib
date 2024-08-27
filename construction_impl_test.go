@@ -19,6 +19,10 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
+	"github.com/filecoin-project/go-crypto"
+	crypto2 "github.com/filecoin-project/go-state-types/crypto"
+	"reflect"
 	"sync"
 	"testing"
 
@@ -105,49 +109,46 @@ func TestDeriveFromPublicKey(t *testing.T) {
 
 func TestSign(t *testing.T) {
 	unsignedTx := `{
-    "To": "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
-    "From": "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
-    "Nonce": 1,
-    "Value": "100000",
-    "GasFeeCap": "1",
-		"GasPremium": "1",
-    "GasLimit": 25000,
-    "Method": 0,
-    "Params": ""
-  }`
+        "To": "t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
+        "From": "t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
+        "Nonce": 1,
+        "Value": "100000",
+        "GasFeeCap": "1",
+        "GasPremium": "1",
+        "GasLimit": 25000,
+        "Method": 0,
+        "Params": ""
+    }`
 	sk, err := hex.DecodeString("f15716d3b003b304b8055d9cc62e6b9c869d56cc930c3858d4d7c31f5f53f14a")
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+	assert.NoError(t, err, "Failed to decode secret key")
 
 	rosettaLib := NewRosettaConstructionFilecoin(nil)
 	testActorCidMap := make(map[string]cid.Cid)
 	testActorCidMap[manifest.MultisigKey] = cid.Cid{}
 	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMap = testActorCidMap
 
-	rawIn := json.RawMessage(unsignedTx)
-
-	bytes, err := rawIn.MarshalJSON()
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-
 	var msg types.Message
-	err = json.Unmarshal(bytes, &msg)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+	err = json.Unmarshal([]byte(unsignedTx), &msg)
+	assert.NoError(t, err, "Failed to unmarshal message")
 
 	digest := msg.Cid().Bytes()
 
 	sig, err := rosettaLib.SignRaw(digest, sk)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+	assert.NoError(t, err, "Failed to sign raw message")
 
-	if base64.StdEncoding.EncodeToString(sig) != EXPECTED_SIGNATURE {
-		t.Fail()
-	}
+	// Get the public key from the private key
+	pubKey := crypto.PublicKey(sk)
+
+	// Create the address from the public key
+	addr, err := address.NewSecp256k1Address(pubKey)
+	assert.NoError(t, err, "Failed to create address from public key")
+
+	// Verify that the created address matches the From address in the message
+	assert.Equal(t, msg.From.String(), addr.String(), "Created address does not match From address")
+
+	// Verify the signature
+	err = rosettaLib.VerifyRaw(digest, pubKey, sig)
+	assert.NoError(t, err, "Failed to verify signature")
 }
 
 func TestVerify(t *testing.T) {
@@ -348,43 +349,64 @@ func TestConstructRemoveAuthorizedPartyLatest(t *testing.T) {
 }
 
 func TestSignTx(t *testing.T) {
-	unsignedTx := `{"Version":0,"To":"t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy","From":"t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba","Nonce":1,"Value":"100000","GasFeeCap":"1","GasPremium":"1","GasLimit":25000,"Method":0,"Params":""}`
-	sk := "f15716d3b003b304b8055d9cc62e6b9c869d56cc930c3858d4d7c31f5f53f14a"
+	unsignedTx := `{
+        "Version":0,
+        "To":"t17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy",
+        "From":"t1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba",
+        "Nonce":1,
+        "Value":"100000",
+        "GasFeeCap":"1",
+        "GasPremium":"1",
+        "GasLimit":25000,
+        "Method":0,
+        "Params":""
+    }`
+	sk, err := hex.DecodeString("f15716d3b003b304b8055d9cc62e6b9c869d56cc930c3858d4d7c31f5f53f14a")
+	assert.NoError(t, err, "Failed to decode secret key")
+
 	rosettaLib := NewRosettaConstructionFilecoin(nil)
 	testActorCidMap := make(map[string]cid.Cid)
 	testActorCidMap[manifest.MultisigKey] = cid.Cid{}
 	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMap = testActorCidMap
 
-	skBytes, err := hex.DecodeString(sk)
-	if err != nil {
-		t.Errorf("Invalid test case")
+	signedTx, err := rosettaLib.SignTxJSON(unsignedTx, sk)
+	assert.NoError(t, err, "Failed to sign transaction JSON")
+
+	var signedMsg types.SignedMessage
+	err = json.Unmarshal([]byte(signedTx), &signedMsg)
+	assert.NoError(t, err, "Failed to unmarshal signed message")
+
+	// Verify the signature format
+	assert.Equal(t, crypto2.SigTypeSecp256k1, signedMsg.Signature.Type, "Incorrect signature type")
+	assert.Equal(t, 65, len(signedMsg.Signature.Data), "Incorrect signature length")
+
+	// Verify the signature using the public key
+	pubKey := crypto.PublicKey(sk)
+	digest := signedMsg.Message.Cid().Bytes()
+	err = rosettaLib.VerifyRaw(digest, pubKey, signedMsg.Signature.Data)
+	assert.NoError(t, err, "Failed to verify signature")
+
+	// Verify that the signed message contains all the fields from the unsigned transaction
+	var unsignedMsg types.Message
+	err = json.Unmarshal([]byte(unsignedTx), &unsignedMsg)
+	assert.NoError(t, err, "Failed to unmarshal unsigned message")
+
+	// Compare unsigned and signed messages using reflection
+	unsignedMsgValue := reflect.ValueOf(unsignedMsg)
+	signedMsgValue := reflect.ValueOf(signedMsg.Message)
+
+	for i := 0; i < unsignedMsgValue.NumField(); i++ {
+		fieldName := unsignedMsgValue.Type().Field(i).Name
+		unsignedField := unsignedMsgValue.Field(i).Interface()
+		signedField := signedMsgValue.Field(i).Interface()
+
+		assert.Equal(t, unsignedField, signedField, fmt.Sprintf("%s mismatch", fieldName))
 	}
 
-	signedTx, err := rosettaLib.SignTxJSON(unsignedTx, skBytes)
-	if err != nil {
-		t.Error(err)
-	}
-
-	t.Log(signedTx)
-
-	rawIn := json.RawMessage(signedTx)
-
-	bytes, err := rawIn.MarshalJSON()
-	if err != nil {
-		t.Errorf("Not a json string")
-	}
-
-	var msg types.SignedMessage
-	err = json.Unmarshal(bytes, &msg)
-	if err != nil {
-		t.Errorf("Not a SignedMessage")
-	}
-
-	dataSignature := base64.StdEncoding.EncodeToString(msg.Signature.Data)
-	if dataSignature != EXPECTED_SIGNATURE {
-		t.Fail()
-	}
-
+	// Verify that the From address in the message matches the address derived from the public key
+	addr, err := address.NewSecp256k1Address(pubKey)
+	assert.NoError(t, err, "Failed to create address from public key")
+	assert.Equal(t, signedMsg.Message.From.String(), addr.String(), "From address does not match address derived from public key")
 }
 
 func TestParseTx(t *testing.T) {
