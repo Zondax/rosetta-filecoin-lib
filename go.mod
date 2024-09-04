@@ -1,11 +1,10 @@
 module github.com/zondax/rosetta-filecoin-lib
 
 go 1.21
-
-toolchain go1.21.3
+toolchain go1.22.5
 
 require (
-	github.com/filecoin-project/go-address v1.1.0
+	github.com/filecoin-project/go-address v1.2.0
 	github.com/filecoin-project/go-crypto v0.1.0
 	github.com/filecoin-project/go-state-types v0.14.0
 	github.com/filecoin-project/lotus v1.29.0
@@ -98,10 +97,10 @@ require (
 	go.opentelemetry.io/otel/metric v1.28.0 // indirect
 	go.opentelemetry.io/otel/trace v1.28.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.25.0 // indirect
+	golang.org/x/crypto v0.26.0 // indirect
 	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842 // indirect
 	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.23.0 // indirect
+	golang.org/x/sys v0.24.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
