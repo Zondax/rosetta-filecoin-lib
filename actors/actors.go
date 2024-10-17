@@ -5,6 +5,14 @@ import (
 	"github.com/filecoin-project/go-state-types/network"
 	"github.com/filecoin-project/lotus/chain/actors/builtin"
 	"github.com/ipfs/go-cid"
+
+	// The following import is necessary to ensure that the init() function
+	// from the lotus build package is invoked.
+	// In a recent refactor (v1.30.0), some build packages were modularized to reduce
+	// unnecessary dependencies. As a result, if this package is not explicitly
+	// imported, its init() will not be triggered, potentially causing issues
+	// with initialization, such as errors when searching for actorNameByCid.
+	_ "github.com/filecoin-project/lotus/build"
 )
 
 type BuiltinActorsMetadata struct {
