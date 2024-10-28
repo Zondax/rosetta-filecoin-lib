@@ -8,7 +8,7 @@ require (
 	github.com/filecoin-project/go-address v1.2.0
 	github.com/filecoin-project/go-crypto v0.1.0
 	github.com/filecoin-project/go-state-types v0.15.0-rc1
-	github.com/filecoin-project/lotus v1.30.0-rc2
+	github.com/filecoin-project/lotus v1.30.0-rc3
 	github.com/filecoin-project/specs-actors v0.9.15
 	github.com/filecoin-project/specs-actors/v2 v2.3.6
 	github.com/filecoin-project/specs-actors/v3 v3.1.2
@@ -40,7 +40,7 @@ require (
 	github.com/filecoin-project/go-amt-ipld/v4 v4.4.0 // indirect
 	github.com/filecoin-project/go-bitfield v0.2.4 // indirect
 	github.com/filecoin-project/go-clock v0.1.0 // indirect
-	github.com/filecoin-project/go-f3 v0.7.0 // indirect
+	github.com/filecoin-project/go-f3 v0.7.1 // indirect
 	github.com/filecoin-project/go-hamt-ipld v0.1.5 // indirect
 	github.com/filecoin-project/go-hamt-ipld/v2 v2.0.0 // indirect
 	github.com/filecoin-project/go-hamt-ipld/v3 v3.4.0 // indirect
