@@ -27,7 +27,7 @@ jobs:
     container:
       image: golang:1.23.7
       options: --tty
-    environment: CALIBNET
+    environment: CALIBRATION
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,5 +41,5 @@ jobs:
       - name: Test
         run: make test
         env:
-          LOTUS_URL: ${{ secrets.LOTUS_URL }}
+          LOTUS_URL: ${{ secrets.LOTUS_URL_CALIBNET }}
           AUTH_JWT: ${{ secrets.AUTH_JWT }}
