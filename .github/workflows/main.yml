@@ -27,7 +27,7 @@ jobs:
     container:
       image: golang:1.23.7
       options: --tty
-    environment: DEVNET
+    environment: CALIBRATION
     steps:
       - name: Checkout
         uses: actions/checkout@v4
