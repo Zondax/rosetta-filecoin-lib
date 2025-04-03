@@ -20,6 +20,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"testing"
@@ -65,11 +66,11 @@ func sendLotusRequest(method string, id int, params string) (map[string]interfac
 	}
 
 	data := []byte(fmt.Sprintf("{\"jsonrpc\": \"2.0\",\"method\": \"%s\",\"id\": %d, \"params\": [%s]}", method, id, params))
-	println(string(data))
+	fmt.Println("request: ", string(data))
 
 	req, err := http.NewRequest("POST", lotusURL, bytes.NewBuffer(data))
 	if err != nil {
-		return nil, fmt.Errorf(err.Error())
+		return nil, fmt.Errorf("error creating request: %w", err)
 	}
 
 	// Set headers
@@ -82,7 +83,15 @@ func sendLotusRequest(method string, id int, params string) (map[string]interfac
 	// Send request
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error sending request: %w", err)
+	}
+	defer resp.Body.Close() // Ensure body is closed
+
+	// Check HTTP status code
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		// Try to read body for more details, but don't fail if it's empty
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("received non-2xx status code: %d - %s. Body: %s", resp.StatusCode, resp.Status, string(bodyBytes))
 	}
 
 	var res map[string]interface{}
