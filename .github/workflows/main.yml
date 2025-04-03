@@ -27,7 +27,7 @@ jobs:
     container:
       image: golang:1.23.7
       options: --tty
-    environment: CALIBRATION
+    environment: DEVNET
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,5 +41,5 @@ jobs:
       - name: Test
         run: make test
         env:
-          LOTUS_URL: ${{ secrets.LOTUS_URL_DEVNET }}
-          AUTH_JWT: ${{ secrets.LOTUS_JWT_DEVNET }}
+          LOTUS_URL: ${{ secrets.LOTUS_URL }}
+          AUTH_JWT: ${{ secrets.AUTH_JWT }}
