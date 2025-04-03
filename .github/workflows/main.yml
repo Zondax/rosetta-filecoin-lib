@@ -41,6 +41,5 @@ jobs:
       - name: Test
         run: make test
         env:
-          # LOTUS_URL: ${{ secrets.LOTUS_URL_CALIBNET }}
-          LOTUS_URL: "https://node-fil-calibration-next-light.zondax.dev/rpc/v1"
-          AUTH_JWT: ${{ secrets.AUTH_JWT }}
+          LOTUS_URL: ${{ secrets.LOTUS_URL_DEVNET }}
+          AUTH_JWT: ${{ secrets.LOTUS_JWT_DEVNET }}
