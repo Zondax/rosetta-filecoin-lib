@@ -59,7 +59,7 @@ func (a *BuiltinActors) IsActor(actorCode cid.Cid, actorName string) bool {
 	// Try the latest actors' version first
 	for _, actorCids := range a.Metadata.ActorsNameCidMapByVersion {
 		if cid, ok := actorCids[actorName]; ok {
-			if actorCode == cid {
+			if actorCode.String() == cid.String() {
 				return true
 			}
 		}
@@ -76,7 +76,7 @@ func (a *BuiltinActors) IsActor(actorCode cid.Cid, actorName string) bool {
 func (a *BuiltinActors) GetActorNameFromCid(actorCode cid.Cid) (string, error) {
 	// Try the latest actors' version first
 	for name, code := range a.Metadata.ActorsNameCidMapByVersion[a.Metadata.Version] {
-		if actorCode == code {
+		if actorCode.String() == code.String() {
 			return name, nil
 		}
 	}
@@ -103,7 +103,7 @@ func (a *BuiltinActors) GetActorCid(name string) (cid.Cid, error) {
 func (a *BuiltinActors) GetActorNameFromCidByVersion(actorCode cid.Cid, version network.Version) (string, error) {
 	// Try the latest actors' version first
 	for name, code := range a.Metadata.ActorsNameCidMapByVersion[version] {
-		if actorCode == code {
+		if actorCode.String() == code.String() {
 			return name, nil
 		}
 	}
@@ -140,7 +140,7 @@ func (a *BuiltinActors) getActorCidByVersionFallback(name string) (cid.Cid, erro
 func (a *BuiltinActors) getActorNameFromCidByVersionFallback(actorCode cid.Cid) (string, error) {
 	for _, actorCids := range a.Metadata.ActorsNameCidMapByVersion {
 		for name, cid := range actorCids {
-			if actorCode == cid {
+			if actorCode.String() == cid.String() {
 				return name, nil
 			}
 		}
