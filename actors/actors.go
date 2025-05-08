@@ -2,7 +2,6 @@ package actors
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/filecoin-project/go-state-types/network"
@@ -46,9 +45,6 @@ func NewBuiltinActors(networkName string, loadAllActorVersions bool, lotusApi ap
 		zap.S().Errorf("could not get actors cids!: %s", err.Error())
 		return nil, err
 	}
-
-	d, _ := json.MarshalIndent(actorCids, "", "  ")
-	fmt.Println(string(d))
 
 	metadata := BuiltinActorsMetadata{
 		Network:                   string(networkName),
@@ -151,7 +147,6 @@ func loadActorCids(currentNetworkVersion network.Version, loadAllActorVersions b
 	for i := 0; i < numWorkers; i++ {
 		go func(i int) {
 			for version := range versionChannel {
-				fmt.Printf("worker %d: loading actor cids for version %d\n", i, version)
 				// todo: retry on network failure
 				actorCids, err := lotusApi.StateActorCodeCIDs(context.Background(), version)
 				if err != nil {
