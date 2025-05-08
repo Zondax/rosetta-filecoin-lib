@@ -95,6 +95,7 @@ func TestDeriveFromPublicKey(t *testing.T) {
 	testActorCidMap[network.Version25] = map[string]cid.Cid{
 		manifest.MultisigKey: {},
 	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
 	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	pk, err := hex.DecodeString("04fc016f3d88dc7070cdd95b5754d32fd5290f850b7c2208fca0f715d35861de1841d9a342a487692a63810a6c906b443a18aa804d9d508d69facc5b06789a01b4")
@@ -131,6 +132,7 @@ func TestSign(t *testing.T) {
 	testActorCidMap[network.Version25] = map[string]cid.Cid{
 		manifest.MultisigKey: {},
 	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
 	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	var msg types.Message
@@ -209,6 +211,7 @@ func TestConstructPayment(t *testing.T) {
 	testActorCidMap[network.Version25] = map[string]cid.Cid{
 		manifest.MultisigKey: {},
 	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
 	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	mtx := TxMetadata{
@@ -239,6 +242,7 @@ func TestConstructPayment_f410(t *testing.T) {
 	testActorCidMap[network.Version25] = map[string]cid.Cid{
 		manifest.MultisigKey: {},
 	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
 	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	mtx := TxMetadata{
@@ -269,6 +273,7 @@ func TestConstructMultisigPaymentLatest(t *testing.T) {
 	testActorCidMap[network.Version25] = map[string]cid.Cid{
 		manifest.MultisigKey: {},
 	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
 	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	mtx := TxMetadata{
@@ -303,6 +308,7 @@ func TestConstructSwapAuthorizedPartyLatest(t *testing.T) {
 	testActorCidMap[network.Version25] = map[string]cid.Cid{
 		manifest.MultisigKey: {},
 	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
 	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	mtx := TxMetadata{
@@ -337,6 +343,7 @@ func TestConstructRemoveAuthorizedPartyLatest(t *testing.T) {
 	testActorCidMap[network.Version25] = map[string]cid.Cid{
 		manifest.MultisigKey: {},
 	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
 	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	mtx := TxMetadata{
@@ -385,6 +392,7 @@ func TestSignTx(t *testing.T) {
 	testActorCidMap[network.Version25] = map[string]cid.Cid{
 		manifest.MultisigKey: {},
 	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
 	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	signedTx, err := rosettaLib.SignTxJSON(unsignedTx, sk)
@@ -436,6 +444,7 @@ func TestParseTx(t *testing.T) {
 	testActorCidMap[network.Version25] = map[string]cid.Cid{
 		manifest.MultisigKey: {},
 	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
 	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	blob, err := hex.DecodeString(serializedTx)
@@ -464,6 +473,7 @@ func TestGasFieldOrderParse(t *testing.T) {
 	testActorCidMap[network.Version25] = map[string]cid.Cid{
 		manifest.MultisigKey: {},
 	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
 	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	blob, err := hex.DecodeString(serializedTx)
@@ -488,9 +498,12 @@ func TestParseParamsMultisigPaymentTx(t *testing.T) {
 
 	rosettaLib := NewRosettaConstructionFilecoin(nil)
 	testActorCidMap := map[network.Version]actors.ActorCidMap{}
+	msigCid, err := cid.Parse("bafkqadtgnfwc6mjpnv2wy5djonuwo")
+	assert.NoError(t, err, "Failed to parse multisig CID")
 	testActorCidMap[network.Version25] = map[string]cid.Cid{
-		manifest.MultisigKey: {},
+		manifest.MultisigKey: msigCid,
 	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
 	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	mtx := TxMetadata{
@@ -537,6 +550,7 @@ func TestParseParamsMultisigSwapAuthTx(t *testing.T) {
 	testActorCidMap[network.Version25] = map[string]cid.Cid{
 		manifest.MultisigKey: {},
 	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
 	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	mtx := TxMetadata{
@@ -584,6 +598,7 @@ func TestParseParamsMultisigRemoveSignerTx(t *testing.T) {
 	testActorCidMap[network.Version25] = map[string]cid.Cid{
 		manifest.MultisigKey: {},
 	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
 	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	mtx := TxMetadata{
@@ -645,6 +660,7 @@ func TestHash(t *testing.T) {
 	testActorCidMap[network.Version25] = map[string]cid.Cid{
 		manifest.MultisigKey: {},
 	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
 	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	responseCID, err := rosettaLib.Hash(signedTx)
