@@ -21,6 +21,8 @@ import (
 	_ "github.com/filecoin-project/lotus/build"
 )
 
+const LatestVersion = network.Version26
+
 type ActorCidMap map[string]cid.Cid
 type BuiltinActorsMetadata struct {
 	Network                   string
@@ -134,8 +136,8 @@ func loadActorCids(currentNetworkVersion network.Version, loadAllActorVersions b
 
 	if loadAllActorVersions {
 		zap.S().Info("loading all actor versions")
-		networkVersions = make([]network.Version, network.Version26+1)
-		for i := network.Version0; i <= network.Version26; i++ {
+		networkVersions = make([]network.Version, LatestVersion+1)
+		for i := network.Version0; i <= LatestVersion; i++ {
 			networkVersions[i] = i
 		}
 	} else {
@@ -154,6 +156,7 @@ func loadActorCids(currentNetworkVersion network.Version, loadAllActorVersions b
 				actorCids, err := lotusApi.StateActorCodeCIDs(context.Background(), version)
 				if err != nil {
 					zap.S().Errorf("worker %d: error loading actor cids for version %d: %s", i, version, err.Error())
+					actorCids = ActorCidMap{}
 				}
 				actorCidsChannel <- map[network.Version]ActorCidMap{version: actorCids}
 			}
@@ -161,13 +164,11 @@ func loadActorCids(currentNetworkVersion network.Version, loadAllActorVersions b
 	}
 
 	for _, networkVersion := range networkVersions {
-		fmt.Printf("main: sending version %d to worker\n", networkVersion)
 		versionChannel <- networkVersion
 	}
 
 	var received int
 	for actorCids := range actorCidsChannel {
-		fmt.Printf("received actor cids for version %d\n", received+1)
 		for version, actors := range actorCids {
 			actorCidsMap[version] = actors
 		}
