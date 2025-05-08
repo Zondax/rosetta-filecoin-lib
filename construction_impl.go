@@ -52,7 +52,6 @@ type RosettaConstructionFilecoin struct {
 type LotusRpcV1 api.FullNode
 
 const EthAddressLength = 20
-const LoadAllActorVersions = true
 
 // NewFilecoinRPCClient creates a new lotus rpc client
 func NewFilecoinRPCClient(url string, token string) (LotusRpcV1, error) {
@@ -85,7 +84,7 @@ func NewRosettaConstructionFilecoin(lotusApi api.FullNode) *RosettaConstructionF
 		return nil
 	}
 
-	builtinActors, err := actors.NewBuiltinActors(string(networkName), LoadAllActorVersions, lotusApi)
+	builtinActors, err := actors.NewBuiltinActors(string(networkName), lotusApi)
 	if err != nil {
 		zap.S().Errorf("could not create builtin actors!: %s", err.Error())
 		return nil

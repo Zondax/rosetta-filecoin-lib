@@ -33,14 +33,14 @@ type BuiltinActors struct {
 	Metadata BuiltinActorsMetadata
 }
 
-func NewBuiltinActors(networkName string, loadAllActorVersions bool, lotusApi api.FullNode) (*BuiltinActors, error) {
+func NewBuiltinActors(networkName string, lotusApi api.FullNode) (*BuiltinActors, error) {
 	networkVersion, err := lotusApi.StateNetworkVersion(context.Background(), types.EmptyTSK)
 	if err != nil {
 		zap.S().Errorf("could not get lotus network version!: %s", err.Error())
 		return nil, err
 	}
 
-	actorCids, err := loadActorCids(networkVersion, loadAllActorVersions, lotusApi)
+	actorCids, err := loadActorCids(lotusApi)
 	if err != nil {
 		zap.S().Errorf("could not get actors cids!: %s", err.Error())
 		return nil, err
@@ -57,8 +57,8 @@ func NewBuiltinActors(networkName string, loadAllActorVersions bool, lotusApi ap
 
 func (a *BuiltinActors) IsActor(actorCode cid.Cid, actorName string) bool {
 	// Try the latest actors' version first
-	for _, actors := range a.Metadata.ActorsNameCidMapByVersion {
-		if cid, ok := actors[actorName]; ok {
+	for _, actorCids := range a.Metadata.ActorsNameCidMapByVersion {
+		if cid, ok := actorCids[actorName]; ok {
 			if actorCode == cid {
 				return true
 			}
@@ -87,7 +87,8 @@ func (a *BuiltinActors) GetActorNameFromCid(actorCode cid.Cid) (string, error) {
 		return name, nil
 	}
 
-	return UnknownStr, fmt.Errorf("invalid actor code CID: %s", actorCode)
+	// Fallback: Check all actors
+	return a.getActorNameFromCidByVersionFallback(actorCode)
 }
 
 func (a *BuiltinActors) GetActorCid(name string) (cid.Cid, error) {
@@ -95,7 +96,8 @@ func (a *BuiltinActors) GetActorCid(name string) (cid.Cid, error) {
 		return cid, nil
 	}
 
-	return cid.Cid{}, fmt.Errorf("actor '%s' not found in metadata", name)
+	// Fallback: Check all actors
+	return a.getActorCidByVersionFallback(name)
 }
 
 func (a *BuiltinActors) GetActorNameFromCidByVersion(actorCode cid.Cid, version network.Version) (string, error) {
@@ -112,37 +114,55 @@ func (a *BuiltinActors) GetActorNameFromCidByVersion(actorCode cid.Cid, version 
 		return name, nil
 	}
 
-	return UnknownStr, fmt.Errorf("invalid actor code CID: %s", actorCode)
+	// Fallback: Check all actors
+	return a.getActorNameFromCidByVersionFallback(actorCode)
 }
 
 func (a *BuiltinActors) GetActorCidByVersion(name string, version network.Version) (cid.Cid, error) {
 	if cid, ok := a.Metadata.ActorsNameCidMapByVersion[version][name]; ok {
 		return cid, nil
 	}
+	// Fallback: Check all actors
+	return a.getActorCidByVersionFallback(name)
+}
 
+func (a *BuiltinActors) getActorCidByVersionFallback(name string) (cid.Cid, error) {
+	for _, actorCids := range a.Metadata.ActorsNameCidMapByVersion {
+		for foundName, cid := range actorCids {
+			if foundName == name {
+				return cid, nil
+			}
+		}
+	}
 	return cid.Cid{}, fmt.Errorf("actor '%s' not found in metadata", name)
 }
 
-func loadActorCids(currentNetworkVersion network.Version, loadAllActorVersions bool, lotusApi api.FullNode) (map[network.Version]ActorCidMap, error) {
+func (a *BuiltinActors) getActorNameFromCidByVersionFallback(actorCode cid.Cid) (string, error) {
+	for _, actorCids := range a.Metadata.ActorsNameCidMapByVersion {
+		for name, cid := range actorCids {
+			if actorCode == cid {
+				return name, nil
+			}
+		}
+	}
+	return UnknownStr, fmt.Errorf("invalid actor code CID: %s", actorCode)
+}
+
+func loadActorCids(lotusApi api.FullNode) (map[network.Version]ActorCidMap, error) {
+	zap.S().Info("loading all actor versions")
 	var (
 		numWorkers      = 5
-		networkVersions []network.Version
+		networkVersions = make([]network.Version, LatestVersion+1)
 		actorCidsMap    = make(map[network.Version]ActorCidMap)
 	)
 
-	if loadAllActorVersions {
-		zap.S().Info("loading all actor versions")
-		networkVersions = make([]network.Version, LatestVersion+1)
-		for i := network.Version0; i <= LatestVersion; i++ {
-			networkVersions[i] = i
-		}
-	} else {
-		zap.S().Info("loading current actor version")
-		networkVersions = []network.Version{currentNetworkVersion}
+	for i := network.Version0; i <= LatestVersion; i++ {
+		networkVersions[i] = i
 	}
 
 	versionChannel := make(chan network.Version, len(networkVersions))
 	actorCidsChannel := make(chan map[network.Version]ActorCidMap)
+	errChannel := make(chan error)
 
 	for i := 0; i < numWorkers; i++ {
 		go func(i int) {
@@ -151,7 +171,8 @@ func loadActorCids(currentNetworkVersion network.Version, loadAllActorVersions b
 				actorCids, err := lotusApi.StateActorCodeCIDs(context.Background(), version)
 				if err != nil {
 					zap.S().Errorf("worker %d: error loading actor cids for version %d: %s", i, version, err.Error())
-					actorCids = ActorCidMap{}
+					errChannel <- err
+					return
 				}
 				actorCidsChannel <- map[network.Version]ActorCidMap{version: actorCids}
 			}
@@ -163,17 +184,31 @@ func loadActorCids(currentNetworkVersion network.Version, loadAllActorVersions b
 	}
 
 	var received int
-	for actorCids := range actorCidsChannel {
-		for version, actors := range actorCids {
-			actorCidsMap[version] = actors
+	var err error
+	for {
+		select {
+		case actorCids := <-actorCidsChannel:
+			for version, actors := range actorCids {
+				actorCidsMap[version] = actors
+			}
+			received++
+
+		case mErr := <-errChannel:
+			err = mErr
 		}
-		received++
-		if received == len(networkVersions) {
+
+		if received == len(networkVersions) || err != nil {
 			break
 		}
 	}
+
 	close(versionChannel)
+	close(errChannel)
 	close(actorCidsChannel)
+
+	if err != nil {
+		return nil, err
+	}
 
 	return actorCidsMap, nil
 }
