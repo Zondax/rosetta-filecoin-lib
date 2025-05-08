@@ -78,35 +78,21 @@ func NewRosettaConstructionFilecoin(lotusApi api.FullNode) *RosettaConstructionF
 		}
 	}
 
-	networkVersion, err := lotusApi.StateNetworkVersion(context.Background(), types.EmptyTSK)
-	if err != nil {
-		zap.S().Errorf("could not get lotus network version!: %s", err.Error())
-		return nil
-	}
-
 	networkName, err := lotusApi.StateNetworkName(context.Background())
 	if err != nil {
 		zap.S().Errorf("could not get lotus network name!: %s", err.Error())
 		return nil
 	}
 
-	actorCids, err := lotusApi.StateActorCodeCIDs(context.Background(), networkVersion)
+	builtinActors, err := actors.NewBuiltinActors(string(networkName), lotusApi)
 	if err != nil {
-		zap.S().Errorf("could not get actors cids!: %s", err.Error())
+		zap.S().Errorf("could not create builtin actors!: %s", err.Error())
 		return nil
-	}
-
-	zap.S().Infof("Got actors CIDs for network: '%s' version: '%d'", networkName, networkVersion)
-
-	metadata := actors.BuiltinActorsMetadata{
-		Network:          string(networkName),
-		Version:          networkVersion,
-		ActorsNameCidMap: actorCids,
 	}
 
 	return &RosettaConstructionFilecoin{
 		networkName:   string(networkName),
-		BuiltinActors: actors.BuiltinActors{Metadata: metadata},
+		BuiltinActors: *builtinActors,
 		online:        true,
 	}
 }

@@ -20,11 +20,13 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/filecoin-project/go-crypto"
-	crypto2 "github.com/filecoin-project/go-state-types/crypto"
 	"reflect"
 	"sync"
 	"testing"
+
+	"github.com/filecoin-project/go-crypto"
+	crypto2 "github.com/filecoin-project/go-state-types/crypto"
+	"github.com/filecoin-project/go-state-types/network"
 
 	"github.com/filecoin-project/go-state-types/manifest"
 	"github.com/ipfs/go-cid"
@@ -89,9 +91,12 @@ func verify(unsignedTx string, pkHex string, sigBase64 string) error {
 
 func TestDeriveFromPublicKey(t *testing.T) {
 	rosettaLib := NewRosettaConstructionFilecoin(nil)
-	testActorCidMap := make(map[string]cid.Cid)
-	testActorCidMap[manifest.MultisigKey] = cid.Cid{}
-	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMap = testActorCidMap
+	testActorCidMap := map[network.Version]actors.ActorCidMap{}
+	testActorCidMap[network.Version25] = map[string]cid.Cid{
+		manifest.MultisigKey: {},
+	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
+	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	pk, err := hex.DecodeString("04fc016f3d88dc7070cdd95b5754d32fd5290f850b7c2208fca0f715d35861de1841d9a342a487692a63810a6c906b443a18aa804d9d508d69facc5b06789a01b4")
 	if err != nil {
@@ -123,9 +128,12 @@ func TestSign(t *testing.T) {
 	assert.NoError(t, err, "Failed to decode secret key")
 
 	rosettaLib := NewRosettaConstructionFilecoin(nil)
-	testActorCidMap := make(map[string]cid.Cid)
-	testActorCidMap[manifest.MultisigKey] = cid.Cid{}
-	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMap = testActorCidMap
+	testActorCidMap := map[network.Version]actors.ActorCidMap{}
+	testActorCidMap[network.Version25] = map[string]cid.Cid{
+		manifest.MultisigKey: {},
+	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
+	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	var msg types.Message
 	err = json.Unmarshal([]byte(unsignedTx), &msg)
@@ -199,9 +207,12 @@ func TestVerify2(t *testing.T) {
 func TestConstructPayment(t *testing.T) {
 	expected := `{"Version":0,"To":"f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy","From":"f1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba","Nonce":1,"Value":"100000","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":0,"Params":"","CID":{"/":"bafy2bzaceduq6pnkpz7xhs6d24epnu47hjpn3oucoq3xnkc4g5b7hgcdw4now"}}`
 	rosettaLib := NewRosettaConstructionFilecoin(nil)
-	testActorCidMap := make(map[string]cid.Cid)
-	testActorCidMap[manifest.MultisigKey] = cid.Cid{}
-	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMap = testActorCidMap
+	testActorCidMap := map[network.Version]actors.ActorCidMap{}
+	testActorCidMap[network.Version25] = map[string]cid.Cid{
+		manifest.MultisigKey: {},
+	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
+	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	mtx := TxMetadata{
 		Nonce:      1,
@@ -227,9 +238,12 @@ func TestConstructPayment(t *testing.T) {
 func TestConstructPayment_f410(t *testing.T) {
 	expected := `{"Version":0,"To":"f410f4wpf3mfwravsgjzsgaaxzc7aj3dxplmfqylctxy","From":"f1d2xrzcslx7xlbbylc5c3d5lvandqw4iwl6epxba","Nonce":1,"Value":"100000","GasLimit":25000,"GasFeeCap":"1","GasPremium":"1","Method":3844450837,"Params":"","CID":{"/":"bafy2bzaceaoqmxcyaoffakwxhu6amadvkufd2wphlkejvfqkup5q26sh7no5o"}}`
 	rosettaLib := NewRosettaConstructionFilecoin(nil)
-	testActorCidMap := make(map[string]cid.Cid)
-	testActorCidMap[manifest.MultisigKey] = cid.Cid{}
-	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMap = testActorCidMap
+	testActorCidMap := map[network.Version]actors.ActorCidMap{}
+	testActorCidMap[network.Version25] = map[string]cid.Cid{
+		manifest.MultisigKey: {},
+	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
+	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	mtx := TxMetadata{
 		Nonce:      1,
@@ -255,9 +269,12 @@ func TestConstructPayment_f410(t *testing.T) {
 func TestConstructMultisigPaymentLatest(t *testing.T) {
 	expected := EXPECTED_MULTISIG_PAYMENT
 	rosettaLib := NewRosettaConstructionFilecoin(nil)
-	testActorCidMap := make(map[string]cid.Cid)
-	testActorCidMap[manifest.MultisigKey] = cid.Cid{}
-	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMap = testActorCidMap
+	testActorCidMap := map[network.Version]actors.ActorCidMap{}
+	testActorCidMap[network.Version25] = map[string]cid.Cid{
+		manifest.MultisigKey: {},
+	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
+	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	mtx := TxMetadata{
 		Nonce:      1,
@@ -287,9 +304,12 @@ func TestConstructMultisigPaymentLatest(t *testing.T) {
 func TestConstructSwapAuthorizedPartyLatest(t *testing.T) {
 	expected := EXPECTED_SWAP_AUTHORIZED
 	rosettaLib := NewRosettaConstructionFilecoin(nil)
-	testActorCidMap := make(map[string]cid.Cid)
-	testActorCidMap[manifest.MultisigKey] = cid.Cid{}
-	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMap = testActorCidMap
+	testActorCidMap := map[network.Version]actors.ActorCidMap{}
+	testActorCidMap[network.Version25] = map[string]cid.Cid{
+		manifest.MultisigKey: {},
+	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
+	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	mtx := TxMetadata{
 		Nonce:      1,
@@ -319,9 +339,12 @@ func TestConstructSwapAuthorizedPartyLatest(t *testing.T) {
 func TestConstructRemoveAuthorizedPartyLatest(t *testing.T) {
 	expected := EXPECTED
 	rosettaLib := NewRosettaConstructionFilecoin(nil)
-	testActorCidMap := make(map[string]cid.Cid)
-	testActorCidMap[manifest.MultisigKey] = cid.Cid{}
-	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMap = testActorCidMap
+	testActorCidMap := map[network.Version]actors.ActorCidMap{}
+	testActorCidMap[network.Version25] = map[string]cid.Cid{
+		manifest.MultisigKey: {},
+	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
+	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	mtx := TxMetadata{
 		Nonce:      1,
@@ -365,9 +388,12 @@ func TestSignTx(t *testing.T) {
 	assert.NoError(t, err, "Failed to decode secret key")
 
 	rosettaLib := NewRosettaConstructionFilecoin(nil)
-	testActorCidMap := make(map[string]cid.Cid)
-	testActorCidMap[manifest.MultisigKey] = cid.Cid{}
-	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMap = testActorCidMap
+	testActorCidMap := map[network.Version]actors.ActorCidMap{}
+	testActorCidMap[network.Version25] = map[string]cid.Cid{
+		manifest.MultisigKey: {},
+	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
+	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	signedTx, err := rosettaLib.SignTxJSON(unsignedTx, sk)
 	assert.NoError(t, err, "Failed to sign transaction JSON")
@@ -414,9 +440,12 @@ func TestParseTx(t *testing.T) {
 	serializedTx := "8A005501FD1D0F4DFCD7E99AFCB99A8326B7DC459D32C6285501B882619D46558F3D9E316D11B48DCF211327025A0144000186A01961A84200014200010040"
 
 	rosettaLib := NewRosettaConstructionFilecoin(nil)
-	testActorCidMap := make(map[string]cid.Cid)
-	testActorCidMap[manifest.MultisigKey] = cid.Cid{}
-	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMap = testActorCidMap
+	testActorCidMap := map[network.Version]actors.ActorCidMap{}
+	testActorCidMap[network.Version25] = map[string]cid.Cid{
+		manifest.MultisigKey: {},
+	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
+	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	blob, err := hex.DecodeString(serializedTx)
 
@@ -440,9 +469,12 @@ func TestGasFieldOrderParse(t *testing.T) {
 	serializedTx := "8A005501FD1D0F4DFCD7E99AFCB99A8326B7DC459D32C6285501B882619D46558F3D9E316D11B48DCF211327025A0144000186A01961A84200024200010040"
 
 	rosettaLib := NewRosettaConstructionFilecoin(nil)
-	testActorCidMap := make(map[string]cid.Cid)
-	testActorCidMap[manifest.MultisigKey] = cid.Cid{}
-	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMap = testActorCidMap
+	testActorCidMap := map[network.Version]actors.ActorCidMap{}
+	testActorCidMap[network.Version25] = map[string]cid.Cid{
+		manifest.MultisigKey: {},
+	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
+	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	blob, err := hex.DecodeString(serializedTx)
 
@@ -465,9 +497,14 @@ func TestParseParamsMultisigPaymentTx(t *testing.T) {
 	expectedParams := `{"To":"f17uoq6tp427uzv7fztkbsnn64iwotfrristwpryy","Value":"1000","Method":0,"Params":null}`
 
 	rosettaLib := NewRosettaConstructionFilecoin(nil)
-	testActorCidMap := make(map[string]cid.Cid)
-	testActorCidMap[manifest.MultisigKey] = cid.Cid{}
-	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMap = testActorCidMap
+	testActorCidMap := map[network.Version]actors.ActorCidMap{}
+	msigCid, err := cid.Parse("bafkqadtgnfwc6mjpnv2wy5djonuwo")
+	assert.NoError(t, err, "Failed to parse multisig CID")
+	testActorCidMap[network.Version25] = map[string]cid.Cid{
+		manifest.MultisigKey: msigCid,
+	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
+	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	mtx := TxMetadata{
 		Nonce:      1,
@@ -509,9 +546,12 @@ func TestParseParamsMultisigSwapAuthTx(t *testing.T) {
 	expectedParamsLatest := expectedParamsPrevious
 
 	rosettaLib := NewRosettaConstructionFilecoin(nil)
-	testActorCidMap := make(map[string]cid.Cid)
-	testActorCidMap[manifest.MultisigKey] = cid.Cid{}
-	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMap = testActorCidMap
+	testActorCidMap := map[network.Version]actors.ActorCidMap{}
+	testActorCidMap[network.Version25] = map[string]cid.Cid{
+		manifest.MultisigKey: {},
+	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
+	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	mtx := TxMetadata{
 		Nonce:      1,
@@ -554,9 +594,12 @@ func TestParseParamsMultisigRemoveSignerTx(t *testing.T) {
 	expectedParamsLatest := expectedParamsPrevious
 
 	rosettaLib := NewRosettaConstructionFilecoin(nil)
-	testActorCidMap := make(map[string]cid.Cid)
-	testActorCidMap[manifest.MultisigKey] = cid.Cid{}
-	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMap = testActorCidMap
+	testActorCidMap := map[network.Version]actors.ActorCidMap{}
+	testActorCidMap[network.Version25] = map[string]cid.Cid{
+		manifest.MultisigKey: {},
+	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
+	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	mtx := TxMetadata{
 		Nonce:      1,
@@ -613,9 +656,12 @@ func TestHash(t *testing.T) {
     }
   }`
 	rosettaLib := NewRosettaConstructionFilecoin(nil)
-	testActorCidMap := make(map[string]cid.Cid)
-	testActorCidMap[manifest.MultisigKey] = cid.Cid{}
-	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMap = testActorCidMap
+	testActorCidMap := map[network.Version]actors.ActorCidMap{}
+	testActorCidMap[network.Version25] = map[string]cid.Cid{
+		manifest.MultisigKey: {},
+	}
+	rosettaLib.BuiltinActors.Metadata.Version = network.Version25
+	rosettaLib.BuiltinActors.Metadata.ActorsNameCidMapByVersion = testActorCidMap
 
 	responseCID, err := rosettaLib.Hash(signedTx)
 
