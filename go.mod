@@ -1,8 +1,6 @@
 module github.com/zondax/rosetta-filecoin-lib
 
-go 1.23.10
-
-toolchain go1.24.4
+go 1.25.0
 
 require (
 	github.com/filecoin-project/go-address v1.2.0
@@ -17,7 +15,7 @@ require (
 	github.com/filecoin-project/specs-actors/v6 v6.0.2
 	github.com/filecoin-project/specs-actors/v7 v7.0.1
 	github.com/filecoin-project/specs-actors/v8 v8.0.1
-	github.com/ipfs/go-cid v0.5.0
+	github.com/ipfs/go-cid v0.6.1
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
 	github.com/stretchr/testify v1.10.0
 	github.com/whyrusleeping/cbor-gen v0.3.1
@@ -90,17 +88,17 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/miekg/dns v1.1.66 // indirect
 	github.com/minio/sha256-simd v1.0.1 // indirect
-	github.com/mr-tron/base58 v1.2.0 // indirect
+	github.com/mr-tron/base58 v1.3.0 // indirect
 	github.com/multiformats/go-base32 v0.1.0 // indirect
 	github.com/multiformats/go-base36 v0.2.0 // indirect
 	github.com/multiformats/go-multiaddr v0.16.1 // indirect
 	github.com/multiformats/go-multiaddr-dns v0.4.1 // indirect
 	github.com/multiformats/go-multiaddr-fmt v0.1.0 // indirect
-	github.com/multiformats/go-multibase v0.2.0 // indirect
+	github.com/multiformats/go-multibase v0.3.0 // indirect
 	github.com/multiformats/go-multicodec v0.9.2 // indirect
 	github.com/multiformats/go-multihash v0.2.3 // indirect
 	github.com/multiformats/go-multistream v0.6.1 // indirect
-	github.com/multiformats/go-varint v0.0.7 // indirect
+	github.com/multiformats/go-varint v0.1.0 // indirect
 	github.com/nkovacs/streamquote v1.0.0 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -124,12 +122,12 @@ require (
 	go.opentelemetry.io/otel/trace v1.35.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.41.0 // indirect
+	golang.org/x/crypto v0.50.0 // indirect
 	golang.org/x/exp v0.0.0-20250620022241-b7579e27df2b // indirect
 	golang.org/x/mod v0.26.0 // indirect
-	golang.org/x/net v0.42.0 // indirect
+	golang.org/x/net v0.52.0 // indirect
 	golang.org/x/sync v0.16.0 // indirect
-	golang.org/x/sys v0.35.0 // indirect
+	golang.org/x/sys v0.43.0 // indirect
 	golang.org/x/tools v0.35.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
