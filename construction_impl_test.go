@@ -229,7 +229,7 @@ func TestConstructPayment(t *testing.T) {
 
 	tx, err := rosettaLib.ConstructPayment(pr)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("%s", err.Error())
 	}
 
 	assert.Equal(t, expected, tx)
@@ -260,7 +260,7 @@ func TestConstructPayment_f410(t *testing.T) {
 
 	tx, err := rosettaLib.ConstructPayment(pr)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("%s", err.Error())
 	}
 
 	assert.Equal(t, expected, tx)
@@ -295,7 +295,7 @@ func TestConstructMultisigPaymentLatest(t *testing.T) {
 
 	tx, err := rosettaLib.ConstructMultisigPayment(request)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("%s", err.Error())
 	}
 
 	assert.Equal(t, expected, tx)
@@ -330,7 +330,7 @@ func TestConstructSwapAuthorizedPartyLatest(t *testing.T) {
 
 	tx, err := rosettaLib.ConstructSwapAuthorizedParty(request)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("%s", err.Error())
 	}
 
 	assert.Equal(t, expected, tx)
@@ -365,7 +365,7 @@ func TestConstructRemoveAuthorizedPartyLatest(t *testing.T) {
 
 	tx, err := rosettaLib.ConstructRemoveAuthorizedParty(request)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("%s", err.Error())
 	}
 
 	assert.Equal(t, expected, tx)
@@ -525,17 +525,17 @@ func TestParseParamsMultisigPaymentTx(t *testing.T) {
 
 	msigActorCidLatest, err := rosettaLib.BuiltinActors.GetActorCid(actors.ActorMultisigName)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("%s", err.Error())
 	}
 
 	txLatest, err := rosettaLib.ConstructMultisigPayment(request)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("%s", err.Error())
 	}
 
 	expandedParamsLatest, err := rosettaLib.ParseParamsMultisigTx(txLatest, msigActorCidLatest)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("%s", err.Error())
 	}
 
 	assert.Equal(t, expectedParams, expandedParamsLatest)
@@ -573,17 +573,17 @@ func TestParseParamsMultisigSwapAuthTx(t *testing.T) {
 
 	msigActorCidLatest, err := rosettaLib.BuiltinActors.GetActorCid(actors.ActorMultisigName)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("%s", err.Error())
 	}
 
 	txLatest, err := rosettaLib.ConstructSwapAuthorizedParty(request)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("%s", err.Error())
 	}
 
 	expandedParamsLatest, err := rosettaLib.ParseParamsMultisigTx(txLatest, msigActorCidLatest)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("%s", err.Error())
 	}
 
 	assert.Equal(t, expectedParamsLatest, expandedParamsLatest)
@@ -621,17 +621,17 @@ func TestParseParamsMultisigRemoveSignerTx(t *testing.T) {
 
 	msigActorCidLatest, err := rosettaLib.BuiltinActors.GetActorCid(actors.ActorMultisigName)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("%s", err.Error())
 	}
 
 	txLatest, err := rosettaLib.ConstructRemoveAuthorizedParty(request)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("%s", err.Error())
 	}
 
 	expandedParamsLatest, err := rosettaLib.ParseParamsMultisigTx(txLatest, msigActorCidLatest)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("%s", err.Error())
 	}
 
 	assert.Equal(t, expectedParamsLatest, expandedParamsLatest)
