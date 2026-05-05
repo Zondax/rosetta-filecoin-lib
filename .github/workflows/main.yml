@@ -7,16 +7,16 @@ jobs:
   build:
     runs-on: zondax-runners
     container:
-      image: golang:1.23.10
+      image: golang:1.25.7
       options: --tty
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
-          go-version: '1.23.10'
+          go-version: '1.25.7'
       - name: Install dependencies
         run: apt update && apt install -yy build-essential
       - name: Build
@@ -25,17 +25,17 @@ jobs:
   test:
     runs-on: zondax-runners
     container:
-      image: golang:1.23.10
+      image: golang:1.25.7
       options: --tty
     environment: DEVNET
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
-          go-version: '1.23.10'
+          go-version: '1.25.7'
       - name: Install dependencies
         run: apt update && apt install -yy build-essential
       - name: Test
