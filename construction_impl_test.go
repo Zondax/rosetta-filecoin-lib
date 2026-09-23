@@ -743,7 +743,6 @@ func TestEthToFilAddress(t *testing.T) {
 	}
 	t.Log(f4Addr)
 	assert.Equal(t, f4Addr.String(), "f410f2tc7wfsirksibajjmkm5ksymmsgjgm62hjnomwa")
-	a, _ = address.NewFromString("f410f2tc7wfsirksibajjmkm5ksymmsgjgm62hjnomwa")
 	ethAddressFound, _ = FilToEthAddress(f4Addr)
 	assert.Equal(t, ethAddressFound.String(), ethHexaddr)
 }

@@ -24,7 +24,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/builtin"
 	"github.com/filecoin-project/lotus/api"
 	"github.com/filecoin-project/lotus/api/client"
@@ -52,6 +51,9 @@ type RosettaConstructionFilecoin struct {
 type LotusRpcV1 api.FullNode
 
 const EthAddressLength = 20
+
+// multisigProposeMethod is the builtin multisig actor method name for Propose.
+const multisigProposeMethod = "Propose"
 
 // NewFilecoinRPCClient creates a new lotus rpc client
 func NewFilecoinRPCClient(url string, token string) (LotusRpcV1, error) {
@@ -126,12 +128,12 @@ func EthereumAddressFromHex(add string) (ethtypes.EthAddress, error) {
 func EthereumAddressToFilecoin(add string) (filAddr.Address, error) {
 	ethAdd, err := EthereumAddressFromHex(add)
 	if err != nil {
-		return address.Undef, err
+		return filAddr.Undef, err
 	}
 
 	filAdd, err := ethAdd.ToFilecoinAddress()
 	if err != nil {
-		return address.Undef, err
+		return filAddr.Undef, err
 	}
 
 	return filAdd, nil
@@ -450,7 +452,7 @@ func (r *RosettaConstructionFilecoin) ParseProposeTxParams(unsignedMultisigTx st
 	}
 
 	meta, ok := multisigV10.Methods[msg.Method]
-	if !ok || meta.Name != "Propose" {
+	if !ok || meta.Name != multisigProposeMethod {
 		return "", "", fmt.Errorf("method does not correspond to a 'Propose' transaction")
 	}
 
@@ -489,7 +491,7 @@ func (r *RosettaConstructionFilecoin) GetInnerProposeTxParams(unsignedMultisigTx
 	}
 
 	meta, ok := multisigV10.Methods[msg.Method]
-	if !ok || meta.Name != "Propose" {
+	if !ok || meta.Name != multisigProposeMethod {
 		return nil, fmt.Errorf("method does not correspond to a 'Propose' transaction")
 	}
 
@@ -545,7 +547,7 @@ func getMsigMethodString(method abi.MethodNum) (string, error) {
 	case builtin.MethodsMultisig.Constructor:
 		return "Constructor", nil
 	case builtin.MethodsMultisig.Propose:
-		return "Propose", nil
+		return multisigProposeMethod, nil
 	default:
 		return "", fmt.Errorf("multisig method %v not recognized", method)
 	}

@@ -85,7 +85,7 @@ func sendLotusRequest(method string, id int, params string) (map[string]interfac
 	if err != nil {
 		return nil, fmt.Errorf("error sending request: %w", err)
 	}
-	defer resp.Body.Close() // Ensure body is closed
+	defer func() { _ = resp.Body.Close() }() // Ensure body is closed
 
 	// Check HTTP status code
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {

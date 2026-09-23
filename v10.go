@@ -3,6 +3,7 @@ package rosettaFilecoinLib
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	filAddr "github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
@@ -154,7 +155,7 @@ func (r *RosettaConstructionFilecoin) parseParamsMultisigTxV10(unsignedMultisigT
 
 func (r *RosettaConstructionFilecoin) ConstructMultisigPaymentV10(request *MultisigPaymentRequest, destinationActorId cid.Cid) (string, error) {
 	if !r.BuiltinActors.IsActor(destinationActorId, actors.ActorMultisigName) {
-		return "", fmt.Errorf(NotSupportedActorMessage)
+		return "", errors.New(NotSupportedActorMessage)
 	}
 
 	to, err := filAddr.NewFromString(request.Multisig)
@@ -230,7 +231,7 @@ func (r *RosettaConstructionFilecoin) ConstructMultisigPaymentV10(request *Multi
 
 func (r *RosettaConstructionFilecoin) ConstructSwapAuthorizedPartyV10(request *SwapAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
 	if !r.BuiltinActors.IsActor(destinationActorId, actors.ActorMultisigName) {
-		return "", fmt.Errorf(NotSupportedActorMessage)
+		return "", errors.New(NotSupportedActorMessage)
 	}
 
 	to, err := filAddr.NewFromString(request.Multisig)
@@ -313,7 +314,7 @@ func (r *RosettaConstructionFilecoin) ConstructSwapAuthorizedPartyV10(request *S
 
 func (r *RosettaConstructionFilecoin) ConstructRemoveAuthorizedPartyV10(request *RemoveAuthorizedPartyRequest, destinationActorId cid.Cid) (string, error) {
 	if !r.BuiltinActors.IsActor(destinationActorId, actors.ActorMultisigName) {
-		return "", fmt.Errorf(NotSupportedActorMessage)
+		return "", errors.New(NotSupportedActorMessage)
 	}
 
 	to, err := filAddr.NewFromString(request.Multisig)
