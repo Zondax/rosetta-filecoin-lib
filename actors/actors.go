@@ -20,7 +20,7 @@ import (
 	_ "github.com/filecoin-project/lotus/build"
 )
 
-const LatestVersion = network.Version28
+const LatestVersion = network.Version29
 
 type ActorCidMap map[string]cid.Cid
 type BuiltinActorsMetadata struct {
