@@ -3,6 +3,8 @@ package actors
 import (
 	"context"
 	"fmt"
+	"strings"
+	"sync"
 
 	"github.com/filecoin-project/go-state-types/network"
 	"github.com/filecoin-project/lotus/api"
@@ -148,66 +150,61 @@ func (a *BuiltinActors) getActorNameFromCidByVersionFallback(actorCode cid.Cid) 
 	return UnknownStr, fmt.Errorf("invalid actor code CID: %s", actorCode)
 }
 
+// errUnsupportedNetworkVersion is the text lotus returns from StateActorCodeCIDs for a network
+// version it does not know yet (go-state-types actors.VersionForNetwork).
+const errUnsupportedNetworkVersion = "unsupported network version"
+
+// loadActorCids fetches the actor code CIDs for every network version up to LatestVersion.
+//
+// A node that predates a network version answers "unsupported network version" for it; that
+// version is skipped with a warning instead of failing the whole load. This keeps the library
+// usable against nodes that have not upgraded yet (e.g. mainnet while an upgrade is only scheduled
+// on calibration): such a node has no chain data at the unknown version, so nothing is lost. Any
+// other error is still fatal.
 func loadActorCids(lotusApi api.FullNode) (map[network.Version]ActorCidMap, error) {
 	zap.S().Info("loading all actor versions")
-	var (
-		numWorkers      = 5
-		networkVersions = make([]network.Version, LatestVersion+1)
-		actorCidsMap    = make(map[network.Version]ActorCidMap)
-	)
+	const numWorkers = 5
 
-	for i := network.Version0; i <= LatestVersion; i++ {
-		networkVersions[i] = i
+	type result struct {
+		version network.Version
+		cids    ActorCidMap
+		err     error
 	}
 
-	versionChannel := make(chan network.Version, len(networkVersions))
-	actorCidsChannel := make(chan map[network.Version]ActorCidMap)
-	errChannel := make(chan error)
+	versions := make(chan network.Version, LatestVersion+1)
+	for v := network.Version0; v <= LatestVersion; v++ {
+		versions <- v
+	}
+	close(versions)
 
+	// Buffered for every version, so workers never block and nothing is sent on a closed channel.
+	results := make(chan result, LatestVersion+1)
+	var wg sync.WaitGroup
 	for i := 0; i < numWorkers; i++ {
-		go func(i int) {
-			for version := range versionChannel {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for version := range versions {
 				// todo: retry on network failure
-				actorCids, err := lotusApi.StateActorCodeCIDs(context.Background(), version)
-				if err != nil {
-					zap.S().Errorf("worker %d: error loading actor cids for version %d: %s", i, version, err.Error())
-					errChannel <- err
-					return
-				}
-				actorCidsChannel <- map[network.Version]ActorCidMap{version: actorCids}
+				cids, err := lotusApi.StateActorCodeCIDs(context.Background(), version)
+				results <- result{version: version, cids: cids, err: err}
 			}
-		}(i)
+		}()
 	}
+	wg.Wait()
+	close(results)
 
-	for _, networkVersion := range networkVersions {
-		versionChannel <- networkVersion
-	}
-
-	var received int
-	var err error
-	for {
-		select {
-		case actorCids := <-actorCidsChannel:
-			for version, actors := range actorCids {
-				actorCidsMap[version] = actors
-			}
-			received++
-
-		case mErr := <-errChannel:
-			err = mErr
+	actorCidsMap := make(map[network.Version]ActorCidMap)
+	for r := range results {
+		switch {
+		case r.err == nil:
+			actorCidsMap[r.version] = r.cids
+		case strings.Contains(r.err.Error(), errUnsupportedNetworkVersion):
+			zap.S().Warnf("node does not support network version %d yet, skipping its actor cids: %s", r.version, r.err.Error())
+		default:
+			zap.S().Errorf("error loading actor cids for version %d: %s", r.version, r.err.Error())
+			return nil, fmt.Errorf("loading actor cids for network version %d: %w", r.version, r.err)
 		}
-
-		if received == len(networkVersions) || err != nil {
-			break
-		}
-	}
-
-	close(versionChannel)
-	close(errChannel)
-	close(actorCidsChannel)
-
-	if err != nil {
-		return nil, err
 	}
 
 	return actorCidsMap, nil
